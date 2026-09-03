@@ -1,17 +1,29 @@
-# Darshan 360 Details
+# Darshan 360 - Uttar Pradesh AI Travel Companion
 
-Date: 2026-06-24
+Darshan 360 is an AI-powered spiritual, cultural, and heritage tourism platform dedicated to **Uttar Pradesh**, built with React 18, TypeScript, Tailwind CSS v4, and Leaflet.
 
-Darshan 360 is an AI-powered heritage, spiritual, and cultural tourism experience built as a modern React + Vite web app.
+## Two Core Pillars
+1. **Bilingual AI Travel Assistant (Disha AI)**:
+   - Available in **Hindi (हिन्दी)** and **English (EN)**.
+   - **Speech-to-Text (STT)** voice input with live recording wave animation.
+   - **Text-to-Speech (TTS)** voice player with natural voice synthesis and play/stop controls.
+   - Explanatory responses detailing the **travel cause**, spiritual & cultural purpose, history, timings, budget breakdowns, and darshan rules.
+   - **Live UP Tourism News & Bulletins**: Real-time updates on Maha Kumbh / Magh Mela, Ram Mandir online Aarti passes, Kashi Vishwanath corridor rules, Varanasi ropeway, and Braj Holi.
+   - **In-Chat Interactive Maps**: Route previews and coordinates with one-click full-screen map navigation.
+   - **In-Chat Image Galleries**: High-definition photo showcases with lightbox zoom.
+   - **Safety & Scam Advisory**: Prevention tips for boat overcharging, fake VIP passes, and emergency numbers.
 
-## Current App Scope
-- Interactive map-based discovery experience
-- AI chat assistant for travel guidance and itinerary support
-- Heritage gallery and immersive storytelling sections
-- Service booking flow and travel insights panel
-- Darshan 360 branding with a custom logo and splash screen
+2. **Interactive Uttar Pradesh Tourism Map**:
+   - Covers Ayodhya, Varanasi / Kashi, Mathura, Vrindavan, Agra, Prayagraj, Lucknow, Sarnath, Kushinagar, Chitrakoot, and Jhansi.
+   - Category filters: Temples & Pilgrimages, Ghats & Rivers, Heritage Forts, Buddhist Circuit, Historical Monuments.
+   - Pre-configured Circuit Routes (Ramayana Circuit, Braj-Mughal Triangle, Awadh-Buddhist Route).
+   - Click-to-chat popup cards triggering instant inquiries with Disha AI.
+   - Split view, Full Chat, and Full Map layout modes.
 
-## Project Notes
-- Main app entry: `src/app/App.tsx`
-- Core UI components are under `src/app/components/`
-- The app is designed to preserve the existing chat and map experience while adding new ecosystem features
+## Architecture
+- `src/app/App.tsx`: Main layout manager with mode switches, language toggles, and day/night themes.
+- `src/app/components/ChatPanel.tsx`: Disha AI interface with voice input/output, map cards, and photo galleries.
+- `src/app/components/MapPanel.tsx`: Leaflet UP interactive map with filters, routes, and custom category pins.
+- `src/app/services/uttarPradeshService.ts`: Curated UP database (destinations, causes, news, scams, routes).
+- `src/app/services/geminiService.ts`: Gemini integration with domain knowledge, intent parsing, and offline fallback.
+- `src/app/services/speechService.ts`: Web Speech Recognition & Synthesis API wrapper for Hindi and English.

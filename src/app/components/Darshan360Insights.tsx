@@ -176,7 +176,7 @@ export function Darshan360Insights({ isOpen, onClose, theme }: Darshan360Insight
             </div>
 
             <div className="space-y-4">
-              <section className="rounded-2xl border border-[var(--glass-border)] bg-gradient-to-br from-[var(--accent-primary)]/10 to-[var(--accent-secondary)]/10 p-4">
+              <section className="rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-secondary)] p-4">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-primary)]">
                   Built by Edufutura Technologies Pvt. Ltd.
                 </p>

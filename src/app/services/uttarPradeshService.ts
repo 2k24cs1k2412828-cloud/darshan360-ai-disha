@@ -1110,17 +1110,37 @@ export function searchUPPlaces(query: string): UPPlace[] {
   const q = query.toLowerCase().trim();
   if (!q) return UP_PLACES;
 
+  // Pure greeting check: return empty so it doesn't falsely return Kashi Vishwanath or draw routes
+  const greetingRegex = /^(hi|hello|hey|namaste|namaskar|pranam|pranaam|radhe radhe|jai shri ram|jai shree ram|salaam|good morning|good evening|namaste ji|hello ji|hey there|hi disha|hello disha)[!.,? ]*$/i;
+  if (greetingRegex.test(q)) {
+    return [];
+  }
+
   // Special keyword: "ghat" / "ghats" / "घाट" -> return ALL ghats across UP!
   if (q === 'ghat' || q === 'ghats' || q.includes('all ghat') || q.includes('saare ghat') || q.includes('घाट') || q === 'ghat map') {
     return getAllUPGhats();
   }
 
-  // Split query into significant tokens
-  const stopWords = new Set(['the', 'is', 'at', 'which', 'on', 'in', 'and', 'or', 'to', 'for', 'about', 'me', 'tell', 'show', 'photo', 'photos', 'images', 'image', 'picture', 'pictures', 'bataiye', 'dikhao', 'dekhein', 'kya', 'hai', 'ka', 'ke', 'ki', 'ko', 'se', 'kripya', 'kitni', 'bheed', 'jane', 'layak']);
+  // Split query into significant tokens (exclude greetings & stop words)
+  const stopWords = new Set([
+    'the', 'is', 'are', 'was', 'were', 'am', 'be', 'been', 'being', 'at', 'which', 'on', 'in', 'and', 'or', 'to', 'for', 'about', 
+    'me', 'tell', 'show', 'photo', 'photos', 'images', 'image', 'picture', 'pictures', 
+    'bataiye', 'batao', 'dikhao', 'dekhein', 'kya', 'hai', 'hain', 'ka', 'ke', 'ki', 'ko', 'se', 
+    'kripya', 'kitni', 'bheed', 'jane', 'layak', 'hi', 'hello', 'hey', 'namaste', 
+    'namaskar', 'pranam', 'pranaam', 'ram', 'radhe', 'radhey', 'jai', 'hlo', 'yo', 
+    'bhai', 'ji', 'shuru', 'start', 'help', 'kaise', 'ho', 'please', 'can', 'you', 'your', 'yours',
+    'who', 'what', 'where', 'when', 'why', 'how', 'whom', 'whose', 'tum', 'aap', 'kaun', 'kisko', 'apna', 'apni',
+    'good', 'morning', 'evening', 'night', 'disha', 'myself', 'yourself', 'bot', 'ai'
+  ]);
+
   const tokens = q
     .replace(/[^\w\s\u0900-\u097F]/gi, ' ')
     .split(/\s+/)
-    .filter(t => t.length >= 2 && !stopWords.has(t));
+    .filter(t => t.length >= 3 && !stopWords.has(t));
+
+  if (tokens.length === 0) {
+    return [];
+  }
 
   return UP_PLACES.filter(p => {
     const pName = p.name.toLowerCase();
@@ -1129,20 +1149,25 @@ export function searchUPPlaces(query: string): UPPlace[] {
     const pHindiCity = p.hindiCity;
     const pCategory = p.category.toLowerCase();
 
-    // 1. Direct city or place match
-    if (q.includes(pCity) || q.includes(pHindiCity)) return true;
-    if (q.includes(pName) || pName.includes(q) || q.includes(pHindi) || pHindi.includes(q)) return true;
-    if (p.tags.some(tag => q.includes(tag))) return true;
+    // 1. Direct city or place match (with word boundary / length check)
+    if (pCity.length >= 3 && q.split(/\s+/).some(w => w === pCity)) return true;
+    if (pHindiCity.length >= 2 && q.split(/\s+/).some(w => w === pHindiCity)) return true;
+    if (q.includes(pName) || (q.length >= 5 && pName.includes(q))) return true;
+    if (q.includes(pHindi) || (q.length >= 5 && pHindi.includes(q))) return true;
+    if (p.tags.some(tag => tag.length >= 4 && q.includes(tag))) return true;
 
-    // 2. Token match
-    const matchCount = tokens.filter(token => 
-      pName.includes(token) || 
-      pCity.includes(token) || 
-      pHindi.includes(token) || 
-      pHindiCity.includes(token) ||
-      pCategory.includes(token) ||
-      p.tags.some(tag => tag.includes(token) || token.includes(tag))
-    ).length;
+    // 2. Significant Token match (only tokens with length >= 3)
+    const matchCount = tokens.filter(token => {
+      // Word boundary or prefix matching
+      const matchesName = pName.split(/[\s_,-]+/).some(word => word === token || (token.length >= 4 && word.startsWith(token)));
+      const matchesCity = pCity === token;
+      const matchesHindi = pHindi.split(/[\s_,-]+/).some(word => word === token || word.includes(token));
+      const matchesHindiCity = pHindiCity === token;
+      const matchesCategory = pCategory === token;
+      const matchesTags = p.tags.some(tag => tag.split(/[\s_,-]+/).some(w => w === token || (token.length >= 4 && w.startsWith(token))));
+
+      return matchesName || matchesCity || matchesHindi || matchesHindiCity || matchesCategory || matchesTags;
+    }).length;
 
     return matchCount > 0;
   });

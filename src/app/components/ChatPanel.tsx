@@ -17,10 +17,14 @@ import {
   Check, 
   Loader2,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Route,
+  RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getGeminiResponse, type InChatMapData, type InChatImage } from '../services/geminiService';
+import type { TripItinerary } from '../services/copilotService';
+import { chatMemory, type StoredChatMessage } from '../services/chatMemoryService';
 import { 
   startVoiceRecognition, 
   speakMessage, 
@@ -29,16 +33,20 @@ import {
   isSpeechSynthesisSupported 
 } from '../services/speechService';
 import { UP_NEWS_UPDATES, type UPNewsEvent } from '../services/uttarPradeshService';
+import { type DistrictCrowdStatus, type ScrapedNewsItem } from '../services/newsScraperService';
 
 interface ChatPanelProps {
   theme: 'morning' | 'evening';
   language: 'en' | 'hi';
   onLanguageChange: (lang: 'en' | 'hi') => void;
   onFocusMapLocation?: (coords: [number, number], routeWaypoints?: [number, number][]) => void;
-  layoutMode?: 'split' | 'fullchat' | 'fullmap';
+  layoutMode?: 'split' | 'fullchat' | 'fullmap' | 'news';
   onSwitchToMap?: () => void;
   externalPrompt?: string | null;
   onClearExternalPrompt?: () => void;
+  activeItinerary?: TripItinerary | null;
+  onUpdateItinerary?: (itinerary: TripItinerary) => void;
+  onToggleCopilotDrawer?: () => void;
 }
 
 interface Message {
@@ -48,7 +56,10 @@ interface Message {
   timestamp: Date;
   images?: InChatImage[];
   mapData?: InChatMapData;
+  copilotItinerary?: TripItinerary;
   newsItems?: UPNewsEvent[];
+  districtCrowdStatus?: DistrictCrowdStatus;
+  scrapedNews?: ScrapedNewsItem[];
   isSpeaking?: boolean;
 }
 
@@ -60,8 +71,12 @@ export function ChatPanel({
   layoutMode = 'split',
   onSwitchToMap,
   externalPrompt,
-  onClearExternalPrompt
+  onClearExternalPrompt,
+  activeItinerary,
+  onUpdateItinerary,
+  onToggleCopilotDrawer
 }: ChatPanelProps) {
+  const [sessionId, setSessionId] = useState<string>(() => chatMemory.getOrCreateActiveSessionId());
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -75,17 +90,26 @@ export function ChatPanel({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messageIdCounter = useRef(2);
 
-  // Bilingual Initial Greeting
+  // Restore messages from persistent session memory or initialize greeting
   useEffect(() => {
-    const greeting = language === 'hi'
-      ? `🙏 **जय श्री राम! हर हर महादेव!**
+    const saved = chatMemory.loadSession(sessionId);
+    if (saved && saved.messages && saved.messages.length > 0) {
+      setMessages(saved.messages.map(m => ({
+        ...m,
+        timestamp: new Date(m.timestamp)
+      })));
+      const maxId = saved.messages.reduce((max, m) => Math.max(max, m.id), 1);
+      messageIdCounter.current = maxId + 1;
+    } else {
+      const greeting = language === 'hi'
+        ? `🙏 **जय श्री राम! हर हर महादेव!**
 
 मैं **दिशा एआई (Disha AI)** हूँ, उत्तर प्रदेश पर्यटन का आधिकारिक एआई साथी।
 
 मैं आपको उत्तर प्रदेश के सभी प्रमुख तीर्थों (अयोध्या, काशी, मथुरा-वृंदावन, प्रयागराज, चित्रकूट, सारनाथ), ऐतिहासिक धरोहरों (ताजमहल, बड़ा इमामबाड़ा), यात्रा के आध्यात्मिक कारणों, ताज़ा समाचारों, दर्शन नियमों एवं यात्रा मार्गों की संपूर्ण जानकारी दे सकता हूँ।
 
 _आप मुझसे किसी भी स्थान का मार्ग, फोटो, समय अथवा ताज़ा अपडेट्स पूछ सकते हैं या बोलकर सवाल कर सकते हैं!_`
-      : `🙏 **Namaste & Welcome to Uttar Pradesh Tourism!**
+        : `🙏 **Namaste & Welcome to Uttar Pradesh Tourism!**
 
 I am **Disha AI**, your intelligent travel companion powered by Darshan 360 & UP Tourism research.
 
@@ -93,14 +117,55 @@ I can guide you through spiritual travel causes, multi-day itineraries, live new
 
 _Ask me anything in English or Hindi, request routes & photos, or use the microphone to speak!_`;
 
-    setMessages([
-      {
+      const initialMsg: Message = {
         id: 1,
         type: 'ai',
         content: greeting,
         timestamp: new Date(),
-      }
-    ]);
+      };
+      setMessages([initialMsg]);
+      chatMemory.appendMessage(sessionId, {
+        id: initialMsg.id,
+        type: initialMsg.type,
+        content: initialMsg.content,
+        timestamp: initialMsg.timestamp.toISOString()
+      }, activeItinerary);
+    }
+  }, [sessionId]);
+
+  // If user changes language and hasn't started a dialogue yet, update greeting
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].type === 'ai') {
+      const greeting = language === 'hi'
+        ? `🙏 **जय श्री राम! हर हर महादेव!**
+
+मैं **दिशा एआई (Disha AI)** हूँ, उत्तर प्रदेश पर्यटन का आधिकारिक एआई साथी।
+
+मैं आपको उत्तर प्रदेश के सभी प्रमुख तीर्थों (अयोध्या, काशी, मथुरा-वृंदावन, प्रयागराज, चित्रकूट, सारनाथ), ऐतिहासिक धरोहरों (ताजमहल, बड़ा इमामबाड़ा), यात्रा के आध्यात्मिक कारणों, ताज़ा समाचारों, दर्शन नियमों एवं यात्रा मार्गों की संपूर्ण जानकारी दे सकता हूँ।
+
+_आप मुझसे किसी भी स्थान का मार्ग, फोटो, समय अथवा ताज़ा अपडेट्स पूछ सकते हैं या बोलकर सवाल कर सकते हैं!_`
+        : `🙏 **Namaste & Welcome to Uttar Pradesh Tourism!**
+
+I am **Disha AI**, your intelligent travel companion powered by Darshan 360 & UP Tourism research.
+
+I can guide you through spiritual travel causes, multi-day itineraries, live news updates, darshan booking rules (Ram Mandir, Kashi Vishwanath), interactive routes, and high-definition photography across Uttar Pradesh.
+
+_Ask me anything in English or Hindi, request routes & photos, or use the microphone to speak!_`;
+
+      const initialMsg: Message = {
+        id: 1,
+        type: 'ai',
+        content: greeting,
+        timestamp: new Date(),
+      };
+      setMessages([initialMsg]);
+      chatMemory.appendMessage(sessionId, {
+        id: initialMsg.id,
+        type: initialMsg.type,
+        content: initialMsg.content,
+        timestamp: initialMsg.timestamp.toISOString()
+      }, activeItinerary);
+    }
   }, [language]);
 
   // Handle external prompt dispatched from map popup
@@ -118,19 +183,19 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
 
   // Quick Action Chips in active language
   const quickActions = language === 'hi' ? [
-    { id: 1, label: '📊 मथुरा-वृंदावन: कितनी भीड़ है? जाने लायक है?', query: 'मथुरा और वृंदावन में अभी कितनी भीड़ है? क्या अभी जाने लायक है या नहीं और कैसे जाएं?' },
-    { id: 2, label: '🌊 उत्तर प्रदेश के सभी प्रमुख पावन घाट', query: 'उत्तर प्रदेश के सभी प्रमुख पावन घाट दिखाएं और उनकी सूची मैप सहित दें।' },
-    { id: 3, label: '🛕 अयोध्या राम मंदिर: भीड़, आरती पास व दर्शन', query: 'अयोध्या राम मंदिर में अभी भीड़ की स्थिति, आरती पास नियम और दर्शन का समय बताएं।' },
-    { id: 4, label: '🗺️ अयोध्या से काशी-प्रयागराज रूट व ट्रैक', query: 'अयोध्या से वाराणसी और प्रयागराज का पूरा यात्रा मार्ग (रूट और ट्रैक) मैप सहित दिखाएं।' },
-    { id: 5, label: '🎪 महाकुंभ / माघ मेला ताज़ा समाचार व घाट', query: 'प्रयागराज महाकुंभ और माघ मेले के ताज़ा अपडेट्स, स्नान घाट और टेंट सिटी की स्थिति बताएं।' },
-    { id: 6, label: '📸 ताजमहल व आगरा किला फोटो व टूर गाइड', query: 'ताजमहल और आगरा किले की फोटो दिखाएं और घूमने का पूरा प्लान बताएं।' }
+    { id: 1, label: '⚡ काशी 3 घंटे क्विक दर्शन (स्टेशन वापसी)', query: 'मेरे पास 3 घंटे का समय है, कैंट रेलवे स्टेशन के पास हूँ और 3 घंटे में वापस पहुँचना है। काशी विश्वनाथ, घाट और स्ट्रीट फूड का स्मार्ट रूट प्लान बनाओ।' },
+    { id: 2, label: '⏱️ 20 मिनट लेट हूँ, रीप्लान करें', query: 'मैं 20 मिनट लेट चल रहा हूँ, कृपया मेरी यात्रा का समय रीशेड्यूल करें और वापसी का ध्यान रखें।' },
+    { id: 3, label: '🍲 लखनऊ 4 घंटे फूड व हेरिटेज वॉक', query: 'लखनऊ चारबाग स्टेशन से 4 घंटे की हेरिटेज और टुंडे कबाबी फूड ट्रिप का समयबद्ध रूट प्लान बनाएं।' },
+    { id: 4, label: '🛕 अयोध्या 4 घंटे राम मंदिर सर्किट', query: 'अयोध्या में 4 घंटे का समय है, राम मंदिर, हनुमान गढ़ी और सरयू आरती का टाइमलाइन रूट बनाएं।' },
+    { id: 5, label: '📊 मथुरा-वृंदावन: कितनी भीड़ है? जाने लायक है?', query: 'मथुरा और वृंदावन में अभी कितनी भीड़ है? क्या अभी जाने लायक है या नहीं और कैसे जाएं?' },
+    { id: 6, label: '🌊 उत्तर प्रदेश के सभी प्रमुख पावन घाट', query: 'उत्तर प्रदेश के सभी प्रमुख पावन घाट दिखाएं और उनकी सूची मैप सहित दें।' }
   ] : [
-    { id: 1, label: '📊 Mathura-Vrindavan Crowd & Feasibility', query: 'How is the crowd in Mathura & Vrindavan right now? Is it recommended to visit now and how to reach?' },
-    { id: 2, label: '🌊 All Sacred Ghats of Uttar Pradesh', query: 'Show me all prominent sacred river ghats in Uttar Pradesh with map markers and photos.' },
-    { id: 3, label: '🛕 Ayodhya Ram Mandir Crowd & Passes', query: 'What is the current crowd status, darshan wait time, and online aarti pass rules for Ram Mandir Ayodhya?' },
-    { id: 4, label: '🗺️ Ayodhya to Varanasi & Prayagraj Track', query: 'Show me the complete pilgrimage route and map track from Ayodhya to Varanasi and Prayagraj.' },
-    { id: 5, label: '🎪 Maha Kumbh / Magh Mela Live News', query: 'What are the latest updates, bathing ghats, and tent city bookings for Maha Kumbh in Prayagraj?' },
-    { id: 6, label: '📸 Taj Mahal Photos & Sunrise Tour', query: 'Show photos of Taj Mahal and Agra Fort and give a 1-day itinerary with ticketing rules.' }
+    { id: 1, label: '⚡ 3-Hour Kashi Express (Station Return)', query: 'I have 3 hours in Varanasi near Cantt railway station and need to return in 3 hours. Plan an itinerary covering Kashi Vishwanath, ghats, and street food.' },
+    { id: 2, label: '⏱️ Running 20m Late, Replan', query: 'I am running 20 minutes late, please replan my itinerary to protect my return deadline.' },
+    { id: 3, label: '🍲 4h Lucknow Food & Heritage Walk', query: 'Create a 4-hour Lucknow heritage and food trail from Charbagh station covering Imambara and Tunday Kababi.' },
+    { id: 4, label: '🛕 4h Ayodhya Temple Circuit', query: 'I have 4 hours in Ayodhya. Plan a time-based route for Ram Mandir, Hanumangarhi, and Saryu Aarti.' },
+    { id: 5, label: '📊 Mathura-Vrindavan Crowd & Feasibility', query: 'How is the crowd in Mathura & Vrindavan right now? Is it recommended to visit now and how to reach?' },
+    { id: 6, label: '🌊 All Sacred Ghats of Uttar Pradesh', query: 'Show me all prominent sacred river ghats in Uttar Pradesh with map markers and photos.' }
   ];
 
   const getNextId = () => {
@@ -156,6 +221,14 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
     setInputValue('');
     setIsTyping(true);
 
+    // Save user message to persistent session memory
+    chatMemory.appendMessage(sessionId, {
+      id: userMsg.id,
+      type: userMsg.type,
+      content: userMsg.content,
+      timestamp: userMsg.timestamp.toISOString()
+    }, activeItinerary);
+
     // Prepare history
     const history = messages.slice(-6).map(m => ({
       role: m.type === 'user' ? 'user' : 'model',
@@ -172,10 +245,32 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
         timestamp: new Date(),
         images: aiResponse.images,
         mapData: aiResponse.mapData,
-        newsItems: aiResponse.newsItems
+        copilotItinerary: aiResponse.copilotItinerary,
+        newsItems: aiResponse.newsItems,
+        districtCrowdStatus: aiResponse.districtCrowdStatus,
+        scrapedNews: aiResponse.scrapedNews
       };
 
       setMessages(prev => [...prev, assistantMsg]);
+
+      // Save assistant message to persistent session memory
+      chatMemory.appendMessage(sessionId, {
+        id: assistantMsg.id,
+        type: assistantMsg.type,
+        content: assistantMsg.content,
+        timestamp: assistantMsg.timestamp.toISOString(),
+        images: assistantMsg.images,
+        mapData: assistantMsg.mapData,
+        copilotItinerary: assistantMsg.copilotItinerary,
+        newsItems: assistantMsg.newsItems,
+        districtCrowdStatus: assistantMsg.districtCrowdStatus,
+        scrapedNews: assistantMsg.scrapedNews
+      }, aiResponse.copilotItinerary || activeItinerary);
+
+      // If response includes Copilot itinerary, notify parent and update active itinerary
+      if (aiResponse.copilotItinerary && onUpdateItinerary) {
+        onUpdateItinerary(aiResponse.copilotItinerary);
+      }
 
       // If response includes map data, auto notify main map
       if (aiResponse.mapData && onFocusMapLocation) {
@@ -196,6 +291,11 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleStartNewChat = () => {
+    const newSessionId = chatMemory.createNewSessionId();
+    setSessionId(newSessionId);
   };
 
   // Voice Input (Speech to Text)
@@ -294,45 +394,55 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
     <div className="h-full w-full flex flex-col relative bg-transparent overflow-hidden">
       {/* Top Language & Quick Info Header */}
       <div className="px-4 py-2.5 border-b border-[var(--glass-border)] glass flex items-center justify-between gap-3 backdrop-blur-md z-10 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white shadow-md">
-            <Sparkles className="w-4 h-4" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)] flex items-center justify-center text-white shadow-sm">
+            <Compass className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-              <span>{language === 'hi' ? 'दिशा AI (उत्तर प्रदेश पर्यटन)' : 'Disha AI (UP Tourism)'}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold">
-                ● Live AI
+            <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5 font-editorial">
+              <span>{language === 'hi' ? 'दिशा • यात्रा परामर्श' : 'Disha • Travel Concierge'}</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">
+                Online
               </span>
             </h2>
             <p className="text-[11px] text-[var(--text-secondary)]">
-              {language === 'hi' ? 'द्विभाषी यात्रा सलाहकार व गाइड' : 'Bilingual Travel Companion & Guide'}
+              {language === 'hi' ? 'उत्तर प्रदेश पर्यटन आधिकारिक सलाहकार' : 'Uttar Pradesh Tourism Official Concierge'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* New Chat Button */}
+          <button
+            onClick={handleStartNewChat}
+            className="px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)]"
+            title={language === 'hi' ? 'नई चैट शुरू करें' : 'Start a fresh conversation'}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{language === 'hi' ? 'नई चैट' : 'New Chat'}</span>
+          </button>
+
           {/* Latest News Toggle */}
           <button
             onClick={() => setShowNewsBanner(!showNewsBanner)}
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 transition-all border ${
+            className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
               showNewsBanner
-                ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                : 'glass text-[var(--text-primary)] border-[var(--glass-border)] hover:bg-orange-500/10'
+                ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)] shadow-sm'
+                : 'glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)]'
             }`}
             title={language === 'hi' ? 'उत्तर प्रदेश पर्यटन समाचार व अलर्ट' : 'UP Tourism Live Bulletins'}
           >
             <Newspaper className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{language === 'hi' ? 'ताज़ा समाचार' : 'UP Updates'}</span>
+            <span className="hidden sm:inline">{language === 'hi' ? 'ताज़ा बुलेटिन' : 'Dispatches'}</span>
           </button>
 
           {/* Bilingual Language Switcher */}
-          <div className="glass rounded-full p-0.5 flex items-center border border-[var(--glass-border)]">
+          <div className="glass rounded-full p-0.5 flex items-center border border-[var(--glass-border)] shadow-sm">
             <button
               onClick={() => onLanguageChange('en')}
-              className={`px-2.5 py-0.5 rounded-full text-xs font-bold transition-all ${
+              className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 language === 'en'
-                  ? 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-sm'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
@@ -340,9 +450,9 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
             </button>
             <button
               onClick={() => onLanguageChange('hi')}
-              className={`px-2.5 py-0.5 rounded-full text-xs font-bold transition-all ${
+              className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 language === 'hi'
-                  ? 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-sm'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
@@ -418,7 +528,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
               <div className={`max-w-[90%] md:max-w-[82%] rounded-2xl p-4 shadow-lg border backdrop-blur-md ${
                 isAI 
                   ? 'glass border-[var(--glass-border)] text-[var(--text-primary)] rounded-tl-sm' 
-                  : 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white border-transparent rounded-tr-sm'
+                  : 'bg-[var(--accent-primary)] text-white border-transparent rounded-tr-sm'
               }`}>
                 {/* Message Header for AI */}
                 {isAI && (
@@ -477,7 +587,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
                             alt={img.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-2.5">
+                          <div className="absolute bottom-0 inset-x-0 bg-stone-900/85 p-2 flex flex-col justify-end">
                             <span className="text-xs font-bold text-white leading-tight">{img.title}</span>
                             {img.caption && (
                               <span className="text-[10px] text-white/80 line-clamp-1 mt-0.5">{img.caption}</span>
@@ -525,11 +635,186 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
                           }
                           onSwitchToMap?.();
                         }}
-                        className="w-full mt-2 py-2 px-3 rounded-lg text-xs font-bold bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all"
+                        className="w-full mt-2 py-2 px-3 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5 transition-all"
                       >
                         <Maximize2 className="w-3.5 h-3.5" />
                         <span>{language === 'hi' ? 'पूरा मैप देखें एवं नेविगेट करें' : 'Open in Full Screen Interactive Map'}</span>
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* In-Chat Copilot Itinerary Timeline Preview Card */}
+                {msg.copilotItinerary && (
+                  <div className="mt-3 pt-3 border-t border-[var(--glass-border)]">
+                    <div className="glass rounded-xl p-3.5 border border-orange-500/30 bg-orange-500/5 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-[var(--accent-primary)] text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
+                            🧭
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">
+                              {language === 'hi' ? msg.copilotItinerary.titleHi : msg.copilotItinerary.title}
+                            </h4>
+                            <span className="text-[10px] text-[var(--text-secondary)]">
+                              📍 {language === 'hi' ? msg.copilotItinerary.hindiCity : msg.copilotItinerary.city} • ⏱️ {msg.copilotItinerary.targetHours} {language === 'hi' ? 'घंटे' : 'hours'}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-[var(--accent-primary)] border border-orange-500/30 flex-shrink-0">
+                          {msg.copilotItinerary.stops.length} {language === 'hi' ? 'पड़ाव' : 'Stops'}
+                        </span>
+                      </div>
+
+                      {/* Safety Buffer and Transit stats */}
+                      <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)] bg-white/40 dark:bg-black/20 p-2 rounded-lg mb-2.5 flex-wrap">
+                        <span>🛡️ <strong>{msg.copilotItinerary.safetyBufferMinutes}m</strong> {language === 'hi' ? 'सुरक्षा बफर' : 'safety buffer'}</span>
+                        <span>•</span>
+                        <span>🚶 <strong>{msg.copilotItinerary.totalDistanceKm} km</strong> {language === 'hi' ? 'दूरी' : 'distance'}</span>
+                        <span>•</span>
+                        <span>💰 <strong>{msg.copilotItinerary.totalCostEstimate}</strong></span>
+                      </div>
+
+                      {/* Sequential Stops List */}
+                      <div className="space-y-1.5 mb-3">
+                        {msg.copilotItinerary.stops.map((stop, idx) => (
+                          <div
+                            key={stop.id}
+                            onClick={() => {
+                              if (onFocusMapLocation) {
+                                onFocusMapLocation(stop.coordinates);
+                              }
+                            }}
+                            className="flex items-start gap-2 p-2 rounded-lg glass hover:border-orange-500 transition-all cursor-pointer border border-[var(--glass-border)]"
+                          >
+                            <span className="w-5 h-5 rounded-full bg-[var(--accent-primary)] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                              {stop.stopNumber || (idx + 1)}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs font-bold text-[var(--text-primary)] truncate">
+                                  {language === 'hi' ? stop.hindiName : stop.name}
+                                </p>
+                                <span className="text-[10px] font-semibold text-orange-600 dark:text-orange-400">
+                                  {stop.startTime} - {stop.endTime}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-[var(--text-secondary)] line-clamp-1">
+                                💡 {language === 'hi' ? stop.whyThisPlaceHi : stop.whyThisPlace}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Copilot Action Buttons */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => {
+                            if (msg.copilotItinerary && onUpdateItinerary) {
+                              onUpdateItinerary(msg.copilotItinerary);
+                            }
+                            onToggleCopilotDrawer?.();
+                          }}
+                          className="py-1.5 px-3 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        >
+                          <Route className="w-3.5 h-3.5" />
+                          <span>{language === 'hi' ? 'इंटरैक्टिव टाइमलाइन' : 'Open Timeline'}</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (msg.copilotItinerary && onFocusMapLocation && msg.copilotItinerary.stops.length > 0) {
+                              const firstStop = msg.copilotItinerary.stops[0];
+                              const waypoints = msg.copilotItinerary.stops.map(s => s.coordinates);
+                              onFocusMapLocation(firstStop.coordinates, waypoints);
+                            }
+                            onSwitchToMap?.();
+                          }}
+                          className="py-1.5 px-3 rounded-lg text-xs font-bold glass hover:bg-white/40 text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all border border-[var(--glass-border)] cursor-pointer"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>{language === 'hi' ? 'मैप पर देखें' : 'View on Map'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Real-time District Crowd Telemetry Card */}
+                {msg.districtCrowdStatus && (
+                  <div className="mt-3 pt-3 border-t border-[var(--glass-border)]">
+                    <div className="glass rounded-xl p-3 border border-orange-500/40 bg-orange-500/10 shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-1.5 text-xs font-black text-[var(--accent-primary)]">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-ping flex-shrink-0" />
+                          <span>
+                            {language === 'hi'
+                              ? `लाइव भीड़ टेलीमेट्री: ${msg.districtCrowdStatus.hindiDistrict}`
+                              : `Live Crowd Telemetry: ${msg.districtCrowdStatus.district}`}
+                          </span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          msg.districtCrowdStatus.crowdLevel === 'extreme' ? 'bg-red-600 text-white' :
+                          msg.districtCrowdStatus.crowdLevel === 'high' ? 'bg-orange-500 text-white' :
+                          'bg-yellow-500 text-black'
+                        }`}>
+                          {msg.districtCrowdStatus.crowdLevel}
+                        </span>
+                      </div>
+
+                      <div className="text-xs font-bold text-[var(--text-primary)] mb-1">
+                        ⏱️ {language === 'hi' ? msg.districtCrowdStatus.waitTimeFormatted.hi : msg.districtCrowdStatus.waitTimeFormatted.en}
+                      </div>
+                      <p className="text-[11px] text-[var(--text-secondary)] mb-2">
+                        {language === 'hi' ? msg.districtCrowdStatus.feasibilityVerdict.hi : msg.districtCrowdStatus.feasibilityVerdict.en}
+                      </p>
+
+                      {/* Key temple spot queue chips */}
+                      <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                        {msg.districtCrowdStatus.keySpots.slice(0, 4).map((spot, sIdx) => (
+                          <div key={sIdx} className="glass p-1.5 rounded-md border border-[var(--glass-border)] flex items-center justify-between">
+                            <span className="font-semibold text-[var(--text-primary)] truncate max-w-[90px]">
+                              {language === 'hi' ? spot.hindiName : spot.name}
+                            </span>
+                            <span className="font-bold text-orange-600 dark:text-orange-400">
+                              {spot.waitMinutes > 0 ? `~${spot.waitMinutes}m` : 'Fast'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Related Scraped News Cards */}
+                {msg.scrapedNews && msg.scrapedNews.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-[var(--glass-border)]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-primary)] mb-1.5 block">
+                      📰 {language === 'hi' ? 'संबंधित लाइव जिले के समाचार:' : 'Live District Bulletins:'}
+                    </span>
+                    <div className="space-y-1.5">
+                      {msg.scrapedNews.map((news) => (
+                        <div key={news.id} className="glass p-2 rounded-lg border border-[var(--glass-border)] text-xs">
+                          <div className="font-bold text-[var(--text-primary)] text-[11px] line-clamp-1">
+                            {language === 'hi' ? news.title.hi : news.title.en}
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-[var(--text-secondary)] mt-1">
+                            <span>📍 {news.district} • {news.publishedAt}</span>
+                            {news.sourceUrl && (
+                              <a
+                                href={news.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[var(--accent-primary)] hover:underline flex items-center gap-0.5"
+                              >
+                                <span>{news.source}</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -574,7 +859,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
       </div>
 
       {/* Bottom Message Input Bar */}
-      <div className="p-3 glass border-t border-[var(--glass-border)] backdrop-blur-md flex-shrink-0">
+      <div className="p-3 pb-20 lg:pb-3 glass border-t border-[var(--glass-border)] backdrop-blur-md flex-shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -619,7 +904,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
             disabled={!inputValue.trim() || isTyping}
             className={`p-2.5 rounded-full transition-all shadow-md flex items-center justify-center ${
               inputValue.trim() && !isTyping
-                ? 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white hover:scale-105 shadow-orange-500/30'
+                ? 'bg-[var(--accent-primary)] text-white hover:opacity-95 shadow-sm'
                 : 'glass opacity-50 cursor-not-allowed text-[var(--text-secondary)]'
             }`}
           >

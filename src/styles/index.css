@@ -8,42 +8,56 @@
   --theme-transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Morning Theme */
+/* Morning / Day Theme - Warm Alabaster, Saffron Terracotta & Sacred Ochre */
 [data-theme="morning"] {
-  --bg-primary: #FFF9F0;
-  --bg-secondary: #FFF5E8;
-  --accent-primary: #FF9933;
-  --accent-secondary: #4A90E2;
-  --text-primary: #2C1810;
-  --text-secondary: #5A4A3A;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 153, 51, 0.2);
-  --shadow-color: rgba(255, 153, 51, 0.15);
-  --gradient-start: #FFF9F0;
-  --gradient-end: #FFE5CC;
+  --bg-primary: #FAF8F5;
+  --bg-secondary: #F3EFE9;
+  --accent-primary: #C2410C;
+  --accent-secondary: #0D9488;
+  --accent-gold: #D97706;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --glass-bg: #FFFFFF;
+  --glass-border: #E7DFD5;
+  --shadow-color: rgba(28, 25, 23, 0.05);
+  --card-bg: #FFFFFF;
+  --card-border: #E7DFD5;
 }
 
-/* Evening Theme */
+/* Evening / Aarti Theme - Deep Midnight Ghats & Warm Aarti Amber */
 [data-theme="evening"] {
-  --bg-primary: #0A1128;
-  --bg-secondary: #1A2847;
-  --accent-primary: #FFD700;
-  --accent-secondary: #FF9933;
-  --text-primary: #FFFFFF;
-  --text-secondary: #E0E0E0;
-  --glass-bg: rgba(26, 40, 71, 0.7);
-  --glass-border: rgba(255, 215, 0, 0.2);
-  --shadow-color: rgba(255, 215, 0, 0.2);
-  --gradient-start: #0A1128;
-  --gradient-end: #1A2847;
+  --bg-primary: #0A0F1D;
+  --bg-secondary: #111A2E;
+  --accent-primary: #F59E0B;
+  --accent-secondary: #38BDF8;
+  --accent-gold: #FBBF24;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --glass-bg: #111A2E;
+  --glass-border: #1E293B;
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --card-bg: #111928;
+  --card-border: #1E293B;
 }
 
-/* Glassmorphism styles */
+/* Polished Editorial & Glassmorphic Surfaces */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
+}
+
+.editorial-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 20px -2px var(--shadow-color);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.editorial-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -4px var(--shadow-color);
 }
 
 /* Dimmed glass for header - less brightness */
@@ -212,4 +226,20 @@
   margin-left: 0;
   margin-bottom: 0.5rem;
   opacity: 0.8;
+}
+
+/* Ticker marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }

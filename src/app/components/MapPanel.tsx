@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { 
@@ -13,10 +13,28 @@ import {
   Waves,
   Footprints,
   Clock,
-  X
+  X,
+  ArrowUpDown,
+  Route,
+  Trees,
+  UtensilsCrossed,
+  RotateCcw,
+  ExternalLink,
+  ChevronDown,
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { UP_PLACES, UP_TRAVEL_ROUTES, getAllUPGhats, type UPPlace, type UPRoute } from '../services/uttarPradeshService';
+import { 
+  UP_PLACES, 
+  UP_TRAVEL_ROUTES, 
+  getAllUPGhats, 
+  type UPPlace, 
+  type UPRoute,
+  calculateDynamicUPRoute,
+  UP_CITY_COORDINATES
+} from '../services/uttarPradeshService';
+import { UP_LANDMARK_COORDINATES } from '../../data/up-comprehensive-database';
+import type { TripItinerary } from '../services/copilotService';
 
 // Fix for default marker icons in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -28,7 +46,7 @@ L.Icon.Default.mergeOptions({
 
 // Custom Category Color Pin creator
 function createCustomIcon(category: string, isHighlighted: boolean = false) {
-  let color = '#EA580C'; // orange default
+  let color = '#EA580C'; // orange default (temple)
   let badgeIcon = '🛕';
 
   if (category === 'ghat') {
@@ -46,6 +64,12 @@ function createCustomIcon(category: string, isHighlighted: boolean = false) {
   } else if (category === 'monument') {
     color = '#10B981'; // emerald
     badgeIcon = '🏛️';
+  } else if (category === 'nature') {
+    color = '#059669'; // forest green
+    badgeIcon = '🌲';
+  } else if (category === 'food') {
+    color = '#D97706'; // warm amber/culinary
+    badgeIcon = '🍲';
   }
 
   const size = isHighlighted ? 46 : 38;
@@ -85,6 +109,65 @@ function createCustomIcon(category: string, isHighlighted: boolean = false) {
   });
 }
 
+// Custom Numbered Pin Creator for AI Travel Copilot Itinerary Stops
+function createCopilotNumberedIcon(
+  stopNumber: number,
+  status: 'completed' | 'current' | 'upcoming'
+) {
+  let bgColor = '#4F46E5'; // royal indigo default
+  let borderColor = '#FFFFFF';
+  let haloHtml = '';
+
+  if (status === 'completed') {
+    bgColor = '#10B981'; // emerald green
+  } else if (status === 'current') {
+    bgColor = '#EA580C'; // glowing saffron
+    borderColor = '#FEF08A'; // golden border
+    haloHtml = `<div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; background: rgba(234, 88, 12, 0.4); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; z-index: -1;"></div>`;
+  }
+
+  const size = status === 'current' ? 38 : 32;
+  const content = status === 'completed' ? '✓' : `${stopNumber}`;
+
+  const svgIcon = `
+    <div style="position: relative; width: ${size}px; height: ${size + 6}px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      ${haloHtml}
+      <div style="
+        width: ${size}px; 
+        height: ${size}px; 
+        background: ${bgColor}; 
+        border-radius: 50%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        box-shadow: 0 4px 14px rgba(0,0,0,0.4); 
+        border: 2.5px solid ${borderColor};
+        color: #FFFFFF;
+        font-weight: 900;
+        font-size: ${status === 'current' ? '15px' : '13px'};
+        font-family: sans-serif;
+      ">
+        ${content}
+      </div>
+      <div style="
+        width: 6px; 
+        height: 6px; 
+        background: rgba(0,0,0,0.35); 
+        border-radius: 50%; 
+        margin-top: 1px;
+      "></div>
+    </div>
+  `;
+
+  return L.divIcon({
+    className: 'custom-copilot-marker',
+    html: svgIcon,
+    iconSize: [size, size + 6],
+    iconAnchor: [size / 2, size + 3],
+    popupAnchor: [0, -size - 3]
+  });
+}
+
 // Subcomponent to dynamically control map bounds and animations
 function MapViewManager({
   places,
@@ -105,7 +188,7 @@ function MapViewManager({
 
     if (routeWaypoints && routeWaypoints.length > 1) {
       const bounds = L.latLngBounds(routeWaypoints);
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12, animate: true });
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 12, animate: true });
       return;
     }
 
@@ -127,6 +210,9 @@ interface MapPanelProps {
   activeRouteWaypoints?: [number, number][] | null;
   isFullScreen?: boolean;
   onToggleFullScreen?: () => void;
+  onClearActiveRoute?: () => void;
+  activeItinerary?: TripItinerary | null;
+  onAddPlaceToItinerary?: (place: UPPlace) => void;
 }
 
 export function MapPanel({
@@ -136,12 +222,37 @@ export function MapPanel({
   selectedCoordinates,
   activeRouteWaypoints,
   isFullScreen = false,
-  onToggleFullScreen
+  onToggleFullScreen,
+  onClearActiveRoute,
+  activeItinerary,
+  onAddPlaceToItinerary
 }: MapPanelProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [activeRouteId, setActiveRouteId] = useState<string | null>(null);
   const [focusCenter, setFocusCenter] = useState<[number, number] | null>(null);
+
+  // Directions & Navigation Drawer State
+  const [isDirectionsOpen, setIsDirectionsOpen] = useState<boolean>(false);
+  const [directionsFrom, setDirectionsFrom] = useState<string>('Lucknow');
+  const [directionsTo, setDirectionsTo] = useState<string>('Ayodhya');
+  const [isFromDropdownOpen, setIsFromDropdownOpen] = useState<boolean>(false);
+  const [isToDropdownOpen, setIsToDropdownOpen] = useState<boolean>(false);
+  const [calculatedRoute, setCalculatedRoute] = useState<ReturnType<typeof calculateDynamicUPRoute>>(null);
+
+  const searchBoxRef = useRef<HTMLDivElement>(null);
+
+  // Close search suggestions on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Sync external coordinates from Chat
   useEffect(() => {
@@ -150,14 +261,49 @@ export function MapPanel({
     }
   }, [selectedCoordinates]);
 
-  // Filter Categories
+  // List of all popular UP cities and landmarks for route autocomplete
+  const routeLocationOptions = useMemo(() => {
+    const list: Array<{ id: string; name: string; hindi: string; type: 'city' | 'landmark' }> = [];
+    
+    // Cities
+    Object.entries(UP_CITY_COORDINATES).forEach(([key, val]) => {
+      list.push({ id: key, name: val.name, hindi: val.hindi, type: 'city' });
+    });
+
+    // Landmarks
+    Object.entries(UP_LANDMARK_COORDINATES).forEach(([key, val]) => {
+      list.push({ id: key, name: `${val.name} (${val.city})`, hindi: `${val.hindi} (${val.city})`, type: 'landmark' });
+    });
+
+    return list;
+  }, []);
+
+  // Compute live search autocomplete results
+  const searchSuggestions = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q || q.length < 1) return [];
+
+    return UP_PLACES.filter(place => {
+      return (
+        place.name.toLowerCase().includes(q) ||
+        place.hindiName.includes(q) ||
+        place.city.toLowerCase().includes(q) ||
+        place.hindiCity.includes(q) ||
+        place.tags.some(tag => tag.includes(q))
+      );
+    }).slice(0, 6);
+  }, [searchQuery]);
+
+  // Filter Categories with updated counts including Nature and Food
   const filterCategories = [
     { id: 'all', label: { en: 'All Destinations', hi: 'सभी स्थल' }, icon: Layers, count: UP_PLACES.length },
-    { id: 'ghat', label: { en: 'All Holy Ghats', hi: 'सभी पावन घाट' }, icon: Waves, count: getAllUPGhats().length },
     { id: 'temple', label: { en: 'Temples & Mandirs', hi: 'पवित्र मंदिर' }, icon: Sparkles, count: UP_PLACES.filter(p => p.category === 'temple').length },
+    { id: 'ghat', label: { en: 'All Holy Ghats', hi: 'सभी पावन घाट' }, icon: Waves, count: getAllUPGhats().length },
     { id: 'heritage', label: { en: 'Heritage & Forts', hi: 'विरासत एवं दुर्ग' }, icon: Compass, count: UP_PLACES.filter(p => p.category === 'heritage').length },
     { id: 'buddhist', label: { en: 'Buddhist Circuit', hi: 'बौद्ध परिपथ' }, icon: Footprints, count: UP_PLACES.filter(p => p.category === 'buddhist').length },
     { id: 'monument', label: { en: 'Monuments', hi: 'ऐतिहासिक स्मारक' }, icon: MapPin, count: UP_PLACES.filter(p => p.category === 'monument').length },
+    { id: 'nature', label: { en: 'Nature & Wildlife', hi: 'प्रकृति व वन्यजीव' }, icon: Trees, count: UP_PLACES.filter(p => p.category === 'nature').length },
+    { id: 'food', label: { en: 'Food & Bazaars', hi: 'खानपान व बाज़ार' }, icon: UtensilsCrossed, count: UP_PLACES.filter(p => p.category === 'food').length },
   ];
 
   // Filtered places
@@ -178,17 +324,78 @@ export function MapPanel({
     return matchesCategory && matchesSearch;
   });
 
-  const activeRoute = UP_TRAVEL_ROUTES.find(r => r.id === activeRouteId);
-  const currentRoutePolyline = activeRouteWaypoints || (activeRoute ? activeRoute.waypoints : null);
+  // Active circuit route
+  const activeCircuit = UP_TRAVEL_ROUTES.find(r => r.id === activeRouteId);
+  
+  // Resolved polyline coordinates: dynamic calculation > copilot itinerary > external chat route > circuit route > null
+  const currentRoutePolyline = calculatedRoute 
+    ? calculatedRoute.waypoints 
+    : (activeItinerary && activeItinerary.stops.length > 1
+        ? activeItinerary.stops.map(s => s.coordinates)
+        : (activeRouteWaypoints || (activeCircuit ? activeCircuit.waypoints : null)));
 
   const tileUrl = theme === 'morning'
     ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
+  // Handle route calculation
+  const handleCalculateRoute = () => {
+    if (!directionsFrom.trim() || !directionsTo.trim()) return;
+    const res = calculateDynamicUPRoute(directionsFrom, directionsTo);
+    if (res) {
+      setCalculatedRoute(res);
+      setActiveRouteId(null);
+      setFocusCenter(res.waypoints[0]);
+    }
+  };
+
+  // Swap Origin and Destination
+  const handleSwapDirections = () => {
+    const temp = directionsFrom;
+    setDirectionsFrom(directionsTo);
+    setDirectionsTo(temp);
+    if (calculatedRoute) {
+      const res = calculateDynamicUPRoute(directionsTo, temp);
+      if (res) {
+        setCalculatedRoute(res);
+      }
+    }
+  };
+
+  // Clear all routes
+  const handleClearRoute = () => {
+    setCalculatedRoute(null);
+    setActiveRouteId(null);
+    if (onClearActiveRoute) {
+      onClearActiveRoute();
+    }
+    setFocusCenter([26.7956, 82.1943]);
+  };
+
+  // Pre-fill directions from marker popup
+  const handleSetDirectionsFromPlace = (place: UPPlace, asOrigin: boolean) => {
+    setIsDirectionsOpen(true);
+    if (asOrigin) {
+      setDirectionsFrom(place.name);
+      if (directionsTo) {
+        const res = calculateDynamicUPRoute(place.name, directionsTo);
+        if (res) setCalculatedRoute(res);
+      }
+    } else {
+      setDirectionsTo(place.name);
+      if (directionsFrom) {
+        const res = calculateDynamicUPRoute(directionsFrom, place.name);
+        if (res) setCalculatedRoute(res);
+      }
+    }
+  };
+
   const handleResetMap = () => {
     setSelectedCategory('all');
     setSearchQuery('');
     setActiveRouteId(null);
+    setCalculatedRoute(null);
+    if (onClearActiveRoute) onClearActiveRoute();
     setFocusCenter([26.7956, 82.1943]); // Center back to UP
   };
 
@@ -197,31 +404,108 @@ export function MapPanel({
       {/* Top Floating Control Bar */}
       <div className="absolute top-3 left-3 right-3 z-[1000] flex flex-col gap-2 pointer-events-none">
         <div className="flex items-center justify-between gap-2 pointer-events-auto">
-          {/* Search Box */}
-          <div className="flex-1 max-w-sm glass glass-dimmed rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl border border-[var(--glass-border)] backdrop-blur-md">
-            <Search className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setFocusCenter(null);
-              }}
-              placeholder={language === 'hi' ? 'उत्तर प्रदेश के घाट, मंदिर, शहर खोजें...' : 'Search UP ghats, temples, cities...'}
-              className="bg-transparent text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none w-full"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
+          {/* Search Box with Live Autocomplete */}
+          <div ref={searchBoxRef} className="relative flex-1 max-w-sm">
+            <div className="glass glass-dimmed rounded-full px-3.5 py-2 flex items-center gap-2 shadow-xl border border-[var(--glass-border)] backdrop-blur-md">
+              <Search className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onFocus={() => setIsSearchFocused(true)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchFocused(true);
+                  setFocusCenter(null);
+                }}
+                placeholder={language === 'hi' ? 'उत्तर प्रदेश के घाट, मंदिर, शहर खोजें...' : 'Search UP places, ghats, cities...'}
+                className="bg-transparent text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none w-full font-medium"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setIsSearchFocused(false);
+                  }}
+                  className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-0.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Autocomplete Suggestions Dropdown */}
+            <AnimatePresence>
+              {isSearchFocused && searchSuggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 right-0 top-full mt-1.5 glass rounded-2xl p-1.5 shadow-2xl border border-[var(--glass-border)] backdrop-blur-xl z-[1200] max-h-72 overflow-y-auto"
+                >
+                  <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] border-b border-[var(--glass-border)] mb-1">
+                    {language === 'hi' ? 'खोज परिणाम' : 'Suggested Places'} ({searchSuggestions.length})
+                  </div>
+                  {searchSuggestions.map(place => (
+                    <button
+                      key={place.id}
+                      onClick={() => {
+                        setFocusCenter(place.coordinates);
+                        setSearchQuery(language === 'hi' ? place.hindiName : place.name);
+                        setIsSearchFocused(false);
+                      }}
+                      className="w-full px-2.5 py-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-between text-left transition-colors group"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-base flex-shrink-0">
+                          {place.category === 'ghat' ? '🌊' : 
+                           place.category === 'heritage' ? '🏰' : 
+                           place.category === 'buddhist' ? '☸️' : 
+                           place.category === 'monument' ? '🏛️' : 
+                           place.category === 'nature' ? '🌲' : 
+                           place.category === 'food' ? '🍲' : '🛕'}
+                        </span>
+                        <div className="truncate">
+                          <p className="text-xs font-bold text-[var(--text-primary)] truncate">
+                            {language === 'hi' ? place.hindiName : place.name}
+                          </p>
+                          <p className="text-[10px] text-[var(--text-secondary)] truncate">
+                            📍 {language === 'hi' ? place.hindiCity : place.city}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 text-[var(--text-secondary)] font-medium flex-shrink-0 ml-2">
+                        {language === 'hi' ? place.categoryLabel.hi : place.categoryLabel.en}
+                      </span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Action Buttons: Reset & Full-Screen */}
+          {/* Action Buttons: Directions, Reset & Full-Screen */}
           <div className="flex items-center gap-1.5">
+            {/* Directions Drawer Toggle */}
+            <button
+              onClick={() => setIsDirectionsOpen(prev => !prev)}
+              className={`px-3 py-2 rounded-full shadow-lg transition-all text-xs font-bold flex items-center gap-1.5 border border-[var(--glass-border)] ${
+                isDirectionsOpen || calculatedRoute
+                  ? 'bg-[var(--accent-primary)] text-white'
+                  : 'glass text-[var(--text-primary)] hover:scale-105'
+              }`}
+              title={language === 'hi' ? 'हाईवे मार्ग व दिशाएं' : 'UP Highway Directions'}
+            >
+              <Route className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {language === 'hi' ? 'दूरी व दिशाएं' : 'Directions'}
+              </span>
+              {calculatedRoute && (
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              )}
+            </button>
+
+            {/* Reset Map */}
             <button
               onClick={handleResetMap}
               className="glass p-2.5 rounded-full shadow-lg hover:scale-105 transition-all text-xs font-medium text-[var(--text-primary)] border border-[var(--glass-border)]"
@@ -230,6 +514,7 @@ export function MapPanel({
               <Compass className="w-4 h-4 text-[var(--accent-primary)]" />
             </button>
 
+            {/* Full Screen Toggle */}
             {onToggleFullScreen && (
               <button
                 onClick={onToggleFullScreen}
@@ -262,7 +547,7 @@ export function MapPanel({
                 }}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all shadow-md border ${
                   isSelected
-                    ? 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white border-transparent shadow-orange-500/30 ring-2 ring-orange-400/50'
+                    ? 'bg-[var(--accent-primary)] text-white border-transparent shadow-sm'
                     : 'glass text-[var(--text-primary)] border-[var(--glass-border)] hover:bg-white/80 dark:hover:bg-white/10'
                 }`}
               >
@@ -276,6 +561,187 @@ export function MapPanel({
           })}
         </div>
       </div>
+
+      {/* Floating Google Maps-Style Directions Drawer */}
+      <AnimatePresence>
+        {isDirectionsOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: -30, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -30, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-24 sm:top-28 left-3 right-3 sm:right-auto z-[1100] max-w-[calc(100vw-24px)] sm:w-96 glass rounded-2xl p-3.5 shadow-2xl border border-[var(--glass-border)] backdrop-blur-xl flex flex-col gap-3 max-h-[75vh] overflow-y-auto"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[var(--glass-border)] pb-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+                <Navigation className="w-4 h-4 text-[var(--accent-primary)]" />
+                <span>{language === 'hi' ? 'उत्तर प्रदेश यात्रा मार्ग कैलकुलेटर' : 'UP Route & Highway Navigator'}</span>
+              </div>
+              <button
+                onClick={() => setIsDirectionsOpen(false)}
+                className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Inputs: From / To with Swap */}
+            <div className="space-y-2">
+              {/* Origin */}
+              <div className="relative">
+                <div className="flex items-center gap-2 bg-white/70 dark:bg-black/40 border border-[var(--glass-border)] rounded-xl px-2.5 py-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={directionsFrom}
+                    onChange={(e) => setDirectionsFrom(e.target.value)}
+                    onFocus={() => setIsFromDropdownOpen(true)}
+                    placeholder={language === 'hi' ? 'प्रारंभिक शहर या स्थल...' : 'Origin city or landmark...'}
+                    className="bg-transparent text-xs text-[var(--text-primary)] outline-none w-full font-medium"
+                  />
+                  <button
+                    onClick={() => setIsFromDropdownOpen(prev => !prev)}
+                    className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {isFromDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 glass rounded-xl shadow-xl border border-[var(--glass-border)] p-1 z-[1300] max-h-44 overflow-y-auto">
+                    {routeLocationOptions.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setDirectionsFrom(opt.name);
+                          setIsFromDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1 text-[11px] rounded-lg hover:bg-black/5 dark:hover:bg-white/10 truncate font-medium text-[var(--text-primary)]"
+                      >
+                        {opt.type === 'landmark' ? '🏛️ ' : '📍 '}{opt.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Swap Button */}
+              <div className="flex justify-center -my-1">
+                <button
+                  onClick={handleSwapDirections}
+                  className="p-1 rounded-full bg-white dark:bg-neutral-800 shadow border border-[var(--glass-border)] hover:scale-110 transition-transform text-[var(--accent-primary)]"
+                  title={language === 'hi' ? 'प्रस्थान व गंतव्य बदलें' : 'Swap Origin and Destination'}
+                >
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Destination */}
+              <div className="relative">
+                <div className="flex items-center gap-2 bg-white/70 dark:bg-black/40 border border-[var(--glass-border)] rounded-xl px-2.5 py-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={directionsTo}
+                    onChange={(e) => setDirectionsTo(e.target.value)}
+                    onFocus={() => setIsToDropdownOpen(true)}
+                    placeholder={language === 'hi' ? 'गंतव्य शहर या धाम...' : 'Destination city or shrine...'}
+                    className="bg-transparent text-xs text-[var(--text-primary)] outline-none w-full font-medium"
+                  />
+                  <button
+                    onClick={() => setIsToDropdownOpen(prev => !prev)}
+                    className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {isToDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 glass rounded-xl shadow-xl border border-[var(--glass-border)] p-1 z-[1300] max-h-44 overflow-y-auto">
+                    {routeLocationOptions.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          setDirectionsTo(opt.name);
+                          setIsToDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1 text-[11px] rounded-lg hover:bg-black/5 dark:hover:bg-white/10 truncate font-medium text-[var(--text-primary)]"
+                      >
+                        {opt.type === 'landmark' ? '🏛️ ' : '📍 '}{opt.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Calculate Button */}
+            <button
+              onClick={handleCalculateRoute}
+              className="w-full py-2 rounded-xl text-xs font-bold bg-[var(--accent-primary)] text-white shadow hover:opacity-95 flex items-center justify-center gap-1.5 transition-all"
+            >
+              <Route className="w-3.5 h-3.5" />
+              <span>{language === 'hi' ? 'सटीक मार्ग एवं दूरी प्राप्त करें' : 'Compute Highway Route'}</span>
+            </button>
+
+            {/* Calculated Route Details Card */}
+            {calculatedRoute && (
+              <div className="rounded-xl p-2.5 bg-orange-500/10 dark:bg-orange-500/20 border border-orange-500/20 space-y-2 mt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[var(--accent-primary)] uppercase tracking-wider">
+                    {language === 'hi' ? 'सत्यापित हाईवे ट्रैक' : 'Verified Route Track'}
+                  </span>
+                  <span className="text-xs font-extrabold text-[var(--text-primary)]">
+                    {calculatedRoute.distanceKm} km
+                  </span>
+                </div>
+
+                <div className="text-xs font-semibold text-[var(--text-primary)]">
+                  ⏱️ {calculatedRoute.estimatedDrivingTime}
+                </div>
+
+                <div className="text-[11px] text-[var(--text-secondary)] font-medium">
+                  🛣️ {language === 'hi' ? calculatedRoute.highwayName?.hi : calculatedRoute.highwayName?.en}
+                </div>
+
+                {/* Stoppages */}
+                <div className="pt-1 border-t border-orange-500/20 text-[10px] text-[var(--text-secondary)] space-y-0.5">
+                  <p>• {calculatedRoute.recommendedStops[0]}</p>
+                  <p>• {calculatedRoute.recommendedStops[1]}</p>
+                  <p>• {calculatedRoute.recommendedStops[2]}</p>
+                </div>
+
+                {/* Bottom Actions: Clear Route & Ask AI */}
+                <div className="flex items-center gap-1.5 pt-1.5 border-t border-orange-500/20">
+                  <button
+                    onClick={handleClearRoute}
+                    className="flex-1 py-1 px-2 rounded-lg text-[10px] font-bold bg-neutral-200 dark:bg-neutral-800 text-[var(--text-primary)] hover:bg-neutral-300 dark:hover:bg-neutral-700 flex items-center justify-center gap-1 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{language === 'hi' ? 'रूट हटाएं' : 'Clear Route'}</span>
+                  </button>
+
+                  {onSelectPlaceForChat && (
+                    <button
+                      onClick={() => {
+                        const prompt = language === 'hi'
+                          ? `${calculatedRoute.name.hi} (${calculatedRoute.distanceKm} किमी) की यात्रा योजना, टोल, प्रमुख ढाबा/स्टॉप और दर्शनीय स्थलों के बारे में बताएं।`
+                          : `Tell me detailed travel tips, highway tolls, midway rest stops, and itinerary for ${calculatedRoute.name.en} (~${calculatedRoute.distanceKm} km).`;
+                        onSelectPlaceForChat(prompt);
+                      }}
+                      className="flex-1 py-1 px-2 rounded-lg text-[10px] font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center justify-center gap-1 transition-all"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>{language === 'hi' ? 'AI परामर्श' : 'Ask Disha AI'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Leaflet Map */}
       <div className="w-full h-full">
@@ -297,7 +763,7 @@ export function MapPanel({
             focusCenter={focusCenter}
           />
 
-          {/* Markers */}
+          {/* Destination Markers */}
           {filteredPlaces.map(place => {
             const isMatch = focusCenter && Math.abs(focusCenter[0] - place.coordinates[0]) < 0.001;
             return (
@@ -306,7 +772,7 @@ export function MapPanel({
                 position={place.coordinates}
                 icon={createCustomIcon(place.category, !!isMatch)}
               >
-                <Popup className="custom-popup" maxWidth={330}>
+                <Popup className="custom-popup" maxWidth={340}>
                   <div className="p-3 space-y-2 text-[var(--text-primary)] font-sans">
                     {/* Photo thumbnail */}
                     {place.images.length > 0 && (
@@ -360,6 +826,52 @@ export function MapPanel({
                       </span>
                     </div>
 
+                    {/* Click-to-Route Actions (Google Maps Style) */}
+                    <div className="grid grid-cols-2 gap-1.5 pt-1">
+                      <button
+                        onClick={() => handleSetDirectionsFromPlace(place, true)}
+                        className="py-1.5 px-2 rounded-lg text-[11px] font-bold bg-white/80 dark:bg-neutral-800 text-[var(--text-primary)] hover:bg-white dark:hover:bg-neutral-700 border border-[var(--glass-border)] flex items-center justify-center gap-1 transition-all"
+                        title="Set as Starting Point"
+                      >
+                        <span>🚩 {language === 'hi' ? 'यहाँ से शुरू' : 'From Here'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleSetDirectionsFromPlace(place, false)}
+                        className="py-1.5 px-2 rounded-lg text-[11px] font-bold bg-white/80 dark:bg-neutral-800 text-[var(--text-primary)] hover:bg-white dark:hover:bg-neutral-700 border border-[var(--glass-border)] flex items-center justify-center gap-1 transition-all"
+                        title="Set as Destination"
+                      >
+                        <span>🏁 {language === 'hi' ? 'यहाँ तक मार्ग' : 'Directions To'}</span>
+                      </button>
+                    </div>
+
+                    {/* Add to Copilot Itinerary Button */}
+                    {onAddPlaceToItinerary && (
+                      <button
+                        onClick={() => onAddPlaceToItinerary(place)}
+                        className="w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5 transition-all mt-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>{language === 'hi' ? 'यात्रा कोपायलट में जोड़ें (+)' : 'Add to Copilot Trip (+)'}</span>
+                      </button>
+                    )}
+
+                    {/* Ask AI: Is this worth visiting? */}
+                    {onSelectPlaceForChat && (
+                      <button
+                        onClick={() => {
+                          const prompt = language === 'hi'
+                            ? `क्या ${place.hindiName} (${place.hindiCity}) मेरी वर्तमान यात्रा योजना के अनुसार घूमने लायक है? इसके मुख्य आकर्षण क्या हैं?`
+                            : `Is ${place.name} in ${place.city} worth visiting according to my current trip plan and schedule? What are its top highlights?`;
+                          onSelectPlaceForChat(prompt);
+                        }}
+                        className="w-full py-1.5 px-2 rounded-lg text-xs font-bold bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-700 dark:text-indigo-300 border border-indigo-600/30 flex items-center justify-center gap-1.5 transition-all mt-1 cursor-pointer"
+                      >
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>{language === 'hi' ? 'क्या यह घूमने लायक है? (AI)' : 'Is this worth visiting? (AI)'}</span>
+                      </button>
+                    )}
+
                     {/* Ask AI Trigger Button */}
                     {onSelectPlaceForChat && (
                       <button
@@ -369,7 +881,7 @@ export function MapPanel({
                             : `Tell me detailed travel causes, history, crowd status, timings, routes, and photos for ${place.name} in ${place.city}.`;
                           onSelectPlaceForChat(prompt);
                         }}
-                        className="w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 transition-all mt-2"
+                        className="w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5 transition-all mt-1 cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
                         <span>{language === 'hi' ? 'दिशा AI से इस स्थल की जानकारी लें' : 'Ask Disha AI about this place'}</span>
@@ -381,15 +893,65 @@ export function MapPanel({
             );
           })}
 
-          {/* Active Route Polyline */}
+          {/* AI Travel Copilot Numbered Itinerary Markers */}
+          {activeItinerary && activeItinerary.stops.map(stop => (
+            <Marker
+              key={stop.id}
+              position={stop.coordinates}
+              icon={createCopilotNumberedIcon(stop.stopNumber, stop.status)}
+              zIndexOffset={1000 + stop.stopNumber}
+            >
+              <Popup className="custom-popup" maxWidth={320}>
+                <div className="p-3 space-y-2 text-[var(--text-primary)] font-sans">
+                  <div className="flex items-center justify-between border-b border-[var(--glass-border)] pb-1.5">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--accent-primary)] text-white">
+                      Stop #{stop.stopNumber}
+                    </span>
+                    <span className="text-xs font-extrabold text-[var(--text-primary)]">
+                      {stop.startTime} – {stop.endTime}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-sm text-[var(--text-primary)]">
+                    {language === 'hi' ? stop.hindiName : stop.name}
+                  </h3>
+
+                  <div className="bg-orange-500/10 dark:bg-orange-500/20 p-2 rounded-lg border border-orange-500/20 text-[10px]">
+                    <span className="font-bold text-[var(--accent-primary)] uppercase block text-[9px]">
+                      {language === 'hi' ? '✨ चयन का कारण' : '✨ Why This Place?'}
+                    </span>
+                    <p className="text-[10px] text-[var(--text-secondary)] mt-0.5 leading-relaxed">
+                      {language === 'hi' ? stop.whyThisPlaceHi : stop.whyThisPlace}
+                    </p>
+                  </div>
+
+                  {onSelectPlaceForChat && (
+                    <button
+                      onClick={() => {
+                        const prompt = language === 'hi'
+                          ? `मुझे पड़ाव ${stop.stopNumber} (${stop.hindiName}) के बारे में विस्तृत सुझाव और समय सीमा बताएं।`
+                          : `Tell me detailed tips and visiting guidance for Stop ${stop.stopNumber}: ${stop.name}.`;
+                        onSelectPlaceForChat(prompt);
+                      }}
+                      className="w-full py-1.5 px-2 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center justify-center gap-1 transition-all mt-1 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>{language === 'hi' ? 'दिशा AI से इस पड़ाव की सलाह लें' : 'Consult Disha AI about this stop'}</span>
+                    </button>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {/* Active Route Polyline with Solid Styling */}
           {currentRoutePolyline && currentRoutePolyline.length > 1 && (
             <Polyline
               positions={currentRoutePolyline}
               pathOptions={{
                 color: '#EA580C',
-                weight: 5,
-                opacity: 0.85,
-                dashArray: '10, 10',
+                weight: 5.5,
+                opacity: 0.9,
                 lineCap: 'round',
                 lineJoin: 'round'
               }}
@@ -398,15 +960,33 @@ export function MapPanel({
         </MapContainer>
       </div>
 
-      {/* Bottom Route Selector Bar */}
-      <div className="absolute bottom-3 left-3 right-3 z-[1000] pointer-events-none flex justify-center">
+      {/* Bottom Route Selector Bar with Pre-configured Circuits & Active Route Banner */}
+      <div className="absolute bottom-20 lg:bottom-3 left-3 right-3 z-[1000] pointer-events-none flex flex-col items-center gap-2">
+        {/* Active Route Indicator Banner if Route is Plotted */}
+        {calculatedRoute && (
+          <div className="pointer-events-auto glass rounded-full px-4 py-1.5 shadow-xl border border-[var(--glass-border)] flex items-center gap-3 backdrop-blur-md">
+            <span className="text-xs font-bold text-[var(--accent-primary)] flex items-center gap-1.5">
+              <Route className="w-4 h-4" />
+              <span>{calculatedRoute.distanceKm} km • {calculatedRoute.estimatedDrivingTime}</span>
+            </span>
+            <button
+              onClick={handleClearRoute}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/25 transition-colors flex items-center gap-1"
+            >
+              <X className="w-3 h-3" />
+              <span>{language === 'hi' ? 'रूट साफ़ करें' : 'Clear Route'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Circuit Buttons */}
         <div className="glass glass-dimmed rounded-2xl p-2 shadow-2xl border border-[var(--glass-border)] flex items-center gap-1.5 overflow-x-auto max-w-full pointer-events-auto backdrop-blur-md">
           <span className="text-[11px] font-bold text-[var(--accent-primary)] uppercase tracking-wider px-2 flex items-center gap-1 flex-shrink-0">
             <Navigation className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{language === 'hi' ? 'तीर्थ परिपथ (Routes):' : 'Circuits & Routes:'}</span>
           </span>
           {UP_TRAVEL_ROUTES.map(route => {
-            const isRouteActive = activeRouteId === route.id;
+            const isRouteActive = activeRouteId === route.id && !calculatedRoute;
             return (
               <button
                 key={route.id}
@@ -415,13 +995,14 @@ export function MapPanel({
                     setActiveRouteId(null);
                     setFocusCenter(null);
                   } else {
+                    setCalculatedRoute(null);
                     setActiveRouteId(route.id);
                     setFocusCenter(null);
                   }
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1 ${
                   isRouteActive
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg ring-2 ring-orange-400/50'
+                    ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                     : 'bg-white/70 dark:bg-black/50 text-[var(--text-primary)] hover:bg-white/90'
                 }`}
               >

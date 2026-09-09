@@ -7,8 +7,8 @@ export function LoadingScreen() {
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-gradient-to-br from-[#FFF9F0] to-[#FFE5CC]"
+      transition={{ duration: 0.4 }}
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#FAF8F5]"
     >
       <div className="text-center">
         <motion.div

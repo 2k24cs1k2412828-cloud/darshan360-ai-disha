@@ -31,6 +31,8 @@ import {
   getPresetItineraries 
 } from './services/copilotService';
 import { type UttarPradeshDestination } from '../data/up-comprehensive-database';
+import { Capacitor } from '@capacitor/core';
+import { AndroidAppShell } from './components/android/AndroidAppShell';
 
 export default function App() {
   const [theme, setTheme] = useState<'morning' | 'evening'>('morning');
@@ -243,6 +245,33 @@ export default function App() {
     { id: 6, icon: '🌊', label: 'All Sacred Ghats of UP', query: 'Show me all prominent sacred river ghats in Uttar Pradesh with map markers and photos.' },
     { id: 7, icon: '🏰', label: '3-Hour Jhansi Fort & Rani Mahal', query: 'Plan a 3-hour curated heritage and temple trip in Jhansi covering Jhansi Fort and Rani Mahal.' }
   ];
+
+  // Dedicated Native Android Experience Detection
+  const isNativeAndroid = Capacitor.getPlatform() === 'android';
+
+  if (isNativeAndroid) {
+    return (
+      <>
+        <Toaster position="top-center" richColors />
+        <AndroidAppShell
+          theme={theme}
+          toggleTheme={toggleTheme}
+          language={language}
+          setLanguage={setLanguage}
+          activeItinerary={activeItinerary}
+          onUpdateItinerary={handleUpdateItinerary}
+          selectedMapCoordinates={selectedMapCoordinates}
+          activeRouteWaypoints={activeRouteWaypoints}
+          onClearActiveRoute={() => setActiveRouteWaypoints(null)}
+          externalChatPrompt={externalChatPrompt}
+          onClearExternalPrompt={() => setExternalChatPrompt(null)}
+          onFocusMapLocation={handleFocusMapLocation}
+          onSelectPlaceForChat={handleSelectPlaceForChat}
+          onAddPlaceToItinerary={handleAddPlaceToItinerary}
+        />
+      </>
+    );
+  }
 
   return (
     <div className={`w-full h-screen overflow-hidden bg-[var(--bg-primary)] transition-all duration-300 flex ${

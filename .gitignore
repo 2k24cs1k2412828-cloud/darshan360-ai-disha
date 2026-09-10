@@ -33,3 +33,13 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+
+# ─── Android Build & Binaries ────────────────────────
+*.apk
+*.aab
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+

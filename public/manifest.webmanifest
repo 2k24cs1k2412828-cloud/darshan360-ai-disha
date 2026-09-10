@@ -1,0 +1,77 @@
+{
+  "name": "DARSHAN 360° — Uttar Pradesh Tourism & Pilgrimage Portal",
+  "short_name": "Darshan 360°",
+  "description": "Official AI Heritage & Pilgrimage Concierge with Interactive 3D Maps, Real-Time Crowd Telemetry, and Dynamic Trip Copilot for Uttar Pradesh Tourism.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B0F19",
+  "theme_color": "#F97316",
+  "categories": [
+    "travel",
+    "tourism",
+    "lifestyle",
+    "navigation"
+  ],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Disha AI Concierge",
+      "short_name": "Disha AI",
+      "description": "Ask Disha AI for pilgrimage advice and real-time guidance",
+      "url": "/?tab=chat",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Interactive UP Map",
+      "short_name": "UP Map",
+      "description": "Explore temples, ghats, and heritage landmarks",
+      "url": "/?tab=map",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Travel Bulletins",
+      "short_name": "Bulletins",
+      "description": "Live crowd status and travel advisories across UP",
+      "url": "/?tab=news",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

@@ -12,14 +12,24 @@ import {
   Compass, 
   Newspaper, 
   Maximize2, 
+  Minimize2,
   AlertTriangle, 
   Languages, 
   Check, 
+  CheckCheck,
+  Copy,
   Loader2,
   ExternalLink,
   ChevronRight,
   Route,
-  RotateCcw
+  RotateCcw,
+  Expand,
+  Shrink,
+  Fullscreen,
+  Columns2,
+  ShieldCheck,
+  ArrowUpRight,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getGeminiResponse, type InChatMapData, type InChatImage } from '../services/geminiService';
@@ -42,6 +52,9 @@ interface ChatPanelProps {
   onFocusMapLocation?: (coords: [number, number], routeWaypoints?: [number, number][]) => void;
   layoutMode?: 'split' | 'fullchat' | 'fullmap' | 'news';
   onSwitchToMap?: () => void;
+  onToggleFullScreen?: () => void;
+  isWindowFullScreen?: boolean;
+  onToggleWindowFullScreen?: () => void;
   externalPrompt?: string | null;
   onClearExternalPrompt?: () => void;
   activeItinerary?: TripItinerary | null;
@@ -70,6 +83,9 @@ export function ChatPanel({
   onFocusMapLocation,
   layoutMode = 'split',
   onSwitchToMap,
+  onToggleFullScreen,
+  isWindowFullScreen,
+  onToggleWindowFullScreen,
   externalPrompt,
   onClearExternalPrompt,
   activeItinerary,
@@ -85,6 +101,32 @@ export function ChatPanel({
   const [speakingMessageId, setSpeakingMessageId] = useState<number | null>(null);
   const [activeImageLightbox, setActiveImageLightbox] = useState<InChatImage | null>(null);
   const [showNewsBanner, setShowNewsBanner] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
+  const [isBrowserFullScreen, setIsBrowserFullScreen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => {
+      setIsBrowserFullScreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  const toggleBrowserFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
+  const handleCopyMessage = (msg: Message) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(msg.content);
+      setCopiedMessageId(msg.id);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    }
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -393,56 +435,99 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
   return (
     <div className="h-full w-full flex flex-col relative bg-transparent overflow-hidden">
       {/* Top Language & Quick Info Header */}
-      <div className="px-4 py-2.5 border-b border-[var(--glass-border)] glass flex items-center justify-between gap-3 backdrop-blur-md z-10 flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)] flex items-center justify-center text-white shadow-sm">
-            <Compass className="w-4 h-4" />
+      <div className="px-3.5 py-2.5 border-b border-[var(--glass-border)] glass flex items-center justify-between gap-3 backdrop-blur-md z-10 flex-shrink-0 min-w-0">
+        {/* Left Side: Avatar & Identity */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shadow-sm flex-shrink-0">
+            <Sparkles className="w-4 h-4" />
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-1.5 font-editorial">
-              <span>{language === 'hi' ? 'दिशा • यात्रा परामर्श' : 'Disha • Travel Concierge'}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold">
-                Online
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] font-editorial truncate">
+                {language === 'hi' ? 'दिशा AI' : 'Disha AI'}
+              </h2>
+              <span className="flex-shrink-0 inline-flex items-center gap-1 text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Online</span>
               </span>
-            </h2>
-            <p className="text-[11px] text-[var(--text-secondary)]">
-              {language === 'hi' ? 'उत्तर प्रदेश पर्यटन आधिकारिक सलाहकार' : 'Uttar Pradesh Tourism Official Concierge'}
+            </div>
+            <p className="text-[10px] sm:text-[11px] text-[var(--text-secondary)] truncate">
+              {language === 'hi' ? 'उत्तर प्रदेश पर्यटन एआई सलाहकार' : 'UP Tourism Travel Concierge'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Right Side: Essential Actions (No Overflow, Perfectly Spaced) */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* New Chat Button */}
           <button
             onClick={handleStartNewChat}
-            className="px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)]"
-            title={language === 'hi' ? 'नई चैट शुरू करें' : 'Start a fresh conversation'}
+            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] shadow-2xs"
+            title={language === 'hi' ? 'नई बातचीत शुरू करें' : 'Start fresh conversation'}
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{language === 'hi' ? 'नई चैट' : 'New Chat'}</span>
+            <RotateCcw className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+            <span className="text-[11px] font-medium">{language === 'hi' ? 'नई चैट' : 'New Chat'}</span>
           </button>
 
-          {/* Latest News Toggle */}
+          {/* Layout Mode Toggle Button (Split / Expand Panel) */}
+          {onToggleFullScreen && (
+            <button
+              onClick={onToggleFullScreen}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer shadow-2xs ${
+                layoutMode === 'fullchat'
+                  ? 'bg-orange-500/15 text-[var(--accent-primary)] border-orange-500/30 hover:bg-orange-500/25'
+                  : 'glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)]'
+              }`}
+              title={layoutMode === 'fullchat' ? (language === 'hi' ? 'द्वैत दृश्य में बदलें' : 'Switch to Split View') : (language === 'hi' ? 'चैट पैनल विस्तृत करें' : 'Expand Chat Panel')}
+            >
+              {layoutMode === 'fullchat' ? (
+                <>
+                  <Columns2 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                  <span className="text-[11px] font-medium">{language === 'hi' ? 'द्वैत दृश्य' : 'Split'}</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                  <span className="text-[11px] font-medium">{language === 'hi' ? 'विस्तार' : 'Expand'}</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Dedicated Window Full Screen Toggle Button */}
           <button
-            onClick={() => setShowNewsBanner(!showNewsBanner)}
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer ${
-              showNewsBanner
-                ? 'bg-[var(--accent-primary)] text-white border-[var(--accent-primary)] shadow-sm'
-                : 'glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)]'
+            onClick={onToggleWindowFullScreen || toggleBrowserFullScreen}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border cursor-pointer shadow-2xs ${
+              (isWindowFullScreen ?? isBrowserFullScreen)
+                ? 'bg-orange-500/15 text-[var(--accent-primary)] border-orange-500/30 hover:bg-orange-500/25'
+                : 'glass text-[var(--text-primary)] border-[var(--glass-border)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)]'
             }`}
-            title={language === 'hi' ? 'उत्तर प्रदेश पर्यटन समाचार व अलर्ट' : 'UP Tourism Live Bulletins'}
+            title={(isWindowFullScreen ?? isBrowserFullScreen)
+              ? (language === 'hi' ? 'पूर्ण स्क्रीन विंडो से बाहर निकलें (Esc)' : 'Exit Full Screen Window (Esc)')
+              : (language === 'hi' ? 'पूर्ण स्क्रीन विंडो (Esc से बाहर निकलें)' : 'Full Screen Window (Press Esc to exit)')
+            }
+            aria-label="Toggle Full Screen Window"
           >
-            <Newspaper className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{language === 'hi' ? 'ताज़ा बुलेटिन' : 'Dispatches'}</span>
+            {(isWindowFullScreen ?? isBrowserFullScreen) ? (
+              <>
+                <Shrink className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <span className="text-[11px] font-medium">{language === 'hi' ? 'निकास' : 'Exit FS'}</span>
+              </>
+            ) : (
+              <>
+                <Fullscreen className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                <span className="text-[11px] font-medium">{language === 'hi' ? 'पूर्ण विंडो' : 'Window FS'}</span>
+              </>
+            )}
           </button>
 
-          {/* Bilingual Language Switcher */}
-          <div className="glass rounded-full p-0.5 flex items-center border border-[var(--glass-border)] shadow-sm">
+          {/* Mobile-only compact Language Switcher (Desktop has it in top header / sidebar) */}
+          <div className="lg:hidden glass rounded-full p-0.5 flex items-center border border-[var(--glass-border)] shadow-2xs">
             <button
               onClick={() => onLanguageChange('en')}
-              className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                 language === 'en'
-                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-xs'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
@@ -450,9 +535,9 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
             </button>
             <button
               onClick={() => onLanguageChange('hi')}
-              className={`px-2 py-0.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                 language === 'hi'
-                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-xs'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
@@ -513,233 +598,274 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
       {/* Messages Scroll Area */}
       <div 
         ref={scrollAreaRef}
-        className="flex-1 overflow-y-auto p-3 md:p-5 space-y-4 min-h-0"
+        className="flex-1 overflow-y-auto min-h-0 relative scrollbar-thin scrollbar-thumb-orange-500/20"
       >
-        {messages.map((msg) => {
-          const isAI = msg.type === 'ai';
-          return (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`flex flex-col ${isAI ? 'items-start' : 'items-end'}`}
-            >
-              <div className={`max-w-[90%] md:max-w-[82%] rounded-2xl p-4 shadow-lg border backdrop-blur-md ${
-                isAI 
-                  ? 'glass border-[var(--glass-border)] text-[var(--text-primary)] rounded-tl-sm' 
-                  : 'bg-[var(--accent-primary)] text-white border-transparent rounded-tr-sm'
-              }`}>
-                {/* Message Header for AI */}
-                {isAI && (
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--glass-border)]">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-primary)]">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>{language === 'hi' ? 'दिशा AI' : 'Disha AI'}</span>
-                    </div>
-
-                    {/* Text-to-Speech Play Button */}
-                    <button
-                      onClick={() => handleToggleSpeakMessage(msg)}
-                      className={`p-1.5 rounded-full transition-all flex items-center gap-1 text-xs font-medium ${
-                        speakingMessageId === msg.id
-                          ? 'bg-orange-500 text-white animate-pulse'
-                          : 'glass hover:text-[var(--accent-primary)] text-[var(--text-secondary)]'
-                      }`}
-                      title={speakingMessageId === msg.id ? 'Stop Voice' : (language === 'hi' ? 'आवाज़ में सुनें' : 'Listen with AI Voice')}
-                    >
-                      {speakingMessageId === msg.id ? (
-                        <>
-                          <VolumeX className="w-3.5 h-3.5" />
-                          <span className="text-[10px] hidden sm:inline">{language === 'hi' ? 'रोकें' : 'Stop'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Volume2 className="w-3.5 h-3.5" />
-                          <span className="text-[10px] hidden sm:inline">{language === 'hi' ? 'सुनें' : 'Listen'}</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* Message Text Content */}
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  {renderFormattedMarkdown(msg.content)}
-                </div>
-
-                {/* In-Chat Image Gallery Component */}
-                {msg.images && msg.images.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-[var(--glass-border)] space-y-2">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-primary)]">
-                      <ImageIcon className="w-3.5 h-3.5" />
-                      <span>{language === 'hi' ? 'दर्शन एवं फोटो गैलरी' : 'Visual Gallery & Highlights'}</span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {msg.images.map((img, i) => (
-                        <div
-                          key={i}
-                          onClick={() => setActiveImageLightbox(img)}
-                          className="group relative h-40 rounded-xl overflow-hidden cursor-pointer shadow-md border border-[var(--glass-border)] hover:scale-[1.02] transition-all"
-                        >
-                          <img
-                            src={img.url}
-                            alt={img.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute bottom-0 inset-x-0 bg-stone-900/85 p-2 flex flex-col justify-end">
-                            <span className="text-xs font-bold text-white leading-tight">{img.title}</span>
-                            {img.caption && (
-                              <span className="text-[10px] text-white/80 line-clamp-1 mt-0.5">{img.caption}</span>
-                            )}
-                          </div>
+        <div className={`w-full ${
+          layoutMode === 'fullchat' 
+            ? 'max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-6 space-y-6' 
+            : 'p-3 md:p-5 space-y-4'
+        } min-h-full flex flex-col justify-start`}>
+          {messages.map((msg) => {
+            const isAI = msg.type === 'ai';
+            return (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className={`flex flex-col ${isAI ? 'items-start w-full' : 'items-end'}`}
+              >
+                <div className={`shadow-lg border backdrop-blur-md transition-all ${
+                  isAI 
+                    ? (layoutMode === 'fullchat'
+                        ? 'w-full rounded-2xl p-5 sm:p-6 glass border-[var(--glass-border)] text-[var(--text-primary)] shadow-sm'
+                        : 'max-w-[92%] rounded-2xl p-4 glass border-[var(--glass-border)] text-[var(--text-primary)] rounded-tl-sm')
+                    : 'max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white border-transparent rounded-tr-sm shadow-md'
+                }`}>
+                  {/* Message Header for AI */}
+                  {isAI && (
+                    <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[var(--glass-border)]">
+                      <div className="flex items-center gap-2 text-xs font-bold text-[var(--accent-primary)]">
+                        <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center shadow-xs">
+                          <Sparkles className="w-3 h-3" />
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* In-Chat Interactive Map Card Component */}
-                {msg.mapData && (
-                  <div className="mt-3 pt-3 border-t border-[var(--glass-border)]">
-                    <div className="glass rounded-xl p-3 border border-orange-500/30 bg-orange-500/5 dark:bg-orange-950/20">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-primary)]">
-                          <MapPin className="w-4 h-4" />
-                          <span>{msg.mapData.title}</span>
-                        </div>
-                        {msg.mapData.distanceKm && (
-                          <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                            🛣️ ~{msg.mapData.distanceKm} km
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Landmarks List in Route */}
-                      <div className="space-y-1 my-2">
-                        {msg.mapData.markers.slice(0, 4).map((m, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
-                            <span className="w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                              {idx + 1}
-                            </span>
-                            <span className="font-semibold">{m.title}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* View Full Map Action Button */}
-                      <button
-                        onClick={() => {
-                          if (msg.mapData && onFocusMapLocation) {
-                            onFocusMapLocation(msg.mapData.center, msg.mapData.routePath);
-                          }
-                          onSwitchToMap?.();
-                        }}
-                        className="w-full mt-2 py-2 px-3 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5 transition-all"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                        <span>{language === 'hi' ? 'पूरा मैप देखें एवं नेविगेट करें' : 'Open in Full Screen Interactive Map'}</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* In-Chat Copilot Itinerary Timeline Preview Card */}
-                {msg.copilotItinerary && (
-                  <div className="mt-3 pt-3 border-t border-[var(--glass-border)]">
-                    <div className="glass rounded-xl p-3.5 border border-orange-500/30 bg-orange-500/5 shadow-md">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-7 h-7 rounded-lg bg-[var(--accent-primary)] text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
-                            🧭
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">
-                              {language === 'hi' ? msg.copilotItinerary.titleHi : msg.copilotItinerary.title}
-                            </h4>
-                            <span className="text-[10px] text-[var(--text-secondary)]">
-                              📍 {language === 'hi' ? msg.copilotItinerary.hindiCity : msg.copilotItinerary.city} • ⏱️ {msg.copilotItinerary.targetHours} {language === 'hi' ? 'घंटे' : 'hours'}
-                            </span>
-                          </div>
-                        </div>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-[var(--accent-primary)] border border-orange-500/30 flex-shrink-0">
-                          {msg.copilotItinerary.stops.length} {language === 'hi' ? 'पड़ाव' : 'Stops'}
+                        <span className="font-editorial text-sm">{language === 'hi' ? 'दिशा AI' : 'Disha AI'}</span>
+                        <span className="hidden sm:inline-block text-[10px] font-normal px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                          {language === 'hi' ? 'पर्यटन एआई परामर्श' : 'Official Intelligence'}
                         </span>
                       </div>
 
-                      {/* Safety Buffer and Transit stats */}
-                      <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)] bg-white/40 dark:bg-black/20 p-2 rounded-lg mb-2.5 flex-wrap">
-                        <span>🛡️ <strong>{msg.copilotItinerary.safetyBufferMinutes}m</strong> {language === 'hi' ? 'सुरक्षा बफर' : 'safety buffer'}</span>
-                        <span>•</span>
-                        <span>🚶 <strong>{msg.copilotItinerary.totalDistanceKm} km</strong> {language === 'hi' ? 'दूरी' : 'distance'}</span>
-                        <span>•</span>
-                        <span>💰 <strong>{msg.copilotItinerary.totalCostEstimate}</strong></span>
-                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {/* Copy Message Text */}
+                        <button
+                          onClick={() => handleCopyMessage(msg)}
+                          className="p-1.5 rounded-full transition-all flex items-center gap-1 text-xs font-medium glass hover:text-[var(--accent-primary)] text-[var(--text-secondary)] border border-[var(--glass-border)] cursor-pointer"
+                          title={language === 'hi' ? 'संदेश कॉपी करें' : 'Copy Message'}
+                        >
+                          {copiedMessageId === msg.id ? (
+                            <>
+                              <CheckCheck className="w-3.5 h-3.5 text-emerald-500" />
+                              <span className="text-[10px] text-emerald-500 hidden sm:inline">{language === 'hi' ? 'कॉपी हो गया' : 'Copied'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span className="text-[10px] hidden sm:inline">{language === 'hi' ? 'कॉपी' : 'Copy'}</span>
+                            </>
+                          )}
+                        </button>
 
-                      {/* Sequential Stops List */}
-                      <div className="space-y-1.5 mb-3">
-                        {msg.copilotItinerary.stops.map((stop, idx) => (
+                        {/* Text-to-Speech Play Button */}
+                        <button
+                          onClick={() => handleToggleSpeakMessage(msg)}
+                          className={`p-1.5 rounded-full transition-all flex items-center gap-1 text-xs font-medium border cursor-pointer ${
+                            speakingMessageId === msg.id
+                              ? 'bg-orange-500 text-white border-orange-500 animate-pulse'
+                              : 'glass hover:text-[var(--accent-primary)] text-[var(--text-secondary)] border-[var(--glass-border)]'
+                          }`}
+                          title={speakingMessageId === msg.id ? 'Stop Voice' : (language === 'hi' ? 'आवाज़ में सुनें' : 'Listen with AI Voice')}
+                        >
+                          {speakingMessageId === msg.id ? (
+                            <>
+                              <VolumeX className="w-3.5 h-3.5" />
+                              <span className="text-[10px] hidden sm:inline">{language === 'hi' ? 'रोकें' : 'Stop'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="w-3.5 h-3.5" />
+                              <span className="text-[10px] hidden sm:inline">{language === 'hi' ? 'सुनें' : 'Listen'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message Text Content */}
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-[13.5px] sm:text-sm leading-relaxed">
+                    {renderFormattedMarkdown(msg.content)}
+                  </div>
+
+                  {/* In-Chat Image Gallery Component */}
+                  {msg.images && msg.images.length > 0 && (
+                    <div className="mt-3.5 pt-3.5 border-t border-[var(--glass-border)] space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-primary)]">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        <span>{language === 'hi' ? 'दर्शन एवं फोटो गैलरी' : 'Visual Gallery & Highlights'}</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                        {msg.images.map((img, i) => (
                           <div
-                            key={stop.id}
-                            onClick={() => {
-                              if (onFocusMapLocation) {
-                                onFocusMapLocation(stop.coordinates);
-                              }
-                            }}
-                            className="flex items-start gap-2 p-2 rounded-lg glass hover:border-orange-500 transition-all cursor-pointer border border-[var(--glass-border)]"
+                            key={i}
+                            onClick={() => setActiveImageLightbox(img)}
+                            className="group relative h-40 rounded-xl overflow-hidden cursor-pointer shadow-md border border-[var(--glass-border)] hover:scale-[1.02] transition-all"
                           >
-                            <span className="w-5 h-5 rounded-full bg-[var(--accent-primary)] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
-                              {stop.stopNumber || (idx + 1)}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="text-xs font-bold text-[var(--text-primary)] truncate">
-                                  {language === 'hi' ? stop.hindiName : stop.name}
-                                </p>
-                                <span className="text-[10px] font-semibold text-orange-600 dark:text-orange-400">
-                                  {stop.startTime} - {stop.endTime}
-                                </span>
-                              </div>
-                              <p className="text-[10px] text-[var(--text-secondary)] line-clamp-1">
-                                💡 {language === 'hi' ? stop.whyThisPlaceHi : stop.whyThisPlace}
-                              </p>
+                            <img
+                              src={img.url}
+                              alt={img.title}
+                              loading="lazy"
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                const target = e.currentTarget;
+                                if (!target.src.includes('photo-1609342122563')) {
+                                  target.src = 'https://images.unsplash.com/photo-1609342122563-a43ac8917a3a?w=800&q=80';
+                                }
+                              }}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute bottom-0 inset-x-0 bg-stone-900/85 p-2 flex flex-col justify-end">
+                              <span className="text-xs font-bold text-white leading-tight">{img.title}</span>
+                              {img.caption && (
+                                <span className="text-[10px] text-white/80 line-clamp-1 mt-0.5">{img.caption}</span>
+                              )}
                             </div>
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
 
-                      {/* Copilot Action Buttons */}
-                      <div className="grid grid-cols-2 gap-2">
+                  {/* In-Chat Interactive Map Card Component */}
+                  {msg.mapData && (
+                    <div className="mt-3.5 pt-3.5 border-t border-[var(--glass-border)]">
+                      <div className="glass rounded-xl p-3.5 border border-orange-500/30 bg-orange-500/5 dark:bg-orange-950/20 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--accent-primary)]">
+                            <MapPin className="w-4 h-4" />
+                            <span>{msg.mapData.title}</span>
+                          </div>
+                          {Boolean(msg.mapData.distanceKm) && (
+                            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              🛣️ ~{msg.mapData.distanceKm} km
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Landmarks List in Route */}
+                        <div className="space-y-1.5 my-2.5">
+                          {msg.mapData.markers.slice(0, 4).map((m, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
+                              <span className="w-4 h-4 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-xs">
+                                {idx + 1}
+                              </span>
+                              <span className="font-semibold">{m.title}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* View Full Map Action Button */}
                         <button
                           onClick={() => {
-                            if (msg.copilotItinerary && onUpdateItinerary) {
-                              onUpdateItinerary(msg.copilotItinerary);
-                            }
-                            onToggleCopilotDrawer?.();
-                          }}
-                          className="py-1.5 px-3 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                        >
-                          <Route className="w-3.5 h-3.5" />
-                          <span>{language === 'hi' ? 'इंटरैक्टिव टाइमलाइन' : 'Open Timeline'}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (msg.copilotItinerary && onFocusMapLocation && msg.copilotItinerary.stops.length > 0) {
-                              const firstStop = msg.copilotItinerary.stops[0];
-                              const waypoints = msg.copilotItinerary.stops.map(s => s.coordinates);
-                              onFocusMapLocation(firstStop.coordinates, waypoints);
+                            if (msg.mapData && onFocusMapLocation) {
+                              onFocusMapLocation(msg.mapData.center, msg.mapData.routePath);
                             }
                             onSwitchToMap?.();
                           }}
-                          className="py-1.5 px-3 rounded-lg text-xs font-bold glass hover:bg-white/40 text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all border border-[var(--glass-border)] cursor-pointer"
+                          className="w-full mt-2 py-2 px-3 rounded-xl text-xs font-bold bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                         >
-                          <MapPin className="w-3.5 h-3.5" />
-                          <span>{language === 'hi' ? 'मैप पर देखें' : 'View on Map'}</span>
+                          <Maximize2 className="w-3.5 h-3.5" />
+                          <span>{language === 'hi' ? 'पूरा मैप देखें एवं नेविगेट करें' : 'Open in Full Screen Interactive Map'}</span>
                         </button>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {/* In-Chat Copilot Itinerary Timeline Preview Card */}
+                  {msg.copilotItinerary && (
+                    <div className="mt-3.5 pt-3.5 border-t border-[var(--glass-border)]">
+                      <div className="glass rounded-xl p-4 border border-orange-500/30 bg-gradient-to-b from-orange-500/5 to-transparent shadow-md">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">
+                              🧭
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
+                                {language === 'hi' ? msg.copilotItinerary.titleHi : msg.copilotItinerary.title}
+                              </h4>
+                              <span className="text-[11px] text-[var(--text-secondary)]">
+                                📍 {language === 'hi' ? msg.copilotItinerary.hindiCity : msg.copilotItinerary.city} • ⏱️ {msg.copilotItinerary.targetHours} {language === 'hi' ? 'घंटे' : 'hours'}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-orange-500/15 text-[var(--accent-primary)] border border-orange-500/30 flex-shrink-0">
+                            {msg.copilotItinerary.stops.length} {language === 'hi' ? 'पड़ाव' : 'Stops'}
+                          </span>
+                        </div>
+
+                        {/* Safety Buffer and Transit stats */}
+                        <div className="flex items-center gap-3 text-[11px] text-[var(--text-secondary)] bg-black/5 dark:bg-white/5 p-2.5 rounded-lg mb-3 flex-wrap">
+                          <span>🛡️ <strong>{msg.copilotItinerary.safetyBufferMinutes}m</strong> {language === 'hi' ? 'सुरक्षा बफर' : 'safety buffer'}</span>
+                          <span>•</span>
+                          <span>🚶 <strong>{msg.copilotItinerary.totalDistanceKm} km</strong> {language === 'hi' ? 'दूरी' : 'distance'}</span>
+                          <span>•</span>
+                          <span>💰 <strong>{msg.copilotItinerary.totalCostEstimate}</strong></span>
+                        </div>
+
+                        {/* Sequential Stops List */}
+                        <div className="space-y-2 mb-3">
+                          {msg.copilotItinerary.stops.map((stop, idx) => (
+                            <div
+                              key={stop.id}
+                              onClick={() => {
+                                if (onFocusMapLocation) {
+                                  onFocusMapLocation(stop.coordinates);
+                                }
+                              }}
+                              className="flex items-start gap-2.5 p-2.5 rounded-xl glass hover:border-orange-500/50 transition-all cursor-pointer border border-[var(--glass-border)] group"
+                            >
+                              <span className="w-5 h-5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm group-hover:scale-110 transition-transform">
+                                {stop.stopNumber || (idx + 1)}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-xs font-bold text-[var(--text-primary)] truncate">
+                                    {language === 'hi' ? stop.hindiName : stop.name}
+                                  </p>
+                                  <span className="text-[10px] font-semibold text-orange-600 dark:text-orange-400 flex-shrink-0">
+                                    {stop.startTime} - {stop.endTime}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-[var(--text-secondary)] line-clamp-1 mt-0.5">
+                                  💡 {language === 'hi' ? stop.whyThisPlaceHi : stop.whyThisPlace}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Copilot Action Buttons */}
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <button
+                            onClick={() => {
+                              if (msg.copilotItinerary && onUpdateItinerary) {
+                                onUpdateItinerary(msg.copilotItinerary);
+                              }
+                              onToggleCopilotDrawer?.();
+                            }}
+                            className="py-2 px-3 rounded-xl text-xs font-bold bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:opacity-95 flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                          >
+                            <Route className="w-3.5 h-3.5" />
+                            <span>{language === 'hi' ? 'इंटरैक्टिव टाइमलाइन' : 'Open Timeline'}</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (msg.copilotItinerary && onFocusMapLocation && msg.copilotItinerary.stops.length > 0) {
+                                const firstStop = msg.copilotItinerary.stops[0];
+                                const waypoints = msg.copilotItinerary.stops.map(s => s.coordinates);
+                                onFocusMapLocation(firstStop.coordinates, waypoints);
+                              }
+                              onSwitchToMap?.();
+                            }}
+                            className="py-2 px-3 rounded-xl text-xs font-bold glass hover:bg-white/20 text-[var(--text-primary)] flex items-center justify-center gap-1.5 transition-all border border-[var(--glass-border)] cursor-pointer"
+                          >
+                            <MapPin className="w-3.5 h-3.5" />
+                            <span>{language === 'hi' ? 'मैप पर देखें' : 'View on Map'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                 {/* Real-time District Crowd Telemetry Card */}
                 {msg.districtCrowdStatus && (
@@ -841,50 +967,55 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
         )}
 
         <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      {/* Horizontal Quick Action Chips */}
-      <div className="px-3 py-1.5 border-t border-[var(--glass-border)] glass flex items-center gap-1.5 overflow-x-auto scrollbar-hide flex-shrink-0">
-        {quickActions.map(action => (
-          <motion.button
-            key={action.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => handleUserSendMessage(action.query)}
-            className="px-3 py-1 rounded-full text-xs font-medium glass hover:bg-orange-500/10 hover:border-[var(--accent-primary)] text-[var(--text-primary)] transition-all whitespace-nowrap border border-[var(--glass-border)] shadow-sm"
-          >
-            {action.label}
-          </motion.button>
-        ))}
-      </div>
+      {/* Horizontal Quick Action Chips (shown in split/compact mode; in fullchat they live in the Left Sidebar) */}
+      {layoutMode !== 'fullchat' && (
+        <div className="w-full border-t border-[var(--glass-border)] glass py-2 flex-shrink-0">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-3">
+            {quickActions.map(action => (
+              <motion.button
+                key={action.id}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleUserSendMessage(action.query)}
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium glass hover:bg-orange-500/10 hover:border-[var(--accent-primary)] text-[var(--text-primary)] transition-all whitespace-nowrap border border-[var(--glass-border)] shadow-xs flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+              >
+                {action.label}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Bottom Message Input Bar */}
-      <div className="p-3 pb-20 lg:pb-3 glass border-t border-[var(--glass-border)] backdrop-blur-md flex-shrink-0">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleUserSendMessage();
-          }}
-          className="flex items-center gap-2"
-        >
-          {/* Voice Input Microphone Button */}
-          {isSpeechRecognitionSupported() && (
-            <button
-              type="button"
-              onClick={toggleVoiceInput}
-              className={`p-2.5 rounded-full transition-all shadow-md flex items-center justify-center ${
-                isRecording
-                  ? 'bg-red-500 text-white animate-ping ring-4 ring-red-300'
-                  : 'glass text-[var(--accent-primary)] hover:bg-orange-500/10 border border-[var(--glass-border)]'
-              }`}
-              title={isRecording ? 'Stop Recording' : (language === 'hi' ? 'बोलकर प्रश्न पूछें' : 'Speak to AI')}
-            >
-              {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-            </button>
-          )}
+      <div className="w-full glass border-t border-[var(--glass-border)] backdrop-blur-xl flex-shrink-0 py-3 pb-20 lg:pb-3">
+        <div className={`w-full ${layoutMode === 'fullchat' ? 'max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 md:px-8' : 'px-3'}`}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUserSendMessage();
+            }}
+            className="flex items-center gap-2 p-1.5 rounded-full glass border border-[var(--glass-border)] shadow-xl focus-within:border-[var(--accent-primary)] focus-within:ring-2 focus-within:ring-orange-500/25 transition-all bg-white/75 dark:bg-stone-900/75"
+          >
+            {/* Voice Input Microphone Button */}
+            {isSpeechRecognitionSupported() && (
+              <button
+                type="button"
+                onClick={toggleVoiceInput}
+                className={`p-2.5 rounded-full transition-all flex items-center justify-center cursor-pointer ${
+                  isRecording
+                    ? 'bg-red-500 text-white animate-ping ring-4 ring-red-300'
+                    : 'text-[var(--accent-primary)] hover:bg-orange-500/10'
+                }`}
+                title={isRecording ? 'Stop Recording' : (language === 'hi' ? 'बोलकर प्रश्न पूछें' : 'Speak to AI')}
+              >
+                {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+            )}
 
-          {/* Text Input Box */}
-          <div className="flex-1 relative">
+            {/* Text Input Box */}
             <input
               type="text"
               value={inputValue}
@@ -894,23 +1025,48 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
                   ? (language === 'hi' ? 'सुन रहा हूँ... बोलिए' : 'Listening... Speak now') 
                   : (language === 'hi' ? 'उत्तर प्रदेश के किसी भी धाम, मार्ग, फोटो या समाचार के बारे में पूछें...' : 'Ask about any UP temple, history, route, photos, or news...')
               }
-              className="w-full px-4 py-2.5 rounded-full glass border border-[var(--glass-border)] text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-orange-500/20 transition-all shadow-inner"
+              className="flex-1 bg-transparent px-3 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none"
             />
-          </div>
 
-          {/* Send Button */}
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isTyping}
-            className={`p-2.5 rounded-full transition-all shadow-md flex items-center justify-center ${
-              inputValue.trim() && !isTyping
-                ? 'bg-[var(--accent-primary)] text-white hover:opacity-95 shadow-sm'
-                : 'glass opacity-50 cursor-not-allowed text-[var(--text-secondary)]'
-            }`}
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
+            {/* Clear Input Button */}
+            {inputValue.trim() && (
+              <button
+                type="button"
+                onClick={() => setInputValue('')}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 text-xs cursor-pointer rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                title="Clear"
+              >
+                ✕
+              </button>
+            )}
+
+            {/* Send Button */}
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isTyping}
+              className={`p-2.5 rounded-full transition-all flex items-center justify-center cursor-pointer ${
+                inputValue.trim() && !isTyping
+                  ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:opacity-95 shadow-md shadow-orange-500/20'
+                  : 'opacity-40 cursor-not-allowed text-[var(--text-secondary)] bg-black/5 dark:bg-white/5'
+              }`}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Official Verification Subtitle in Fullscreen Mode */}
+          {layoutMode === 'fullchat' && (
+            <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)] mt-2 px-3">
+              <span className="flex items-center gap-1.5 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                {language === 'hi' ? 'उत्तर प्रदेश पर्यटन आधिकारिक एआई सेवा • दिशा 360' : 'Official UP Tourism AI • Darshan 360 Engine'}
+              </span>
+              <span className="hidden sm:inline opacity-80">
+                {language === 'hi' ? 'लाइव भीड़ स्थिति, दर्शन नियम एवं 500+ स्थल' : 'Live crowd feeds, darshan rules & 500+ verified destinations'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Fullscreen Lightbox Modal for Photos */}
@@ -927,6 +1083,13 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
               <img
                 src={activeImageLightbox.url}
                 alt={activeImageLightbox.title}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('photo-1609342122563')) {
+                    target.src = 'https://images.unsplash.com/photo-1609342122563-a43ac8917a3a?w=800&q=80';
+                  }
+                }}
                 className="w-full h-full object-contain max-h-[80vh]"
               />
               <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur-md p-4 text-white">

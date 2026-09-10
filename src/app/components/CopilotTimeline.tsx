@@ -36,6 +36,7 @@ interface CopilotTimelineProps {
   itinerary: TripItinerary | null;
   language: 'en' | 'hi';
   onUpdateItinerary: (updated: TripItinerary) => void;
+  onClearItinerary?: () => void;
   onFocusStop: (coordinates: [number, number], stopId: string) => void;
   onAskAIAboutStop: (prompt: string) => void;
   onClose?: () => void;
@@ -47,6 +48,7 @@ export function CopilotTimeline({
   itinerary,
   language,
   onUpdateItinerary,
+  onClearItinerary,
   onFocusStop,
   onAskAIAboutStop,
   onClose,
@@ -146,21 +148,32 @@ export function CopilotTimeline({
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          {itinerary && (
+        <div className="flex items-center gap-1.5">
+          {itinerary && itinerary.stops.length > 1 && (
             <button
               onClick={handleOptimizeTrip}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center gap-1 shadow-sm transition-all cursor-pointer"
+              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center gap-1 shadow-sm transition-all cursor-pointer"
               title="Optimize order to reduce travel time"
             >
               <Sparkles className="w-3 h-3" />
-              <span>{language === 'hi' ? 'अनुकूलन' : 'Optimize'}</span>
+              <span className="hidden xs:inline">{language === 'hi' ? 'अनुकूलन' : 'Optimize'}</span>
+            </button>
+          )}
+
+          {itinerary && onClearItinerary && (
+            <button
+              onClick={onClearItinerary}
+              className="px-2 py-1 rounded-lg text-[10px] font-bold text-rose-500 hover:bg-rose-500/10 border border-rose-500/25 flex items-center gap-1 transition-all cursor-pointer"
+              title={language === 'hi' ? 'यात्रा रीसेट करें और नया मार्ग बनाएं' : 'Clear & Reset Trip'}
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>{language === 'hi' ? 'रीसेट' : 'Clear'}</span>
             </button>
           )}
 
           <button
             onClick={onToggleOpen}
-            className="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            className="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -429,32 +442,126 @@ export function CopilotTimeline({
           </div>
         </div>
       ) : (
-        /* Empty State: Quick Presets */
-        <div className="flex-1 p-4 flex flex-col justify-between overflow-y-auto space-y-4 text-[var(--text-primary)]">
-          <div className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-primary)]/15 border border-[var(--accent-primary)]/30 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-[var(--accent-primary)]" />
+        /* Empty State: Comprehensive First-Time Guide & Curated Starters */
+        <div className="flex-1 p-4 flex flex-col justify-start overflow-y-auto space-y-4 text-[var(--text-primary)] scrollbar-thin scrollbar-thumb-orange-500/20">
+          {/* Welcome Hero Banner */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-orange-500/15 via-amber-500/10 to-transparent border border-orange-500/25 space-y-2 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-[var(--accent-primary)] text-white flex items-center justify-center shadow-xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-xs font-extrabold text-[var(--text-primary)] font-display truncate">
+                  {language === 'hi' ? 'AI यात्रा कोपायलट में आपका स्वागत है' : 'Welcome to AI Travel Copilot'}
+                </h3>
+                <p className="text-[10px] text-[var(--text-secondary)] truncate">
+                  {language === 'hi' ? 'समय-सचेत गतिशील यात्रा साथी' : 'Dynamic Time-Aware Trip Companion'}
+                </p>
+              </div>
             </div>
-            <h3 className="text-sm font-extrabold font-display">
-              {language === 'hi' ? 'अपनी यात्रा कोपायलट शुरू करें' : 'Start Your AI Copilot'}
-            </h3>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-[11px] text-[var(--text-primary)] leading-relaxed">
               {language === 'hi'
-                ? 'चैट में बस इतना कहें: "मेरे पास 3 घंटे हैं, मुझे 7 बजे तक स्टेशन वापस जाना है, घाट और खाना पसंद है" — AI तुरंत समयबद्ध नक्शा तैयार करेगा।'
-                : 'Simply tell the AI: "I have 3 hours near the station, need to return by 7 PM, like ghats and local food" — Disha AI will create, time, and plot your entire trip.'}
+                ? 'कोपायलट आपकी यात्रा को समय, दूरी, और वापसी समयसीमा (ट्रेन/फ्लाइट) के अनुसार खुद प्रबंधित करता है ताकि कोई देरी न हो।'
+                : 'Copilot dynamically tracks transit time, stay durations, and return deadlines so you never miss a train or flight.'}
             </p>
           </div>
 
-          <div className="space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block">
-              {language === 'hi' ? 'या तुरंत तैयार यात्रा चुनें:' : 'Or Select an Instant Preset:'}
+          {/* How It Works Guide */}
+          <div className="space-y-2 flex-shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block px-0.5">
+              {language === 'hi' ? 'यह कैसे काम करता है? (3 सरल चरण)' : 'How It Works (3 Easy Steps):'}
             </span>
 
-            {presets.map((preset, idx) => (
+            {/* Step 1: Map Selection */}
+            <div className="p-2.5 rounded-xl border border-[var(--glass-border)] bg-black/5 dark:bg-white/5 flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <MapPin className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-[11px] font-bold text-[var(--text-primary)]">
+                  {language === 'hi' ? '1. मानचित्र से सीधे जोड़ें' : '1. Pick Places from Interactive Map'}
+                </h4>
+                <p className="text-[10px] text-[var(--text-secondary)] leading-tight mt-0.5">
+                  {language === 'hi'
+                    ? 'नक्शे पर किसी भी मंदिर, घाट या स्मारक पर क्लिक करें और "Add to Copilot" दबाएं।'
+                    : 'Click any temple, ghat, or monument on the map and tap "+ Add to Copilot".'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2: Disha AI Chat */}
+            <div className="p-2.5 rounded-xl border border-[var(--glass-border)] bg-black/5 dark:bg-white/5 flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-[11px] font-bold text-[var(--text-primary)]">
+                  {language === 'hi' ? '2. दिशा AI से बोलकर बनवाएं' : '2. Tell Disha AI in Natural Chat'}
+                </h4>
+                <p className="text-[10px] text-[var(--text-secondary)] leading-tight mt-0.5">
+                  {language === 'hi'
+                    ? 'चैट में कहें: "अयोध्या में 4 घंटे का समय है, राम मंदिर व सरयू आरती का रूट प्लान बनाओ"।'
+                    : 'Ask: "I have 4 hours in Ayodhya for Ram Mandir & Saryu Aarti" — AI builds the route.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3: Dynamic Replanning */}
+            <div className="p-2.5 rounded-xl border border-[var(--glass-border)] bg-black/5 dark:bg-white/5 flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Clock className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-[11px] font-bold text-[var(--text-primary)]">
+                  {language === 'hi' ? '3. देरी होने पर 1-टैप रीप्लान' : '3. Real-Time Dynamic Re-planning'}
+                </h4>
+                <p className="text-[10px] text-[var(--text-secondary)] leading-tight mt-0.5">
+                  {language === 'hi'
+                    ? 'देर होने पर 1-टैप "Running 20m Late" दबाएं, यह तुरंत अगला शेड्यूल ठीक कर देगा।'
+                    : 'Running late? Tap "Running 20m Late" to automatically protect your return deadline.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action 1: Create Blank Custom Trip */}
+          <div className="pt-1 flex-shrink-0">
+            <button
+              onClick={() => {
+                onUpdateItinerary({
+                  id: `custom_${Date.now()}`,
+                  title: language === 'hi' ? 'मेरी कस्टम यात्रा' : 'My Custom UP Journey',
+                  titleHi: 'मेरी कस्टम यात्रा',
+                  city: 'Uttar Pradesh',
+                  hindiCity: 'उत्तर प्रदेश',
+                  targetHours: 3,
+                  startTime: '10:00 AM',
+                  safetyBufferMinutes: 20,
+                  currentStopIndex: 0,
+                  stops: [],
+                  totalDistanceKm: 0,
+                  totalCostEstimate: '₹200 - ₹500',
+                  optimizationsApplied: ['Custom User Plan']
+                });
+              }}
+              className="w-full p-2.5 rounded-xl border-2 border-dashed border-[var(--accent-primary)]/40 hover:border-[var(--accent-primary)] bg-orange-500/5 hover:bg-orange-500/10 text-xs font-bold text-[var(--accent-primary)] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{language === 'hi' ? '+ नई खाली यात्रा शुरू करें (नक्शे से जोड़ें)' : '+ Start Blank Custom Trip (Build from Map)'}</span>
+            </button>
+          </div>
+
+          {/* Action 2: Quick Presets */}
+          <div className="space-y-2 flex-shrink-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] block px-0.5">
+              {language === 'hi' ? 'या तुरंत तैयार यात्रा चुनें:' : 'Or Load an Instant Curated Circuit:'}
+            </span>
+
+            {presets.map((preset) => (
               <button
                 key={preset.id}
                 onClick={() => handleLoadPreset(preset)}
-                className="w-full text-left p-2.5 rounded-xl border border-[var(--glass-border)] bg-black/5 dark:bg-white/5 hover:border-[var(--accent-primary)] transition-all group cursor-pointer"
+                className="w-full text-left p-2.5 rounded-xl border border-[var(--glass-border)] bg-black/5 dark:bg-white/5 hover:border-[var(--accent-primary)] hover:bg-orange-500/5 transition-all group cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-primary)]">
@@ -469,15 +576,6 @@ export function CopilotTimeline({
                 </p>
               </button>
             ))}
-          </div>
-
-          <div className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 border border-[var(--glass-border)] text-[10px] text-[var(--text-secondary)] flex items-center gap-1.5">
-            <Info className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
-            <span>
-              {language === 'hi'
-                ? 'मानचित्र पर किसी भी स्थान पर क्लिक करके उसे सीधे अपनी यात्रा में जोड़ सकते हैं।'
-                : 'Click any place on the map to add it directly to your live trip itinerary.'}
-            </span>
           </div>
         </div>
       )}

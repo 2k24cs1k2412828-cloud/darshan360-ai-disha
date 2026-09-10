@@ -9,7 +9,10 @@ import {
   Compass, 
   Sparkles, 
   Maximize2, 
-  Minimize2, 
+  Minimize2,
+  Fullscreen,
+  Shrink,
+  Columns2,
   Waves,
   Footprints,
   Clock,
@@ -21,7 +24,9 @@ import {
   RotateCcw,
   ExternalLink,
   ChevronDown,
-  Plus
+  Plus,
+  Droplets,
+  Palette
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -35,6 +40,7 @@ import {
 } from '../services/uttarPradeshService';
 import { UP_LANDMARK_COORDINATES } from '../../data/up-comprehensive-database';
 import type { TripItinerary } from '../services/copilotService';
+import { getAuthenticTourismImage } from '../services/tourismImageService';
 
 // Fix for default marker icons in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -70,6 +76,12 @@ function createCustomIcon(category: string, isHighlighted: boolean = false) {
   } else if (category === 'food') {
     color = '#D97706'; // warm amber/culinary
     badgeIcon = '🍲';
+  } else if (category === 'waterfall') {
+    color = '#0284C7'; // deep sky blue
+    badgeIcon = '💧';
+  } else if (category === 'craft') {
+    color = '#D946EF'; // rich fuchsia/magenta
+    badgeIcon = '🎨';
   }
 
   const size = isHighlighted ? 46 : 38;
@@ -210,6 +222,8 @@ interface MapPanelProps {
   activeRouteWaypoints?: [number, number][] | null;
   isFullScreen?: boolean;
   onToggleFullScreen?: () => void;
+  isWindowFullScreen?: boolean;
+  onToggleWindowFullScreen?: () => void;
   onClearActiveRoute?: () => void;
   activeItinerary?: TripItinerary | null;
   onAddPlaceToItinerary?: (place: UPPlace) => void;
@@ -223,11 +237,13 @@ export function MapPanel({
   activeRouteWaypoints,
   isFullScreen = false,
   onToggleFullScreen,
+  isWindowFullScreen,
+  onToggleWindowFullScreen,
   onClearActiveRoute,
   activeItinerary,
   onAddPlaceToItinerary
 }: MapPanelProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearchFocused, setIsSearchFocused] = useState<boolean>(false);
   const [activeRouteId, setActiveRouteId] = useState<string | null>(null);
@@ -241,13 +257,21 @@ export function MapPanel({
   const [isToDropdownOpen, setIsToDropdownOpen] = useState<boolean>(false);
   const [calculatedRoute, setCalculatedRoute] = useState<ReturnType<typeof calculateDynamicUPRoute>>(null);
 
-  const searchBoxRef = useRef<HTMLDivElement>(null);
+  // Google Maps & Satellite Layer Selector State (100% Free Forever)
+  const [mapLayerType, setMapLayerType] = useState<'google-streets' | 'google-satellite' | 'google-terrain' | 'carto'>('google-streets');
+  const [isLayerMenuOpen, setIsLayerMenuOpen] = useState<boolean>(false);
 
-  // Close search suggestions on click outside
+  const searchBoxRef = useRef<HTMLDivElement>(null);
+  const layerMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close search suggestions & layer menu on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchBoxRef.current && !searchBoxRef.current.contains(event.target as Node)) {
         setIsSearchFocused(false);
+      }
+      if (layerMenuRef.current && !layerMenuRef.current.contains(event.target as Node)) {
+        setIsLayerMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -303,26 +327,52 @@ export function MapPanel({
     { id: 'buddhist', label: { en: 'Buddhist Circuit', hi: 'बौद्ध परिपथ' }, icon: Footprints, count: UP_PLACES.filter(p => p.category === 'buddhist').length },
     { id: 'monument', label: { en: 'Monuments', hi: 'ऐतिहासिक स्मारक' }, icon: MapPin, count: UP_PLACES.filter(p => p.category === 'monument').length },
     { id: 'nature', label: { en: 'Nature & Wildlife', hi: 'प्रकृति व वन्यजीव' }, icon: Trees, count: UP_PLACES.filter(p => p.category === 'nature').length },
+    { id: 'waterfall', label: { en: 'Waterfalls & Canyons', hi: 'जलप्रपात व घाटियां' }, icon: Droplets, count: UP_PLACES.filter(p => p.category === 'waterfall').length },
+    { id: 'craft', label: { en: 'Craft & Culture', hi: 'शिल्प एवं संस्कृति' }, icon: Palette, count: UP_PLACES.filter(p => p.category === 'craft').length },
     { id: 'food', label: { en: 'Food & Bazaars', hi: 'खानपान व बाज़ार' }, icon: UtensilsCrossed, count: UP_PLACES.filter(p => p.category === 'food').length },
   ];
 
-  // Filtered places
-  const filteredPlaces = UP_PLACES.filter(place => {
-    const matchesCategory = selectedCategory === 'all' || place.category === selectedCategory;
-    
-    if (!searchQuery.trim()) return matchesCategory;
+  // Filtered places: only display markers when user explicitly selects a category filter, searches, or focuses a place
+  const filteredPlaces = useMemo(() => {
+    // 1. If user typed a search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      return UP_PLACES.filter(place => {
+        const matchesSearch = 
+          place.name.toLowerCase().includes(q) ||
+          place.hindiName.includes(q) ||
+          place.city.toLowerCase().includes(q) ||
+          place.hindiCity.includes(q) ||
+          place.tags.some(tag => tag.includes(q)) ||
+          (q === 'ghat' && place.category === 'ghat');
 
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch = 
-      place.name.toLowerCase().includes(q) ||
-      place.hindiName.includes(q) ||
-      place.city.toLowerCase().includes(q) ||
-      place.hindiCity.includes(q) ||
-      place.tags.some(tag => tag.includes(q)) ||
-      (q === 'ghat' && place.category === 'ghat');
+        const matchesCat = !selectedCategory || selectedCategory === 'all' || place.category === selectedCategory;
+        return matchesSearch && matchesCat;
+      });
+    }
 
-    return matchesCategory && matchesSearch;
-  });
+    // 2. If a specific place was chosen from Chat or focused
+    if (focusCenter) {
+      const focusedPlace = UP_PLACES.find(place => 
+        Math.abs(focusCenter[0] - place.coordinates[0]) < 0.01 && 
+        Math.abs(focusCenter[1] - place.coordinates[1]) < 0.01
+      );
+      if (focusedPlace && !selectedCategory) {
+        return [focusedPlace];
+      }
+    }
+
+    // 3. Clean map by default: only show markers when user explicitly clicks a category filter!
+    if (!selectedCategory) {
+      return [];
+    }
+
+    if (selectedCategory === 'all') {
+      return UP_PLACES;
+    }
+
+    return UP_PLACES.filter(place => place.category === selectedCategory);
+  }, [searchQuery, selectedCategory, focusCenter]);
 
   // Active circuit route
   const activeCircuit = UP_TRAVEL_ROUTES.find(r => r.id === activeRouteId);
@@ -334,9 +384,42 @@ export function MapPanel({
         ? activeItinerary.stops.map(s => s.coordinates)
         : (activeRouteWaypoints || (activeCircuit ? activeCircuit.waypoints : null)));
 
-  const tileUrl = theme === 'morning'
-    ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  // Dynamic Tile Configuration for Google Maps & Satellite
+  const currentTileConfig = useMemo(() => {
+    switch (mapLayerType) {
+      case 'google-satellite':
+        return {
+          url: 'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+          subdomains: ['0', '1', '2', '3'],
+          attribution: '&copy; Google Maps Satellite Imagery',
+          maxZoom: 20
+        };
+      case 'google-terrain':
+        return {
+          url: 'https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+          subdomains: ['0', '1', '2', '3'],
+          attribution: '&copy; Google Maps Terrain',
+          maxZoom: 20
+        };
+      case 'carto':
+        return {
+          url: theme === 'morning'
+            ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          subdomains: ['a', 'b', 'c'],
+          attribution: '&copy; OpenStreetMap & CARTO',
+          maxZoom: 19
+        };
+      case 'google-streets':
+      default:
+        return {
+          url: 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+          subdomains: ['0', '1', '2', '3'],
+          attribution: '&copy; Google Maps',
+          maxZoom: 20
+        };
+    }
+  }, [mapLayerType, theme]);
 
   // Handle route calculation
   const handleCalculateRoute = () => {
@@ -505,6 +588,87 @@ export function MapPanel({
               )}
             </button>
 
+            {/* Google Maps Layer Switcher */}
+            <div className="relative" ref={layerMenuRef}>
+              <button
+                onClick={() => setIsLayerMenuOpen(prev => !prev)}
+                className={`px-3 py-2 rounded-full shadow-lg transition-all text-xs font-bold border border-[var(--glass-border)] cursor-pointer flex items-center gap-1.5 ${
+                  isLayerMenuOpen
+                    ? 'bg-[var(--accent-primary)] text-white shadow-md'
+                    : 'glass text-[var(--text-primary)] hover:scale-105'
+                }`}
+                title={language === 'hi' ? 'गूगल मैप्स लेयर बदलें' : 'Map Layers (Streets, Satellite, Terrain)'}
+              >
+                <Layers className={`w-4 h-4 flex-shrink-0 ${isLayerMenuOpen ? 'text-white' : 'text-[var(--accent-primary)]'}`} />
+                <span className="text-xs font-semibold whitespace-nowrap">
+                  {mapLayerType === 'google-streets'
+                    ? (language === 'hi' ? 'गूगल मैप्स' : 'Google Maps')
+                    : mapLayerType === 'google-satellite'
+                    ? (language === 'hi' ? 'सैटेलाइट' : 'Satellite')
+                    : mapLayerType === 'google-terrain'
+                    ? (language === 'hi' ? 'टेरेन' : 'Terrain')
+                    : (language === 'hi' ? 'वेक्टर मैप' : 'Vector Map')}
+                </span>
+                <ChevronDown className={`w-3 h-3 flex-shrink-0 transition-transform ${isLayerMenuOpen ? 'rotate-180 text-white' : 'text-[var(--text-secondary)]'}`} />
+              </button>
+
+              <AnimatePresence>
+                {isLayerMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    className="absolute right-0 top-11 z-50 min-w-[170px] glass rounded-2xl shadow-2xl p-1.5 border border-[var(--glass-border)] flex flex-col gap-1 backdrop-blur-xl bg-white/95 dark:bg-neutral-900/95"
+                  >
+                    <button
+                      onClick={() => { setMapLayerType('google-streets'); setIsLayerMenuOpen(false); }}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                        mapLayerType === 'google-streets'
+                          ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                          : 'text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">🗺️ Google Streets</span>
+                      {mapLayerType === 'google-streets' && <span className="text-xs">✓</span>}
+                    </button>
+                    <button
+                      onClick={() => { setMapLayerType('google-satellite'); setIsLayerMenuOpen(false); }}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                        mapLayerType === 'google-satellite'
+                          ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                          : 'text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">🛰️ Google Satellite</span>
+                      {mapLayerType === 'google-satellite' && <span className="text-xs">✓</span>}
+                    </button>
+                    <button
+                      onClick={() => { setMapLayerType('google-terrain'); setIsLayerMenuOpen(false); }}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                        mapLayerType === 'google-terrain'
+                          ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                          : 'text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">⛰️ Google Terrain</span>
+                      {mapLayerType === 'google-terrain' && <span className="text-xs">✓</span>}
+                    </button>
+                    <button
+                      onClick={() => { setMapLayerType('carto'); setIsLayerMenuOpen(false); }}
+                      className={`w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                        mapLayerType === 'carto'
+                          ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                          : 'text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">🎨 Clean Vector</span>
+                      {mapLayerType === 'carto' && <span className="text-xs">✓</span>}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Reset Map */}
             <button
               onClick={handleResetMap}
@@ -514,17 +678,41 @@ export function MapPanel({
               <Compass className="w-4 h-4 text-[var(--accent-primary)]" />
             </button>
 
-            {/* Full Screen Toggle */}
+            {/* Panel View Expand / Split Toggle */}
             {onToggleFullScreen && (
               <button
                 onClick={onToggleFullScreen}
-                className="glass p-2.5 rounded-full shadow-lg hover:scale-105 transition-all text-xs font-medium text-[var(--text-primary)] border border-[var(--glass-border)]"
-                title={isFullScreen ? 'Exit Full Screen' : 'Full Screen Map'}
+                className="glass p-2.5 rounded-full shadow-lg hover:scale-105 transition-all text-xs font-medium text-[var(--text-primary)] border border-[var(--glass-border)] cursor-pointer"
+                title={isFullScreen ? (language === 'hi' ? 'द्वैत दृश्य में बदलें' : 'Switch to Split View') : (language === 'hi' ? 'मानचित्र विस्तृत करें' : 'Expand Map View')}
               >
                 {isFullScreen ? (
-                  <Minimize2 className="w-4 h-4 text-[var(--accent-primary)]" />
+                  <Columns2 className="w-4 h-4 text-[var(--accent-primary)]" />
                 ) : (
                   <Maximize2 className="w-4 h-4 text-[var(--accent-primary)]" />
+                )}
+              </button>
+            )}
+
+            {/* Dedicated Window Full Screen Toggle */}
+            {onToggleWindowFullScreen && (
+              <button
+                onClick={onToggleWindowFullScreen}
+                className={`glass p-2.5 rounded-full shadow-lg hover:scale-105 transition-all text-xs font-medium border cursor-pointer ${
+                  isWindowFullScreen
+                    ? 'border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/10'
+                    : 'border-[var(--glass-border)] text-[var(--text-primary)]'
+                }`}
+                title={
+                  isWindowFullScreen
+                    ? (language === 'hi' ? 'पूर्ण स्क्रीन विंडो से बाहर निकलें (Esc)' : 'Exit Full Screen Window (Esc)')
+                    : (language === 'hi' ? 'पूर्ण स्क्रीन विंडो (Esc से बाहर निकलें)' : 'Full Screen Window (Press Esc to exit)')
+                }
+                aria-label="Toggle Full Screen Window"
+              >
+                {isWindowFullScreen ? (
+                  <Shrink className="w-4 h-4 text-[var(--accent-primary)]" />
+                ) : (
+                  <Fullscreen className="w-4 h-4 text-[var(--accent-primary)]" />
                 )}
               </button>
             )}
@@ -542,7 +730,7 @@ export function MapPanel({
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => {
-                  setSelectedCategory(cat.id);
+                  setSelectedCategory(prev => prev === cat.id ? null : cat.id);
                   setFocusCenter(null);
                 }}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all shadow-md border ${
@@ -753,8 +941,11 @@ export function MapPanel({
           zoomControl={false}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url={tileUrl}
+            key={mapLayerType}
+            attribution={currentTileConfig.attribution}
+            url={currentTileConfig.url}
+            subdomains={currentTileConfig.subdomains}
+            maxZoom={currentTileConfig.maxZoom}
           />
 
           <MapViewManager
@@ -778,8 +969,16 @@ export function MapPanel({
                     {place.images.length > 0 && (
                       <div className="relative h-32 w-full rounded-xl overflow-hidden shadow-sm">
                         <img
-                          src={place.images[0].url}
+                          src={getAuthenticTourismImage(place.id, place.name, place.images[0]?.url)}
                           alt={place.name}
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.src.includes('photo-1609342122563')) {
+                              target.src = 'https://images.unsplash.com/photo-1609342122563-a43ac8917a3a?w=800&q=80';
+                            }
+                          }}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute top-2 left-2">
@@ -962,6 +1161,22 @@ export function MapPanel({
 
       {/* Bottom Route Selector Bar with Pre-configured Circuits & Active Route Banner */}
       <div className="absolute bottom-20 lg:bottom-3 left-3 right-3 z-[1000] pointer-events-none flex flex-col items-center gap-2">
+        {/* Helper Hint when map is in clean view */}
+        {!selectedCategory && !searchQuery.trim() && !focusCenter && !currentRoutePolyline && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass rounded-full px-3.5 py-1.5 shadow-lg border border-[var(--glass-border)] flex items-center gap-2 backdrop-blur-md pointer-events-auto text-[11px] font-medium text-[var(--text-secondary)]"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[var(--accent-primary)] flex-shrink-0" />
+            <span>
+              {language === 'hi'
+                ? 'मानचित्र पर स्थल देखने हेतु ऊपर दिए गए किसी फिल्टर (मंदिर, घाट, किले) पर टैप करें'
+                : 'Select a filter category above (Temples, Ghats, Forts) to display markers'}
+            </span>
+          </motion.div>
+        )}
+
         {/* Active Route Indicator Banner if Route is Plotted */}
         {calculatedRoute && (
           <div className="pointer-events-auto glass rounded-full px-4 py-1.5 shadow-xl border border-[var(--glass-border)] flex items-center gap-3 backdrop-blur-md">

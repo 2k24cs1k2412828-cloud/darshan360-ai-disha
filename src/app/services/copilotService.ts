@@ -483,6 +483,66 @@ export function removeStopFromItinerary(itinerary: TripItinerary, stopId: string
   };
 }
 
+// Initialize fresh itinerary from a single place (when user starts trip from map)
+export function createItineraryFromSinglePlace(
+  place: UPPlace,
+  language: 'en' | 'hi' = 'en'
+): TripItinerary {
+  const isFood = place.category === 'food';
+  const duration = isFood ? 45 : 45;
+  const now = new Date();
+  let hours = now.getHours();
+  const minutes = Math.ceil(now.getMinutes() / 15) * 15;
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const startTime = `${displayHours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
+  const startM = hours * 60 + minutes;
+  const endM = startM + duration;
+  const endHours = Math.floor(endM / 60) % 24;
+  const endMinutes = endM % 60;
+  const endAmpm = endHours >= 12 ? 'PM' : 'AM';
+  const endDisplayHours = endHours % 12 || 12;
+  const endTime = `${endDisplayHours}:${endMinutes < 10 ? '0' : ''}${endMinutes} ${endAmpm}`;
+
+  const firstStop: ItineraryStop = {
+    id: `stop_${place.id || 'custom'}_${Date.now()}`,
+    stopNumber: 1,
+    placeId: place.id,
+    name: place.name,
+    hindiName: place.hindiName || place.name,
+    city: place.city || 'Uttar Pradesh',
+    hindiCity: place.hindiCity || 'उत्तर प्रदेश',
+    category: place.category || 'heritage',
+    coordinates: place.coordinates,
+    imageUrl: place.images?.[0]?.url,
+    startTime: startTime,
+    endTime: endTime,
+    durationMinutes: duration,
+    activity: isFood ? 'Local Culinary Experience' : 'Darshan & Heritage Tour',
+    activityHi: isFood ? 'स्थानीय खानपान व स्वाद' : 'दर्शन एवं सांस्कृतिक भ्रमण',
+    whyThisPlace: `Initial destination selected by traveler from interactive map.`,
+    whyThisPlaceHi: `यात्री द्वारा सीधे इंटरैक्टिव मानचित्र से चुना गया प्रारंभिक पड़ाव।`,
+    isFoodStop: isFood,
+    status: 'current'
+  };
+
+  return {
+    id: `trip_${Date.now()}`,
+    title: `${place.name} Dynamic Tour`,
+    titleHi: `${place.hindiName || place.name} यात्रा`,
+    city: place.city || 'Uttar Pradesh',
+    hindiCity: place.hindiCity || 'उत्तर प्रदेश',
+    targetHours: 3,
+    startTime: startTime,
+    safetyBufferMinutes: 20,
+    currentStopIndex: 0,
+    stops: [firstStop],
+    totalDistanceKm: 0,
+    totalCostEstimate: '₹200 - ₹500',
+    optimizationsApplied: ['Custom Itinerary Initialized from Map']
+  };
+}
+
 // Replanning: Insert new stop
 export function insertPlaceIntoItinerary(
   itinerary: TripItinerary, 

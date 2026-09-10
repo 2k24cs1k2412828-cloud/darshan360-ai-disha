@@ -3,6 +3,7 @@ import {
   UP_CITY_COORDINATES, 
   calculateDynamicUPRoute 
 } from '../../data/up-comprehensive-database';
+import { getAuthenticTourismImage } from './tourismImageService';
 
 export { UP_CITY_COORDINATES, calculateDynamicUPRoute };
 
@@ -12,7 +13,7 @@ export interface UPPlace {
   hindiName: string;
   city: string;
   hindiCity: string;
-  category: 'temple' | 'heritage' | 'ghat' | 'buddhist' | 'food' | 'nature' | 'monument';
+  category: 'temple' | 'heritage' | 'ghat' | 'buddhist' | 'food' | 'nature' | 'monument' | 'waterfall' | 'craft';
   categoryLabel: { en: string; hi: string };
   coordinates: [number, number]; // [lat, lng]
   description: { en: string; hi: string };
@@ -221,7 +222,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Iconic wide-angle shot of Namaste sculptures against sunrise or night illumination.', hi: 'नमस्ते स्कल्पचर के साथ सूर्यास्त और नाइट लाइटिंग के फोटो।' },
     safetyTips: { en: 'Spacious and exceptionally well-guarded with tourist police outpost.', hi: 'अत्यंत स्वच्छ और सुरक्षित।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800', title: { en: 'Namo Ghat Illuminated Plaza', hi: 'नमो घाट प्लाजा' } }
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Namo_Ghat_Varanasi_Folded_Hands.jpg/800px-Namo_Ghat_Varanasi_Folded_Hands.jpg', title: { en: 'Namo Ghat Illuminated Plaza', hi: 'नमो घाट प्लाजा' } }
     ],
     tags: ['varanasi', 'ghat', 'namo ghat', 'accessible', 'modern']
   },
@@ -297,7 +298,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Phones/cameras stored in free Pilgrim Facilitation Centre lockers.', hi: 'फोन पीएफसी केंद्र के निशुल्क लॉकर में जमा होते हैं।' },
     safetyTips: { en: 'Book Aarti passes only via srjbtkshetra.org. Avoid fake VIP pass touts.', hi: 'आरती पास केवल ट्रस्ट की आधिकारिक वेबसाइट से लें।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1707297055902-b0978ec1fcfb?w=800', title: { en: 'Ram Mandir Sanctum & Shikhara', hi: 'राम मंदिर गर्भगृह व शिखर' } }
+      { url: 'https://images.unsplash.com/photo-1609342122563-a43ac8917a3a?w=800', title: { en: 'Ram Mandir Sanctum & Shikhara', hi: 'राम मंदिर गर्भगृह व शिखर' } }
     ],
     tags: ['ayodhya', 'ram mandir', 'temple', 'spiritual', 'ram lalla']
   },
@@ -334,7 +335,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Sunset reflections on Saryu water and glowing diyas during evening aarti.', hi: 'सूर्यास्त के समय जल में दीपकों का सुनहरा प्रतिबिंब।' },
     safetyTips: { en: 'Only take official boats with life jackets.', hi: 'केवल लाइफ जैकेट वाली पंजीकृत नौकाओं का उपयोग करें।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800', title: { en: 'Ram Ki Paidi Ghat & Saryu Riverfront', hi: 'राम की पैड़ी सरयू घाट' } }
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Ram_Ki_Paidi_Ayodhya_Deepotsav.jpg/800px-Ram_Ki_Paidi_Ayodhya_Deepotsav.jpg', title: { en: 'Ram Ki Paidi Ghat & Saryu Riverfront', hi: 'राम की पैड़ी सरयू घाट' } }
     ],
     tags: ['ayodhya', 'ghat', 'saryu', 'ram ki paidi', 'aarti', 'riverfront']
   },
@@ -371,7 +372,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Peaceful river sunset with birds flying across the Saryu delta.', hi: 'सरयू के शांत जल में ढलते सूरज का अद्भुत दृश्य।' },
     safetyTips: { en: 'Family-friendly and peaceful.', hi: 'अत्यंत स्वच्छ और शांत।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800', title: { en: 'Guptar Ghat Saryu Riverfront', hi: 'गुप्तार घाट सरयू तट' } }
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Guptar_Ghat_Ayodhya.jpg/800px-Guptar_Ghat_Ayodhya.jpg', title: { en: 'Guptar Ghat Saryu Riverfront', hi: 'गुप्तार घाट सरयू तट' } }
     ],
     tags: ['ayodhya', 'ghat', 'guptar ghat', 'saryu', 'samadhi']
   },
@@ -447,7 +448,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Iconic reflection of the grand palace jharokhas in the Yamuna river at sunset.', hi: 'सूर्यास्त के समय यमुना जल में महलों के झरोखों का प्रतिबिंब।' },
     safetyTips: { en: 'Guard glasses and food from monkeys in the area.', hi: 'बंदरों से चश्मा सुरक्षित रखें।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1609137144822-0a15320c2429?w=800', title: { en: 'Keshi Ghat Heritage Architecture', hi: 'केशी घाट वास्तुकला' } }
+      { url: 'https://images.unsplash.com/photo-1571536802807-30451e3955d8?w=800', title: { en: 'Keshi Ghat Heritage Architecture', hi: 'केशी घाट वास्तुकला' } }
     ],
     tags: ['vrindavan', 'ghat', 'keshi ghat', 'yamuna', 'mathura', 'krishna']
   },
@@ -521,7 +522,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Night lighting shifting colors across the marble facade.', hi: 'रात्रि में सतरंगी रोशनी में जगमगाता प्रेम मंदिर।' },
     safetyTips: { en: 'Expect heavy crowds on weekends and Ekadashi.', hi: 'सप्ताहांत और एकादशी पर भीड़ की संभावना।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1609137144822-0a15320c2429?w=800', title: { en: 'Prem Mandir Night Illumination', hi: 'प्रेम मंदिर की रात्रि लाइटिंग' } }
+      { url: 'https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=800', title: { en: 'Prem Mandir Night Illumination', hi: 'प्रेम मंदिर की रात्रि लाइटिंग' } }
     ],
     tags: ['vrindavan', 'temple', 'prem mandir', 'bankey bihari', 'mathura']
   },
@@ -677,7 +678,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Evening Mandakini Maha Aarti reflecting in the tranquil waters.', hi: 'मंदाकिनी के शांत जल में सांध्य आरती का दृश्य।' },
     safetyTips: { en: 'Wear non-slip footwear when entering Gupt Godavari caves.', hi: 'गुफाओं में पानी वाले पत्थरों पर संभलकर चलें।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800', title: { en: 'Ramghat on Mandakini River', hi: 'रामघाट चित्रकूट' } }
+      { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Ramghat_Chitrakoot.jpg/800px-Ramghat_Chitrakoot.jpg', title: { en: 'Ramghat on Mandakini River', hi: 'रामघाट चित्रकूट' } }
     ],
     tags: ['chitrakoot', 'ghat', 'ramghat', 'kamadgiri', 'ramayana']
   },
@@ -716,7 +717,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Dhamek Stupa framed by ancient monastery ruins in morning sun.', hi: 'प्राचीन बौद्ध विहारों के बीच धमेक स्तूप का फोटो।' },
     safetyTips: { en: 'Hire certified ASI guides with badges.', hi: 'केवल अधिकृत ASI गाइड ही चुनें।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1609137144822-0a15320c2429?w=800', title: { en: 'Dhamek Stupa at Sarnath', hi: 'धमेक स्तूप सारनाथ' } }
+      { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Dhamek Stupa at Sarnath', hi: 'धमेक स्तूप सारनाथ' } }
     ],
     tags: ['sarnath', 'buddhist', 'dhamek stupa', 'varanasi', 'buddha']
   },
@@ -753,7 +754,7 @@ const BASE_UP_PLACES: UPPlace[] = [
     photographyTips: { en: 'Gentle lighting on the serene reclining Buddha statue.', hi: 'भगवान बुद्ध की शांत मुद्रा का फोटो।' },
     safetyTips: { en: 'Maintain silence inside the stupa hall.', hi: 'परिसर में शांति बनाए रखें।' },
     images: [
-      { url: 'https://images.unsplash.com/photo-1609137144822-0a15320c2429?w=800', title: { en: 'Mahaparinirvana Temple Kushinagar', hi: 'महापरिनिर्वाण मंदिर' } }
+      { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Mahaparinirvana Temple Kushinagar', hi: 'महापरिनिर्वाण मंदिर' } }
     ],
     tags: ['kushinagar', 'buddhist', 'buddha', 'parinirvana']
   }
@@ -1077,11 +1078,19 @@ export const UP_TRAVEL_ROUTES: UPRoute[] = [
   }
 ];
 
-// Combined full UP database
+// Combined full UP database automatically resolved with authentic Wikipedia / UP Tourism imagery
 export const UP_PLACES: UPPlace[] = [
   ...BASE_UP_PLACES,
-  ...COMPREHENSIVE_UP_PLACES.filter(cp => !BASE_UP_PLACES.some(bp => bp.id === cp.id))
-];
+  ...COMPREHENSIVE_UP_PLACES.filter(cp => 
+    !BASE_UP_PLACES.some(bp => bp.id === cp.id || bp.name.toLowerCase().trim() === cp.name.toLowerCase().trim())
+  )
+].map(p => ({
+  ...p,
+  images: (p.images || []).map(img => ({
+    ...img,
+    url: getAuthenticTourismImage(p.id, p.name, img.url)
+  }))
+}));
 
 // HELPERS
 export function getAllUPPlaces(): UPPlace[] {
@@ -1110,7 +1119,7 @@ export function searchUPPlaces(query: string): UPPlace[] {
   const q = query.toLowerCase().trim();
   if (!q) return UP_PLACES;
 
-  // Pure greeting check: return empty so it doesn't falsely return Kashi Vishwanath or draw routes
+  // Pure greeting check: return empty so it doesn't falsely return places or draw routes
   const greetingRegex = /^(hi|hello|hey|namaste|namaskar|pranam|pranaam|radhe radhe|jai shri ram|jai shree ram|salaam|good morning|good evening|namaste ji|hello ji|hey there|hi disha|hello disha)[!.,? ]*$/i;
   if (greetingRegex.test(q)) {
     return [];
@@ -1121,16 +1130,24 @@ export function searchUPPlaces(query: string): UPPlace[] {
     return getAllUPGhats();
   }
 
-  // Split query into significant tokens (exclude greetings & stop words)
+  // Conversational meta words and intent keywords to exclude from place tokens
   const stopWords = new Set([
     'the', 'is', 'are', 'was', 'were', 'am', 'be', 'been', 'being', 'at', 'which', 'on', 'in', 'and', 'or', 'to', 'for', 'about', 
-    'me', 'tell', 'show', 'photo', 'photos', 'images', 'image', 'picture', 'pictures', 
+    'me', 'tell', 'show', 'photo', 'photos', 'images', 'image', 'picture', 'pictures', 'gallery',
     'bataiye', 'batao', 'dikhao', 'dekhein', 'kya', 'hai', 'hain', 'ka', 'ke', 'ki', 'ko', 'se', 
     'kripya', 'kitni', 'bheed', 'jane', 'layak', 'hi', 'hello', 'hey', 'namaste', 
     'namaskar', 'pranam', 'pranaam', 'ram', 'radhe', 'radhey', 'jai', 'hlo', 'yo', 
     'bhai', 'ji', 'shuru', 'start', 'help', 'kaise', 'ho', 'please', 'can', 'you', 'your', 'yours',
     'who', 'what', 'where', 'when', 'why', 'how', 'whom', 'whose', 'tum', 'aap', 'kaun', 'kisko', 'apna', 'apni',
-    'good', 'morning', 'evening', 'night', 'disha', 'myself', 'yourself', 'bot', 'ai'
+    'good', 'morning', 'evening', 'night', 'disha', 'myself', 'yourself', 'bot', 'ai',
+    'detailed', 'details', 'detail', 'travel', 'causes', 'cause', 'significance', 
+    'history', 'historic', 'historical', 'itihas', 'crowd', 'status', 'telemetry', 
+    'timing', 'timings', 'time', 'hours', 'visiting', 'visit', 'route', 'routes', 
+    'rasta', 'road', 'direction', 'directions', 'map', 'maps', 'information', 'info', 
+    'guide', 'guideline', 'guidelines', 'rules', 'pass', 'ticket', 'tickets', 
+    'price', 'fee', 'entry', 'cost', 'charge', 'temple', 'temples', 'mandir', 'mandirs', 
+    'mandiro', 'mandiron', 'place', 'places', 'spot', 'spots', 'destination', 'destinations', 
+    'near', 'nearby', 'around', 'with', 'give', 'find', 'itinerary', 'darshan', 'line', 'corridor'
   ]);
 
   const tokens = q
@@ -1138,39 +1155,77 @@ export function searchUPPlaces(query: string): UPPlace[] {
     .split(/\s+/)
     .filter(t => t.length >= 3 && !stopWords.has(t));
 
-  if (tokens.length === 0) {
-    return [];
+  // Detect if any specific UP city is mentioned in the query
+  const allCities = Array.from(new Set(UP_PLACES.map(p => p.city.toLowerCase())));
+  const mentionedCities = allCities.filter(city => {
+    const cityRegex = new RegExp(`(\\b|\\s|^)${city}(\\b|\\s|$)`, 'i');
+    return cityRegex.test(q);
+  });
+
+  const scoredPlaces: { place: UPPlace; score: number }[] = [];
+  const seenIds = new Set<string>();
+
+  for (const p of UP_PLACES) {
+    if (seenIds.has(p.id)) continue;
+    seenIds.add(p.id);
+
+    const pName = p.name.toLowerCase();
+    const pHindi = p.hindiName.toLowerCase();
+    const pCity = p.city.toLowerCase();
+    let score = 0;
+
+    // 1. Direct name matching (High confidence)
+    const cleanPName = pName.replace(/\b(mandir|temple|fort|palace|ghat|corridor)\b/g, '').trim();
+    if (q.includes(pName)) {
+      score += 120;
+    } else if (cleanPName.length >= 4 && q.includes(cleanPName)) {
+      score += 100;
+    } else if (q.includes(pHindi)) {
+      score += 100;
+    }
+
+    // 2. City match bonus
+    const cityMatches = mentionedCities.includes(pCity);
+    if (cityMatches) {
+      score += 40;
+    }
+
+    // 3. Significant Token matching
+    for (const t of tokens) {
+      if (pName.split(/[\s_,-]+/).some(w => w === t || (t.length >= 4 && w.startsWith(t)))) {
+        score += 35;
+      }
+      if (pHindi.includes(t)) {
+        score += 30;
+      }
+      if (pCity === t) {
+        score += 25;
+      }
+      if (p.tags.some(tag => !['temple', 'mandir', 'tourist', 'historical'].includes(tag) && (tag === t || tag.includes(t)))) {
+        score += 15;
+      }
+    }
+
+    // 4. City-mismatch penalty: if a city is explicitly asked (e.g. "Pratapgarh"), don't return other cities' places
+    if (mentionedCities.length > 0 && !cityMatches) {
+      score = Math.max(0, score - 60);
+    }
+
+    if (score > 0) {
+      scoredPlaces.push({ place: p, score });
+    }
   }
 
-  return UP_PLACES.filter(p => {
-    const pName = p.name.toLowerCase();
-    const pHindi = p.hindiName;
-    const pCity = p.city.toLowerCase();
-    const pHindiCity = p.hindiCity;
-    const pCategory = p.category.toLowerCase();
+  scoredPlaces.sort((a, b) => b.score - a.score);
+  const maxScore = scoredPlaces.length > 0 ? scoredPlaces[0].score : 0;
 
-    // 1. Direct city or place match (with word boundary / length check)
-    if (pCity.length >= 3 && q.split(/\s+/).some(w => w === pCity)) return true;
-    if (pHindiCity.length >= 2 && q.split(/\s+/).some(w => w === pHindiCity)) return true;
-    if (q.includes(pName) || (q.length >= 5 && pName.includes(q))) return true;
-    if (q.includes(pHindi) || (q.length >= 5 && pHindi.includes(q))) return true;
-    if (p.tags.some(tag => tag.length >= 4 && q.includes(tag))) return true;
+  // Filter out low-confidence noise when clear specific matches exist
+  let results = scoredPlaces;
+  if (maxScore >= 40) {
+    results = scoredPlaces.filter(s => s.score >= Math.max(35, maxScore * 0.6));
+  }
 
-    // 2. Significant Token match (only tokens with length >= 3)
-    const matchCount = tokens.filter(token => {
-      // Word boundary or prefix matching
-      const matchesName = pName.split(/[\s_,-]+/).some(word => word === token || (token.length >= 4 && word.startsWith(token)));
-      const matchesCity = pCity === token;
-      const matchesHindi = pHindi.split(/[\s_,-]+/).some(word => word === token || word.includes(token));
-      const matchesHindiCity = pHindiCity === token;
-      const matchesCategory = pCategory === token;
-      const matchesTags = p.tags.some(tag => tag.split(/[\s_,-]+/).some(w => w === token || (token.length >= 4 && w.startsWith(token))));
-
-      return matchesName || matchesCity || matchesHindi || matchesHindiCity || matchesCategory || matchesTags;
-    }).length;
-
-    return matchCount > 0;
-  });
+  return results.map(s => s.place);
 }
 
 export function getUPNews(): UPNewsEvent[] {

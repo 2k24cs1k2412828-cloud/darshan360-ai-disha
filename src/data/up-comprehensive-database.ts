@@ -3,6 +3,8 @@
 // Verified coordinates, authentic distinct images, and deep travel significance.
 
 import type { UPPlace } from '../app/services/uttarPradeshService';
+import { getAuthenticTourismImage } from '../app/services/tourismImageService';
+import { SUPPLEMENTARY_UP_PLACES } from './up-supplementary-database';
 
 // Coordinates registry for all 75 districts of UP for dynamic routing
 export const UP_CITY_COORDINATES: Record<string, { name: string; hindi: string; coords: [number, number] }> = {
@@ -79,7 +81,7 @@ function buildComprehensiveUPPlaces(): UPPlace[] {
     hindiName: string,
     city: string,
     hindiCity: string,
-    category: 'temple' | 'heritage' | 'ghat' | 'buddhist' | 'food' | 'nature' | 'monument',
+    category: 'temple' | 'heritage' | 'ghat' | 'buddhist' | 'food' | 'nature' | 'monument' | 'waterfall' | 'craft',
     catEn: string,
     catHi: string,
     lat: number,
@@ -119,7 +121,7 @@ function buildComprehensiveUPPlaces(): UPPlace[] {
       photographyTips: { en: 'Best captured during golden hour morning/evening light.', hi: 'सूर्योदय व सूर्यास्त के समय सर्वोत्तम चित्र।' },
       safetyTips: { en: 'Follow local guidelines and respectful dress code.', hi: 'स्थानीय नियमों का पालन करें।' },
       images: [
-        { url: imageUrl, title: { en: name, hi: hindiName }, caption: `${name} (${city})` }
+        { url: getAuthenticTourismImage(id, name, imageUrl), title: { en: name, hi: hindiName }, caption: `${name} (${city})` }
       ],
       tags: [...tags, city.toLowerCase(), id.toLowerCase()]
     });
@@ -332,7 +334,7 @@ function buildComprehensiveUPPlaces(): UPPlace[] {
     '6:30 AM - 12:00 PM & 2:00 PM - 10:00 PM', 'सुबह 6:30-12:00 व 2:00-10:00 बजे',
     'Free entry', 'निःशुल्क',
     9,
-    'https://images.unsplash.com/photo-1707297055902-b0978ec1fcfb?w=800',
+    'https://images.unsplash.com/photo-1609342122563-a43ac8917a3a?w=800',
     ['ayodhya', 'ram mandir', 'temple', 'ram lalla', 'अयोध्या']
   );
 
@@ -449,7 +451,7 @@ function buildComprehensiveUPPlaces(): UPPlace[] {
     '5:30 AM - 12:00 PM & 4:30 PM - 8:30 PM', 'सुबह 5:30-12:00 व 4:30-8:30 बजे',
     'Free entry', 'निःशुल्क',
     9,
-    'https://images.unsplash.com/photo-1609137144822-0a15320c2429?w=800',
+    'https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=800',
     ['vrindavan', 'prem mandir', 'temple', 'fountain', 'marble', 'वृंदावन']
   );
 
@@ -869,7 +871,7 @@ function buildComprehensiveUPPlaces(): UPPlace[] {
     '8:00 AM - 11:00 PM', 'सुबह 8:00 से रात 11:00 बजे',
     '₹80 - ₹350 per kg', '₹80 - ₹350 प्रति किग्रा',
     9,
-    'https://images.unsplash.com/photo-1505253758473-96b3015f27eb?w=800',
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
     ['panchhi petha', 'agra', 'sweets', 'food', 'noori gate', 'पंछी पेठा']
   );
 
@@ -1155,7 +1157,10 @@ function buildComprehensiveUPPlaces(): UPPlace[] {
   return places;
 }
 
-export const COMPREHENSIVE_UP_PLACES = buildComprehensiveUPPlaces();
+export const COMPREHENSIVE_UP_PLACES: UPPlace[] = [
+  ...buildComprehensiveUPPlaces(),
+  ...SUPPLEMENTARY_UP_PLACES
+];
 
 // Helper to determine accurate primary highway corridor between two points
 function getUPHighwayDetails(fromName: string, toName: string): { en: string; hi: string } {

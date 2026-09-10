@@ -83,7 +83,7 @@ export interface GeminiResponse {
 
 export async function getGeminiResponse(
   userMessage: string,
-  conversationHistory: Array<{ role: string; content: string }>,
+  conversationHistory: Array<{ role: string; content: string }> = [],
   currentLang: 'en' | 'hi' = 'en'
 ): Promise<GeminiResponse> {
   const upPlaces = getAllUPPlaces();
@@ -489,8 +489,13 @@ _All numbered stops and connecting route lines are plotted on your interactive m
       }))
     };
   } else if (matchedPlaces.length >= 2) {
+    const isExplicitMultiRoute = /\b(route|circuit|itinerary|plan|safarnama|yatra marg|yatra|tour|parikrama)\b/i.test(userMessage) &&
+      (userMessage.toLowerCase().includes('from') || userMessage.toLowerCase().includes('to') || userMessage.toLowerCase().includes('se') || userMessage.toLowerCase().includes('tak') || userMessage.toLowerCase().includes('circuit'));
+
     mapData = {
-      title: activeLang === 'hi' ? `${matchedPlaces[0].hindiCity} से ${matchedPlaces[matchedPlaces.length - 1].hindiCity} यात्रा मार्ग` : `${matchedPlaces[0].city} to ${matchedPlaces[matchedPlaces.length - 1].city} Route`,
+      title: activeLang === 'hi' 
+        ? (isExplicitMultiRoute ? `${matchedPlaces[0].hindiCity} से ${matchedPlaces[matchedPlaces.length - 1].hindiCity} यात्रा मार्ग` : `${matchedPlaces[0].hindiCity} क्षेत्र के प्रमुख स्थल`)
+        : (isExplicitMultiRoute ? `${matchedPlaces[0].city} to ${matchedPlaces[matchedPlaces.length - 1].city} Route` : `Key Places in ${matchedPlaces[0].city} Region`),
       center: matchedPlaces[0].coordinates,
       zoom: 8,
       markers: matchedPlaces.map(p => ({
@@ -498,8 +503,10 @@ _All numbered stops and connecting route lines are plotted on your interactive m
         title: activeLang === 'hi' ? p.hindiName : p.name,
         description: activeLang === 'hi' ? p.description.hi : p.description.en
       })),
-      routePath: matchedPlaces.map(p => p.coordinates),
-      distanceKm: 240
+      ...(isExplicitMultiRoute ? {
+        routePath: matchedPlaces.map(p => p.coordinates),
+        distanceKm: 240
+      } : {})
     };
   } else if (matchedPlaces.length === 1) {
     const place = matchedPlaces[0];
@@ -607,8 +614,9 @@ ${placesInfo}
           systemInstruction: systemPrompt
         });
 
+        const safeHistory = Array.isArray(conversationHistory) ? conversationHistory : [];
         const contents = [
-          ...conversationHistory.slice(-4).map(msg => ({
+          ...safeHistory.slice(-4).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
             parts: [{ text: msg.content }]
           })),
@@ -685,8 +693,8 @@ function generateSmartOfflineResponse(
   scrapedNews?: ScrapedNewsItem[],
   isCrowdQuery?: boolean
 ): GeminiResponse {
-  // If user is querying crowd or district crowd status is matched
-  if (districtCrowd && (isCrowdQuery || userMessage.toLowerCase().includes('crowd') || userMessage.toLowerCase().includes('bheed') || userMessage.toLowerCase().includes('kitni') || userMessage.toLowerCase().includes('rush') || userMessage.toLowerCase().includes('line'))) {
+  // If user is ONLY querying general crowd without a specific place match
+  if (matchedPlaces.length === 0 && districtCrowd && (isCrowdQuery || userMessage.toLowerCase().includes('crowd') || userMessage.toLowerCase().includes('bheed') || userMessage.toLowerCase().includes('kitni') || userMessage.toLowerCase().includes('rush') || userMessage.toLowerCase().includes('line'))) {
     const text = lang === 'hi'
       ? `### 👥 ${districtCrowd.hindiDistrict} — लाइव भीड़ एवं दर्शन स्थिति रिपोर्ट
 
@@ -835,10 +843,11 @@ _All ghat markers have been highlighted on your interactive map!_`;
     let output = '';
 
     matchedPlaces.slice(0, 2).forEach(p => {
-      const isFeeQuery = /\b(ticket|price|fee|entry fee|cost|charge|shulk|paisa|kiraya)\b/i.test(userMessage) ||
-        /(टिकट|शुल्क|प्रवेश शुल्क|खर्चा|फीस|किराया|पैसे|रेट)/i.test(userMessage);
-      const isTimingQuery = /\b(timing|timings|open|close|hours|samay|khulta|band)\b/i.test(userMessage) ||
-        /(समय|टाइमिंग|टाइम|कब खुलता|कब बंद|घंटे)/i.test(userMessage);
+      const isDetailedQuery = /\b(detailed|detail|details|history|cause|causes|significance|about|parichay|itihas|mahatva|poori jankari|sab kuch|katha)\b/i.test(userMessage);
+      const isFeeQuery = !isDetailedQuery && (/\b(ticket|price|fee|entry fee|cost|charge|shulk|paisa|kiraya)\b/i.test(userMessage) ||
+        /(टिकट|शुल्क|प्रवेश शुल्क|खर्चा|फीस|किराया|पैसे|रेट)/i.test(userMessage));
+      const isTimingQuery = !isDetailedQuery && (/\b(timing|timings|open|close|hours|samay|khulta|band)\b/i.test(userMessage) ||
+        /(समय|टाइमिंग|टाइम|कब खुलता|कब बंद|घंटे)/i.test(userMessage));
 
       if (lang === 'hi') {
         if (isFeeQuery) {
@@ -928,6 +937,14 @@ ${p.deepHistory.en}
     const primaryPlace = matchedPlaces[0];
     const cityCrowd = districtCrowd || getDistrictCrowdMetrics(primaryPlace.city);
     const relatedScams = getUPScams().filter(s => s.city.toLowerCase() === primaryPlace.city.toLowerCase());
+
+    if (cityCrowd && (isCrowdQuery || userMessage.toLowerCase().includes('crowd') || userMessage.toLowerCase().includes('bheed') || userMessage.toLowerCase().includes('status'))) {
+      if (lang === 'hi') {
+        output += `### 👥 लाइव भीड़ एवं दर्शन स्थिति (${cityCrowd.hindiDistrict})\n• **भीड़ स्तर:** ${cityCrowd.crowdLevelText.hi}\n• **अनुमानित प्रतीक्षा समय:** ${cityCrowd.waitTimeFormatted.hi}\n• **सर्वश्रेष्ठ दर्शन स्लॉट:** ${cityCrowd.bestSlot.hi}\n• **व्यवस्था स्थिति:** ${cityCrowd.feasibilityVerdict.hi}\n\n`;
+      } else {
+        output += `### 👥 Live Crowd & Darshan Status (${cityCrowd.district})\n• **Crowd Level:** ${cityCrowd.crowdLevelText.en}\n• **Estimated Queue Wait:** ${cityCrowd.waitTimeFormatted.en}\n• **Recommended Darshan Slot:** ${cityCrowd.bestSlot.en}\n• **Status Verdict:** ${cityCrowd.feasibilityVerdict.en}\n\n`;
+      }
+    }
 
     return {
       text: output.trim(),

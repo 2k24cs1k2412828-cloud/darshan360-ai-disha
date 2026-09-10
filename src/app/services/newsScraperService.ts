@@ -232,6 +232,43 @@ export const DISTRICT_CROWD_REGISTRY: Record<string, DistrictCrowdStatus> = {
       { name: 'Akshaya Vat (Fort)', hindiName: 'अक्षय वट (किला परिसर)', status: 'moderate', waitMinutes: 40 }
     ]
   },
+  pratapgarh: {
+    district: 'Pratapgarh',
+    hindiDistrict: 'प्रतापगढ़',
+    primaryHub: 'Maa Belha Devi Mandir (Sai River)',
+    crowdLevel: 'low',
+    crowdLevelText: {
+      en: 'Peaceful & Normal Devotee Flow',
+      hi: 'शांत एवं सुगम दर्शन'
+    },
+    estimatedWaitMinutes: 10,
+    waitTimeFormatted: {
+      en: '~5 to 15 Minutes through Sai River ghat corridor',
+      hi: '~5 से 15 मिनट (सई तट पर सुगम दर्शन)'
+    },
+    feasibilityVerdict: {
+      en: 'Highly Recommended — Peaceful darshan with serene Sai river views and clean temple premises.',
+      hi: 'दर्शन हेतु अत्यंत उत्तम — सई नदी के पावन तट पर शांतिपूर्ण एवं सुलभ दर्शन।'
+    },
+    peakHours: {
+      en: '8:00 AM – 10:30 AM & 6:30 PM – 8:00 PM (Evening Sandhya Aarti)',
+      hi: 'सुबह 8:00 से 10:30 व शाम 6:30 से 8:00 (सांध्य आरती)'
+    },
+    bestSlot: {
+      en: 'Early Morning 6:00 AM – 8:00 AM or Evening Aarti 6:30 PM',
+      hi: 'प्रातःकाल 6:00 से 8:00 बजे अथवा सांध्य आरती 6:30 बजे'
+    },
+    policeAdvisory: {
+      en: 'Vehicular parking available near Sai river bridge. Devotees advised to follow riverbank safety guidelines.',
+      hi: 'सई नदी पुल के निकट वाहन पार्किंग की सुगम व्यवस्था।'
+    },
+    lastUpdated: 'Live Updates Active',
+    keySpots: [
+      { name: 'Maa Belha Devi Sanctum', hindiName: 'माँ बेल्हा देवी गर्भगृह', status: 'smooth', waitMinutes: 10 },
+      { name: 'Sai Riverfront Ghat', hindiName: 'सई नदी तट घाट', status: 'smooth', waitMinutes: 5 },
+      { name: 'Sacred Wish Banyan Tree', hindiName: 'मनोकामना वटवृक्ष', status: 'smooth', waitMinutes: 5 }
+    ]
+  },
   agra: {
     district: 'Agra',
     hindiDistrict: 'आगरा',
@@ -839,6 +876,9 @@ export function getDistrictCrowdMetrics(districtQuery: string): DistrictCrowdSta
   }
   if (q.includes('jhansi') || q.includes('झांसी')) {
     return DISTRICT_CROWD_REGISTRY.jhansi;
+  }
+  if (q.includes('pratapgarh') || q.includes('belha') || q.includes('प्रतापगढ़') || q.includes('बेल्हा')) {
+    return DISTRICT_CROWD_REGISTRY.pratapgarh;
   }
 
   return undefined;

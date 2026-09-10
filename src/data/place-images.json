@@ -1,0 +1,58 @@
+[
+  {
+    "id": "jhansi_fort",
+    "name": "Jhansi Fort (Rani Laxmi Bai Durg)",
+    "keywords": ["jhansi fort", "rani laxmibai durg", "jhansi ka kila", "jhansi"],
+    "imagePath": "/images/places/jhansi_fort.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Jhansi_Fort_in_Jhansi.jpg/1280px-Jhansi_Fort_in_Jhansi.jpg",
+    "caption": "Jhansi Fort atop Bangira Hill"
+  },
+  {
+    "id": "jhansi_rani_mahal",
+    "name": "Rani Mahal (Queen's Palace Jhansi)",
+    "keywords": ["rani mahal", "queen palace", "jhansi palace"],
+    "imagePath": "/images/places/jhansi_rani_mahal.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Rani_Mahal%2C_Jhansi.jpg/1280px-Rani_Mahal%2C_Jhansi.jpg",
+    "caption": "Rani Mahal Archaeological Museum, Jhansi"
+  },
+  {
+    "id": "varanasi_kashi_vishwanath",
+    "name": "Kashi Vishwanath Temple & Corridor",
+    "keywords": ["kashi vishwanath", "vishwanath temple", "kashi", "varanasi corridor"],
+    "imagePath": "/images/places/kashi_vishwanath.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Ahilya_Ghat_by_the_Ganges%2C_Varanasi.jpg/1280px-Ahilya_Ghat_by_the_Ganges%2C_Varanasi.jpg",
+    "caption": "Kashi Vishwanath Sacred Corridor, Varanasi"
+  },
+  {
+    "id": "varanasi_ramnagar_fort",
+    "name": "Ramnagar Fort & Royal Museum",
+    "keywords": ["ramnagar fort", "ramnagar", "royal museum", "kashi naresh"],
+    "imagePath": "/images/places/ramnagar_fort.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Ramnagar_Fort_Varanasi.jpg/1280px-Ramnagar_Fort_Varanasi.jpg",
+    "caption": "Ramnagar Fort on the Eastern Bank of Ganga, Varanasi"
+  },
+  {
+    "id": "ayodhya_ram_mandir",
+    "name": "Shri Ram Janmabhoomi Mandir",
+    "keywords": ["ram mandir", "ram janmabhoomi", "ayodhya mandir"],
+    "imagePath": "/images/places/ram_mandir.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Ram_Mandir_Ayodhya_January_2024.jpg/1280px-Ram_Mandir_Ayodhya_January_2024.jpg",
+    "caption": "Shri Ram Janmabhoomi Mandir, Ayodhya"
+  },
+  {
+    "id": "agra_taj_mahal",
+    "name": "Taj Mahal",
+    "keywords": ["taj mahal", "taj", "agra"],
+    "imagePath": "/images/places/taj_mahal.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/1280px-Taj_Mahal_%28Edited%29.jpeg",
+    "caption": "Taj Mahal, Agra"
+  },
+  {
+    "id": "lucknow_bara_imambara",
+    "name": "Bara Imambara & Bhool Bhulaiya",
+    "keywords": ["bara imambara", "bhool bhulaiya", "imambara", "lucknow"],
+    "imagePath": "/images/places/bara_imambara.jpg",
+    "fallbackUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bara_Imambara_Lucknow_India.jpg/1280px-Bara_Imambara_Lucknow_India.jpg",
+    "caption": "Bara Imambara & Asfi Mosque, Lucknow"
+  }
+]

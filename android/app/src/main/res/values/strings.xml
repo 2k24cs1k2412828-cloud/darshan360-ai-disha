@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Darshan 360</string>
     <string name="title_activity_main">Darshan 360</string>
-    <string name="package_name">com.darshan360.app</string>
-    <string name="custom_url_scheme">com.darshan360.app</string>
+    <string name="package_name">org.srajan.ghumoindia</string>
+    <string name="custom_url_scheme">org.srajan.ghumoindia</string>
 </resources>

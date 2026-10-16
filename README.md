@@ -1,16 +1,17 @@
-# 🕌 Darshan 360 — Uttar Pradesh AI Travel Companion
+# 🏛️ Ghumo India — Beyond the Fort
+### AI-Assisted Discovery of Lesser-Known Heritage & Cultural Destinations Across Madhya Pradesh
 
 <div align="center">
 
-![Darshan 360 Banner](https://img.shields.io/badge/Darshan%20360-AI%20Travel%20Companion-orange?style=for-the-badge&logo=react)
+![Ghumo India Banner](https://img.shields.io/badge/Ghumo%20India-Team%20Srajan-orange?style=for-the-badge&logo=compass)
+![AI Synergy Hackathon](https://img.shields.io/badge/AI%20Synergy%20Hackathon-Problem%2004-blueviolet?style=for-the-badge&logo=target)
+![Track](https://img.shields.io/badge/Track-Tourism%20%26%20Heritage-FF6F00?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript)
 ![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss)
 ![Gemini AI](https://img.shields.io/badge/Google%20Gemini-AI-4285F4?style=for-the-badge&logo=google)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-**An AI-powered spiritual, cultural & heritage tourism platform for Uttar Pradesh**
+**Ghumo India — Team Srajan, AI Synergy Hackathon Problem 4 Track Tourism**
 
 [✨ Features](#-features) · [🚀 Getting Started](#-getting-started) · [🏗️ Architecture](#️-architecture) · [🗺️ Covered Destinations](#️-covered-destinations) · [🛡️ .env Setup](#️-environment-variables) · [📦 Tech Stack](#-tech-stack)
 
@@ -20,25 +21,29 @@
 
 ## 📖 Overview
 
-**Darshan 360** is a bilingual, AI-powered travel companion designed specifically for pilgrims and tourists exploring the rich spiritual and cultural heritage of **Uttar Pradesh, India**. Built for the **GWL Hackathon**, it combines real-time AI guidance, interactive maps, voice interaction, and curated local knowledge to create an unparalleled travel experience.
+**Ghumo India** is an evidence-grounded, bilingual AI travel & heritage discovery platform developed by **Team Srajan** for the **AI Synergy Hackathon 2026 (Problem 4: Tourism & Heritage Track — "Beyond the Fort")**.
 
-Whether you're planning a visit to the ghats of **Varanasi**, seeking darshan at **Ram Mandir, Ayodhya**, or exploring the **Taj Mahal in Agra** — Disha AI has you covered, in Hindi or English.
+While famous monuments like Gwalior Fort or Khajuraho receive sustained footfall, extraordinary heritage complexes within 30–90 km (such as the 200-temple **Bateshwar complex**, the circular **Chausath Yogini at Mitawali**, **Garhi Padhavali**, and the mortarless **Kakanmath Shiva Temple**) remain largely overlooked due to discovery, information reliability, and transport feasibility gaps.
+
+**Ghumo India** bridges these friction points with:
+- **Bilingual Disha AI Travel Companion** (Hindi/English voice STT/TTS powered by Google Gemini).
+- **Interactive Multi-State Heritage Map** (Leaflet) with the **Chambal Heritage Corridor** route.
+- **Time-Aware Trip Copilot** with real-time delay rescheduling and deadline buffers.
+- **Ground-Truth Archaeological Intelligence** backed by ASI and MP Tourism registries.
 
 ---
 
 ## ✨ Features
 
-### 🤖 Disha AI — Bilingual Travel Assistant
+### 🤖 Disha AI — Bilingual Heritage & Travel Assistant
 - **Bilingual Support**: Seamlessly switch between **Hindi (हिन्दी)** and **English**
 - **Voice Input (STT)**: Speech-to-Text with live recording wave animation using the Web Speech API
 - **Voice Output (TTS)**: Natural voice synthesis with play/stop controls
-- **Smart Responses**: Covers travel causes, spiritual significance, history, temple timings, budget breakdowns, and darshan rules
-- **Live UP Tourism News**: Real-time updates on Maha Kumbh / Magh Mela, Ram Mandir online Aarti passes, Kashi Vishwanath corridor rules, Varanasi ropeway, and Braj Holi
-- **In-Chat Interactive Maps**: Route previews with one-click full-screen map navigation
-- **In-Chat Image Galleries**: High-definition photo showcases with lightbox zoom
-- **Safety & Scam Advisory**: Tips to avoid boat overcharging, fake VIP passes, plus emergency numbers
-- **Itinerary Generator**: AI-curated day-wise travel itineraries
-- **Service Booking Modal**: Boat booking, guided tours, and more
+- **Beyond the Fort Discovery**: Deep historical context, architectural styles, and visiting feasibility for lesser-known MP destinations (Bateshwar, Mitawali, Padhavali, Kakanmath, Chanderi, Orchha)
+- **Time-Aware Trip Copilot**: Generates minute-by-minute itineraries with train/flight return deadlines
+- **Delay Replanning**: Instant recalibration if running late (e.g., *"Running 20m late, replan"*)
+- **In-Chat Interactive Maps & Galleries**: Route previews and high-definition photography with lightbox zoom
+- **Safety & Transport Advisory**: Fair taxi fares, connectivity warnings, and rural travel guidance
 
 ### 🗺️ Interactive UP Tourism Map
 - Covers **11+ major destinations** across Uttar Pradesh

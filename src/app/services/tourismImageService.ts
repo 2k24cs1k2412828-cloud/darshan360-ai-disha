@@ -2,7 +2,7 @@
 // Provides fast, authentic, ultra-reliable high-resolution photography from verified CDN networks
 // with ZERO broken links, ZERO 400 errors, and seamless caching.
 
-const IMAGE_CACHE_KEY = 'darshan360_tourism_images_v2';
+const IMAGE_CACHE_KEY = 'ghumo_india_tourism_images_v2';
 
 // Pre-indexed verified high-resolution photography for all major UP pilgrimage circuits & heritage
 const AUTHENTIC_TOURISM_IMAGES: Record<string, string> = {
@@ -112,7 +112,52 @@ const AUTHENTIC_TOURISM_IMAGES: Record<string, string> = {
   'kashi_chaat_bhandar_gali': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
   'brijwasi_peda_mathura': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
   'prakash_kulfi_aminabad': 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
-  'agra_petha_mandi': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80'
+  'agra_petha_mandi': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
+
+  // ===== MADHYA PRADESH — GHUMO INDIA LOCAL PHOTOS =====
+  // Chambal Heritage Corridor
+  'bateshwar_morena': '/images/places/bateshwar.jpg',
+  'bateshwar_morena_mp': '/images/places/bateshwar.jpg',
+  'bateshwar': '/images/places/bateshwar.jpg',
+  'mitawali_chausath_yogini': '/images/places/mitawali.jpg',
+  'mitawali': '/images/places/mitawali.jpg',
+  'chausath_yogini': '/images/places/mitawali.jpg',
+  'garhi_padhavali': '/images/places/padhavali.jpg',
+  'padhavali': '/images/places/padhavali.jpg',
+  'kakanmath_temple': '/images/places/kakanmath.jpg',
+  'kakanmath_suhania': '/images/places/kakanmath.jpg',
+  'kakanmath': '/images/places/kakanmath.jpg',
+  // Gwalior Citadel
+  'gwalior_fort_complex': '/images/places/gwalior_fort.jpg',
+  'gwalior_fort_mp': '/images/places/gwalior_fort.jpg',
+  'gwalior_fort': '/images/places/gwalior_fort.jpg',
+  'gwalior': '/images/places/gwalior_fort.jpg',
+  'sas_bahu_temple_gwalior': '/images/places/sas_bahu.jpg',
+  'sas_bahu': '/images/places/sas_bahu.jpg',
+  'teli_ka_mandir_gwalior': '/images/places/gwalior_fort.jpg',
+  'jai_vilas_palace_gwalior': '/images/places/gwalior_fort.jpg',
+  'tansen_tomb_gwalior': '/images/places/gwalior_fort.jpg',
+  // Bundelkhand (Orchha & Datia)
+  'orchha_fort_complex': '/images/places/orchha_palace.jpg',
+  'orchha_palace_complex': '/images/places/orchha_palace.jpg',
+  'orchha': '/images/places/orchha_palace.jpg',
+  'ram_raja_temple_orchha': '/images/places/orchha_palace.jpg',
+  'chaturbhuj_temple_orchha': '/images/places/orchha_palace.jpg',
+  'betwa_chhatris_orchha': '/images/places/orchha_palace.jpg',
+  'datia_palace': '/images/places/orchha_palace.jpg',
+  'datia_bir_singh_palace': '/images/places/orchha_palace.jpg',
+  // Malwa (Chanderi)
+  'koshak_mahal_chanderi': '/images/places/koshak_mahal.jpg',
+  'koshak_mahal': '/images/places/koshak_mahal.jpg',
+  'chanderi_fort_kirti_durg': '/images/places/chanderi_fort.jpg',
+  'chanderi': '/images/places/chanderi_fort.jpg',
+  // Khajuraho
+  'khajuraho_western_temples': '/images/places/khajuraho.jpg',
+  'khajuraho': '/images/places/khajuraho.jpg',
+  // Sanchi & Central MP
+  'sanchi_great_stupa': '/images/places/sanchi.jpg',
+  'sanchi': '/images/places/sanchi.jpg',
+  'bhimbetka_caves': '/images/places/bateshwar.jpg'
 };
 
 // In-memory runtime cache
@@ -126,9 +171,11 @@ const memoryCache = new Map<string, string>();
  * 4. Falls back to verified UP tourism heritage image
  */
 export function getAuthenticTourismImage(placeId: string, placeName?: string, defaultUrl?: string): string {
-  // 1. If defaultUrl is already a verified working CDN image (Unsplash, etc.) and NOT a broken wikimedia link, KEEP IT!
-  if (defaultUrl && defaultUrl.startsWith('http') && !defaultUrl.includes('wikimedia.org')) {
-    return defaultUrl;
+  // 1. If defaultUrl is a valid local path or working non-wikimedia CDN URL, KEEP IT!
+  if (defaultUrl) {
+    if (defaultUrl.startsWith('/') || (defaultUrl.startsWith('http') && !defaultUrl.includes('wikimedia.org'))) {
+      return defaultUrl;
+    }
   }
 
   const normalizedId = (placeId || '').toLowerCase().trim();

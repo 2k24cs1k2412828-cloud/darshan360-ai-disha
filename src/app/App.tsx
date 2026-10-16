@@ -4,6 +4,7 @@ import { ChatPanel } from './components/ChatPanel';
 import { NewsPanel } from './components/NewsPanel';
 import { CopilotTimeline } from './components/CopilotTimeline';
 import { LoadingScreen } from './components/LoadingScreen';
+import { MPSitesShowcase } from './components/MPSitesShowcase';
 import { motion } from 'motion/react';
 import { 
   Sunrise, 
@@ -20,10 +21,11 @@ import {
   Maximize2,
   Minimize2,
   Fullscreen,
-  Shrink
+  Shrink,
+  Globe
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
-import darshanLogo from '../images/WhatsApp_Image_2025-11-27_at_2.16.38_PM-removebg-preview.png';
+import ghumoIndiaLogo from '../images/ghumo-india-logo.png';
 import { 
   type TripItinerary, 
   insertPlaceIntoItinerary, 
@@ -37,7 +39,7 @@ import { AndroidAppShell } from './components/android/AndroidAppShell';
 export default function App() {
   const [theme, setTheme] = useState<'morning' | 'evening'>('morning');
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
-  const [layoutMode, setLayoutMode] = useState<'split' | 'fullchat' | 'fullmap' | 'news'>('split');
+  const [layoutMode, setLayoutMode] = useState<'split' | 'fullchat' | 'fullmap' | 'news' | 'mpsites'>('split');
   const [isLoading, setIsLoading] = useState(true);
 
   // Synchronized state between Map, Chat & Copilot
@@ -229,21 +231,21 @@ export default function App() {
   }
 
   const sidebarQuickPrompts = language === 'hi' ? [
-    { id: 1, icon: '⚡', label: '3-Hour Kashi Express (Station Return)', query: 'मेरे पास 3 घंटे का समय है, कैंट रेलवे स्टेशन के पास हूँ और 3 घंटे में वापस पहुँचना है। काशी विश्वनाथ, घाट और स्ट्रीट फूड का स्मार्ट रूट प्लान बनाओ।' },
+    { id: 1, icon: '🏛️', label: 'Bateshwar & Mitawali Circuit', query: 'ग्वालियर से बटेश्वर और मितावली चौसठ योगिनी मंदिर का 4 घंटे का हेरिटेज रूट और इतिहास बताएं।' },
     { id: 2, icon: '⏱️', label: 'Running 20m Late, Replan', query: 'मैं 20 मिनट लेट चल रहा हूँ, कृपया मेरी यात्रा का समय रीशेड्यूल करें और वापसी का ध्यान रखें।' },
-    { id: 3, icon: '🍲', label: '4h Lucknow Food & Heritage Walk', query: 'लखनऊ चारबाग स्टेशन से 4 घंटे की हेरिटेज और टुंडे कबाबी फूड ट्रिप का समयबद्ध रूट प्लान बनाएं।' },
-    { id: 4, icon: '🛕', label: '4h Ayodhya Temple Circuit', query: 'अयोध्या में 4 घंटे का समय है, राम मंदिर, हनुमान गढ़ी और सरयू आरती का टाइमलाइन रूट बनाएं।' },
-    { id: 5, icon: '📊', label: 'Mathura-Vrindavan Telemetry', query: 'मथुरा और वृंदावन में अभी कितनी भीड़ है? क्या अभी जाने लायक है या नहीं और कैसे जाएं?' },
-    { id: 6, icon: '🌊', label: 'All Sacred Ghats of UP', query: 'उत्तर प्रदेश के सभी प्रमुख पावन घाट दिखाएं और उनकी सूची मैप सहित दें।' },
-    { id: 7, icon: '🏰', label: '3-Hour Jhansi Fort & Rani Mahal', query: 'झांसी का 3 घंटे का सुगम तीर्थ एवं धरोहर भ्रमण प्लान करें।' }
+    { id: 3, icon: '🏰', label: 'Gwalior Fort & Padhavali Trail', query: 'ग्वालियर किला और गढ़ी पढ़ावली के मध्ययुगीन स्थापत्य व नक्काशी का विस्तृत रूट व टाइमलाइन प्लान बनाएं।' },
+    { id: 4, icon: '🛕', label: 'Kakanmath (Suhania) Architecture', query: 'ककनमठ शिव मंदिर सुहानिया (मुरैना) की बिना गारे की वास्तुकला, पहुंचने का मार्ग और सुरक्षा सलाह बताएं।' },
+    { id: 5, icon: '📊', label: 'MP Heritage Telemetry & Feasibility', query: 'मुरैना और चंबल हेरिटेज सर्किट में अभी भ्रमण के लिए सड़क मार्ग, समय और सुरक्षा स्थिति कैसी है?' },
+    { id: 6, icon: '🌿', label: 'Lesser-Known MP Heritage Gems', query: 'मध्य प्रदेश की अनदेखी ऐतिहासिक धरोहरें जैसे कोषकमहल (चंदेरी), दुबकुंड और बटेश्वर की सूची व विवरण दें।' },
+    { id: 7, icon: '👑', label: 'Orchha Palaces & Ram Raja Temple', query: 'ओरछा के राजमहल, जहाँगीर महल और राम राजा मंदिर का एक दिवसीय संपूर्ण यात्रा प्लान बनाएं।' }
   ] : [
-    { id: 1, icon: '⚡', label: '3-Hour Kashi Express (Station Return)', query: 'I have 3 hours in Varanasi near Cantt railway station and need to return in 3 hours. Plan an itinerary covering Kashi Vishwanath, ghats, and street food.' },
+    { id: 1, icon: '🏛️', label: 'Bateshwar & Mitawali Circuit', query: 'Plan a 4-hour heritage circuit from Gwalior covering Bateshwar (200 temples) and Mitawali Chausath Yogini.' },
     { id: 2, icon: '⏱️', label: 'Running 20m Late, Replan', query: 'I am running 20 minutes late, please replan my itinerary to protect my return deadline.' },
-    { id: 3, icon: '🍲', label: '4h Lucknow Food & Heritage Walk', query: 'Create a 4-hour Lucknow heritage and food trail from Charbagh station covering Imambara and Tunday Kababi.' },
-    { id: 4, icon: '🛕', label: '4h Ayodhya Temple Circuit', query: 'I have 4 hours in Ayodhya. Plan a time-based route for Ram Mandir, Hanumangarhi, and Saryu Aarti.' },
-    { id: 5, icon: '📊', label: 'Mathura-Vrindavan Telemetry', query: 'How is the crowd in Mathura & Vrindavan right now? Is it recommended to visit now and how to reach?' },
-    { id: 6, icon: '🌊', label: 'All Sacred Ghats of UP', query: 'Show me all prominent sacred river ghats in Uttar Pradesh with map markers and photos.' },
-    { id: 7, icon: '🏰', label: '3-Hour Jhansi Fort & Rani Mahal', query: 'Plan a 3-hour curated heritage and temple trip in Jhansi covering Jhansi Fort and Rani Mahal.' }
+    { id: 3, icon: '🏰', label: 'Gwalior Fort & Padhavali Trail', query: 'Create a curated trail from Gwalior Fort to Garhi Padhavali covering medieval architecture and friezes.' },
+    { id: 4, icon: '🛕', label: 'Kakanmath (Suhania) Architecture', query: 'Tell me about Kakanmath Shiva Temple in Morena, its mortarless dry masonry, route access, and timings.' },
+    { id: 5, icon: '📊', label: 'MP Heritage Telemetry & Feasibility', query: 'What is the current travel feasibility, road connectivity, and visiting advice for Morena heritage clusters?' },
+    { id: 6, icon: '🌿', label: 'Lesser-Known MP Heritage Gems', query: 'Show me lesser-known heritage wonders of Madhya Pradesh including Koshak Mahal Chanderi and Bateshwar.' },
+    { id: 7, icon: '👑', label: 'Orchha Palaces & Ram Raja Temple', query: 'Plan a day itinerary for Orchha covering Orchha Palace Complex, Chaturbhuj Temple, and Ram Raja Temple.' }
   ];
 
   // Dedicated Native Android Experience Detection
@@ -290,77 +292,94 @@ export default function App() {
         <div className="w-full px-3 py-2.5 flex items-center justify-between gap-3 md:px-7">
           {/* Brand Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-sm flex-shrink-0 overflow-hidden border border-[var(--glass-border)]">
-              <img src={darshanLogo} alt="Darshan 360 logo" className="w-full h-full object-contain" />
+            <div className="w-10 h-10 rounded-xl bg-white p-0.5 shadow-sm flex-shrink-0 overflow-hidden border border-[var(--glass-border)] flex items-center justify-center">
+              <img src={ghumoIndiaLogo} alt="Ghumo India logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base md:text-xl font-bold tracking-tight text-[var(--text-primary)] font-display">
-                  DARSHAN 360°
+                  GHUMO INDIA
                 </h1>
                 <span className="text-[10px] font-semibold tracking-wider px-2 py-0.5 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 uppercase">
-                  UP Tourism
+                  Madhya Pradesh
                 </span>
               </div>
               <p className="text-[11px] font-medium text-[var(--text-secondary)] hidden sm:block tracking-normal">
-                {language === 'hi' ? 'उत्तर प्रदेश पर्यटन • आधिकारिक तीर्थ एवं धरोहर पोर्टल' : 'Uttar Pradesh Tourism • Official Heritage & Pilgrimage Portal'}
+                {language === 'hi' ? 'मध्य प्रदेश पर्यटन एवं सांस्कृतिक धरोहर अन्वेषक' : 'Madhya Pradesh Tourism & Heritage Portal'}
               </p>
             </div>
           </div>
 
           {/* Center Mode Switcher - Modern Segmented Travel Navigation (Desktop Only) */}
           <div className="hidden lg:flex glass rounded-full p-1 items-center gap-1 shadow-sm border border-[var(--glass-border)]">
+            {/* MP Heritage Sites Page */}
             <button
-              onClick={() => setLayoutMode('news')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer relative ${
-                layoutMode === 'news'
+              onClick={() => setLayoutMode('mpsites')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer relative ${
+                layoutMode === 'mpsites'
                   ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
-              title={language === 'hi' ? 'उत्तर प्रदेश ताज़ा यात्रा बुलेटिन व भीड़ स्थिति' : 'Live Travel Bulletins & Crowd Advisory'}
+              title={language === 'hi' ? 'मध्य प्रदेश की धरोहर, संस्कृति और पर्यटन स्थल' : 'Madhya Pradesh Heritage Sites & Culture'}
             >
-              <Newspaper className="w-3.5 h-3.5" />
-              <span>{language === 'hi' ? 'यात्रा बुलेटिन' : 'Travel Dispatch'}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <Globe className="w-3.5 h-3.5" />
+              <span>{language === 'hi' ? 'धरोहर स्थल' : 'Heritage Sites'}</span>
             </button>
 
-            <button
-              onClick={() => setLayoutMode('split')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                layoutMode === 'split'
-                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-              }`}
-              title={language === 'hi' ? 'द्वैत दृश्य (मानचित्र + परामर्श)' : 'Dual Explorer (Map + Concierge)'}
-            >
-              <Columns2 className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">{language === 'hi' ? 'द्वैत दृश्य' : 'Explorer'}</span>
-            </button>
-
+            {/* Interactive Map */}
             <button
               onClick={() => setLayoutMode('fullmap')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 layoutMode === 'fullmap'
                   ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
-              title={language === 'hi' ? 'इंटरैक्टिव यूपी मानचित्र' : 'Interactive Map'}
+              title={language === 'hi' ? 'मध्य प्रदेश इंटरैक्टिव मानचित्र' : 'Madhya Pradesh Interactive Map'}
             >
               <MapIcon className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">{language === 'hi' ? 'मानचित्र' : 'Map'}</span>
+              <span className="hidden md:inline">{language === 'hi' ? 'मानचित्र' : 'Explore Map'}</span>
             </button>
 
+            {/* Split Planner */}
+            <button
+              onClick={() => setLayoutMode('split')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                layoutMode === 'split'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              title={language === 'hi' ? 'द्वैत यात्रा प्लानर (मानचित्र + परामर्श)' : 'Trip Planner (Map + Guide)'}
+            >
+              <Columns2 className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">{language === 'hi' ? 'टूर प्लानर' : 'Trip Planner'}</span>
+            </button>
+
+            {/* Travel Bulletins */}
+            <button
+              onClick={() => setLayoutMode('news')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer relative ${
+                layoutMode === 'news'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              title={language === 'hi' ? 'मध्य प्रदेश ताज़ा यात्रा बुलेटिन व स्थिति' : 'Live MP Travel Bulletins & Crowd Advisory'}
+            >
+              <Newspaper className="w-3.5 h-3.5" />
+              <span>{language === 'hi' ? 'यात्रा बुलेटिन' : 'Travel Updates'}</span>
+            </button>
+
+            {/* Travel Concierge / AI Guide */}
             <button
               onClick={() => setLayoutMode('fullchat')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 layoutMode === 'fullchat'
                   ? 'bg-[var(--accent-primary)] text-white shadow-sm'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
-              title={language === 'hi' ? 'यात्रा परामर्श साथी' : 'Travel Concierge'}
+              title={language === 'hi' ? 'दिशा AI यात्रा मार्गदर्शक' : 'AI Travel Guide'}
             >
               <MessageSquare className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">{language === 'hi' ? 'मार्गदर्शक' : 'Concierge'}</span>
+              <span className="hidden md:inline">{language === 'hi' ? 'दिशा AI गाइड' : 'Travel Guide'}</span>
             </button>
 
             {/* AI Travel Copilot Timeline Drawer Toggle */}
@@ -387,21 +406,21 @@ export default function App() {
           <div className="flex items-center gap-2 md:gap-3">
             {/* Mobile Phone Helpline Button */}
             <a
-              href="tel:18001805145"
+              href="tel:18002330303"
               className="lg:hidden glass p-1.5 rounded-full shadow-sm text-xs border border-[var(--glass-border)] text-[var(--accent-primary)] flex items-center justify-center cursor-pointer"
-              title="UP Tourism 24x7 Toll-Free Helpline: 1800-180-5145"
+              title="MP Tourism 24x7 Toll-Free Helpline: 1800-233-0303"
             >
               <PhoneCall className="w-3.5 h-3.5" />
             </a>
 
             {/* Official Toll-Free Helpline Badge (Desktop) */}
             <a
-              href="tel:18001805145"
+              href="tel:18002330303"
               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-primary)] glass border border-[var(--glass-border)] transition-colors"
-              title="UP Tourism 24x7 Toll-Free Helpline: 1800-180-5145"
+              title="MP Tourism 24x7 Toll-Free Helpline: 1800-233-0303"
             >
               <PhoneCall className="w-3 h-3 text-[var(--accent-primary)]" />
-              <span>1800-180-5145</span>
+              <span>1800-233-0303</span>
             </a>
 
             {/* Language Switcher */}
@@ -477,18 +496,18 @@ export default function App() {
           <div className="flex flex-col gap-3 min-h-0">
             <div className="flex items-center justify-between gap-2 flex-shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-white p-1 shadow-sm flex-shrink-0 overflow-hidden border border-[var(--glass-border)] flex items-center justify-center">
-                  <img src={darshanLogo} alt="Darshan 360 logo" className="w-full h-full object-contain" />
+                <div className="w-9 h-9 rounded-xl bg-white p-0.5 shadow-sm flex-shrink-0 overflow-hidden border border-[var(--glass-border)] flex items-center justify-center">
+                  <img src={ghumoIndiaLogo} alt="Ghumo India logo" className="w-full h-full object-contain" />
                 </div>
                 {!isSidebarCollapsed && (
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <h1 className="text-sm font-bold tracking-tight text-[var(--text-primary)] font-display truncate">
-                        DARSHAN 360°
+                        GHUMO INDIA
                       </h1>
                     </div>
                     <span className="text-[9px] font-semibold tracking-wider px-1.5 py-0.2 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 uppercase">
-                      UP Tourism
+                      Beyond The Fort
                     </span>
                   </div>
                 )}
@@ -540,30 +559,44 @@ export default function App() {
               <button
                 onClick={() => setLayoutMode('news')}
                 className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[11px] font-semibold glass hover:bg-orange-500/10 hover:border-orange-500/30 text-[var(--text-primary)] border border-[var(--glass-border)] transition-all cursor-pointer"
-                title={language === 'hi' ? 'समाचार' : 'Travel News'}
+                title={language === 'hi' ? 'यात्रा बुलेटिन' : 'Travel Dispatch'}
               >
                 <Newspaper className="w-3.5 h-3.5 text-amber-500" />
-                {!isSidebarCollapsed && <span>{language === 'hi' ? 'समाचार' : 'News'}</span>}
+                {!isSidebarCollapsed && <span>{language === 'hi' ? 'बुलेटिन' : 'Dispatch'}</span>}
+              </button>
+
+              <button
+                onClick={() => setLayoutMode('mpsites')}
+                className={`col-span-2 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[11px] font-semibold hover:bg-orange-500/10 hover:border-orange-500/30 text-[var(--text-primary)] border transition-all cursor-pointer ${
+                  layoutMode === 'mpsites' ? 'border-[var(--accent-primary)] bg-[var(--accent-primary)]/10' : 'glass border-[var(--glass-border)]'
+                }`}
+                title={language === 'hi' ? 'म.प्र. धरोहर स्थल' : 'MP Heritage Sites'}
+              >
+                <Globe className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
+                {!isSidebarCollapsed && <span>{language === 'hi' ? 'म.प्र. धरोहर स्थल' : 'MP Heritage Sites'}</span>}
               </button>
             </div>
 
-            {/* Quick Action Prompt Trails from user screenshot */}
+            {/* Curated Heritage Circuits Section */}
             <div className="flex flex-col min-h-0 flex-1 overflow-hidden mt-1">
               {!isSidebarCollapsed && (
                 <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent-primary)] px-1 mb-1.5 flex items-center justify-between flex-shrink-0">
-                  <span>{language === 'hi' ? 'त्वरित यात्रा विकल्प' : 'Quick Prompt Trails'}</span>
+                  <span>{language === 'hi' ? 'प्रमुख पर्यटन परिपथ' : 'Featured Heritage Routes'}</span>
                   <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-orange-500/10 text-orange-600 font-semibold">
-                    Live
+                    MP Tourism
                   </span>
                 </div>
               )}
 
-              {/* Scrollable List of Quick Chips in Left Sidebar */}
+              {/* Scrollable List of Curated Trails in Left Sidebar */}
               <div className="flex flex-col gap-1.5 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-orange-500/20 flex-1 min-h-0">
                 {sidebarQuickPrompts.map((action) => (
                   <button
                     key={action.id}
-                    onClick={() => setExternalChatPrompt(action.query)}
+                    onClick={() => {
+                      setExternalChatPrompt(action.query);
+                      if (layoutMode === 'mpsites') setLayoutMode('split');
+                    }}
                     className={`w-full text-left p-2 rounded-xl text-xs font-medium glass hover:bg-orange-500/15 hover:border-orange-500/40 text-[var(--text-primary)] transition-all border border-[var(--glass-border)] shadow-xs flex items-center gap-2 cursor-pointer group flex-shrink-0 ${
                       isSidebarCollapsed ? 'justify-center' : 'justify-start'
                     }`}
@@ -585,17 +618,17 @@ export default function App() {
           <div className="flex flex-col gap-2.5 pt-2.5 border-t border-[var(--glass-border)] flex-shrink-0">
             {/* Toll-free Helpline */}
             <a
-              href="tel:18001805145"
+              href="tel:18002330303"
               className={`flex items-center gap-2 p-2 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent-primary)] glass border border-[var(--glass-border)] transition-colors cursor-pointer ${
                 isSidebarCollapsed ? 'justify-center' : 'justify-start'
               }`}
-              title="UP Tourism 24x7 Toll-Free Helpline: 1800-180-5145"
+              title="MP Tourism 24x7 Toll-Free Helpline: 1800-233-0303"
             >
               <PhoneCall className="w-4 h-4 text-[var(--accent-primary)] flex-shrink-0" />
               {!isSidebarCollapsed && (
                 <div className="min-w-0 text-left">
-                  <p className="text-[9px] text-[var(--text-secondary)] leading-tight">24x7 Helpline</p>
-                  <p className="text-xs font-bold text-[var(--text-primary)] leading-none">1800-180-5145</p>
+                  <p className="text-[9px] text-[var(--text-secondary)] leading-tight">MP Tourism Helpline</p>
+                  <p className="text-xs font-bold text-[var(--text-primary)] leading-none">1800-233-0303</p>
                 </div>
               )}
             </a>
@@ -665,7 +698,7 @@ export default function App() {
             {!isSidebarCollapsed && (
               <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-secondary)] px-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-500 flex-shrink-0" />
-                <span className="truncate">UP Tourism Verified Intelligence</span>
+                <span className="truncate">MP Tourism Verified Intelligence</span>
               </div>
             )}
           </div>
@@ -782,6 +815,26 @@ export default function App() {
           </div>
         )}
 
+        {layoutMode === 'mpsites' && (
+          <div className="w-full h-full min-h-0 overflow-hidden pb-16 lg:pb-0">
+            <MPSitesShowcase
+              theme={theme}
+              language={language}
+              onFocusMapLocation={(coords) => {
+                setSelectedMapCoordinates(coords);
+                setMobileTab('map');
+                setLayoutMode('split');
+              }}
+              onAskAI={(prompt) => {
+                setExternalChatPrompt(prompt);
+                setMobileTab('chat');
+                setLayoutMode('split');
+              }}
+              onAddPlaceToItinerary={handleAddPlaceToItinerary}
+            />
+          </div>
+        )}
+
         {/* Interactive AI Travel Copilot Timeline Drawer */}
         <CopilotTimeline
           itinerary={activeItinerary}
@@ -808,22 +861,22 @@ export default function App() {
       </main>
 
       {/* Mobile Bottom Navigation Bar (Hidden on Desktop >= 1024px) */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass glass-dimmed border-t border-[var(--glass-border)] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around shadow-2xl bg-white/95 dark:bg-neutral-900/95 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass glass-dimmed border-t border-[var(--glass-border)] backdrop-blur-xl px-1 py-1.5 flex items-center justify-around shadow-2xl bg-white/95 dark:bg-neutral-900/95 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
         {/* 1. Disha AI Chat */}
         <button
           onClick={() => {
             setMobileTab('chat');
-            if (layoutMode === 'news') setLayoutMode('split');
+            if (layoutMode === 'news' || layoutMode === 'mpsites') setLayoutMode('split');
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'chat' && layoutMode !== 'news'
+          className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition-all cursor-pointer ${
+            mobileTab === 'chat' && layoutMode !== 'news' && layoutMode !== 'mpsites'
               ? 'text-[var(--accent-primary)] font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
           }`}
         >
           <MessageSquare className="w-4 h-4" />
-          <span className="text-[10px] font-medium">{language === 'hi' ? 'दिशा AI' : 'Disha AI'}</span>
-          {mobileTab === 'chat' && layoutMode !== 'news' && (
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'घूमो AI' : 'Ghumo AI'}</span>
+          {mobileTab === 'chat' && layoutMode !== 'news' && layoutMode !== 'mpsites' && (
             <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
           )}
         </button>
@@ -832,27 +885,46 @@ export default function App() {
         <button
           onClick={() => {
             setMobileTab('map');
-            if (layoutMode === 'news') setLayoutMode('split');
+            if (layoutMode === 'news' || layoutMode === 'mpsites') setLayoutMode('split');
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'map' && layoutMode !== 'news'
+          className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition-all cursor-pointer ${
+            mobileTab === 'map' && layoutMode !== 'news' && layoutMode !== 'mpsites'
               ? 'text-[var(--accent-primary)] font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
           }`}
         >
           <MapIcon className="w-4 h-4" />
           <span className="text-[10px] font-medium">{language === 'hi' ? 'मानचित्र' : 'Map'}</span>
-          {mobileTab === 'map' && layoutMode !== 'news' && (
+          {mobileTab === 'map' && layoutMode !== 'news' && layoutMode !== 'mpsites' && (
             <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
           )}
         </button>
 
-        {/* 3. AI Copilot Timeline */}
+        {/* 3. MP Heritage Sites */}
+        <button
+          onClick={() => {
+            setLayoutMode('mpsites');
+            setMobileTab('news');
+          }}
+          className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition-all cursor-pointer relative ${
+            layoutMode === 'mpsites'
+              ? 'text-[var(--accent-primary)] font-bold'
+              : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'धरोहर' : 'MP Sites'}</span>
+          {layoutMode === 'mpsites' && (
+            <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
+          )}
+        </button>
+
+        {/* 4. AI Copilot Timeline */}
         <button
           onClick={() => {
             setIsCopilotOpen(prev => !prev);
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer relative ${
+          className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition-all cursor-pointer relative ${
             isCopilotOpen
               ? 'text-orange-600 font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
@@ -861,17 +933,17 @@ export default function App() {
           <Route className="w-4 h-4 text-orange-500" />
           <span className="text-[10px] font-medium">{language === 'hi' ? 'कोपायलट' : 'Copilot'}</span>
           {activeItinerary && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400 absolute top-1 right-2.5 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 absolute top-1 right-1.5 animate-pulse" />
           )}
         </button>
 
-        {/* 4. Travel Bulletins / News */}
+        {/* 5. Travel Bulletins / News */}
         <button
           onClick={() => {
             setLayoutMode('news');
             setMobileTab('news');
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
+          className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition-all cursor-pointer ${
             layoutMode === 'news'
               ? 'text-[var(--accent-primary)] font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
@@ -881,7 +953,7 @@ export default function App() {
             <Newspaper className="w-4 h-4" />
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse absolute -top-0.5 -right-0.5" />
           </div>
-          <span className="text-[10px] font-medium">{language === 'hi' ? 'बुलेटिन' : 'News'}</span>
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'बुलेटिन' : 'Dispatch'}</span>
           {layoutMode === 'news' && (
             <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
           )}

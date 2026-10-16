@@ -1,4 +1,4 @@
-// Darshan 360 AI Travel Copilot Engine
+// Ghumo India AI Travel Copilot Engine
 // Provides time-based itinerary generation, dynamic replanning, deadline protection,
 // experience-driven recommendation, and map-itinerary synchronization across Uttar Pradesh.
 

@@ -1,4 +1,4 @@
-// Darshan 360 Chat Memory & Session Management Service
+// Ghumo India Chat Memory & Session Management Service
 // Provides persistent storage of chat history across reloads and is architected
 // as a drop-in repository ready for Firebase Firestore / Cloud DB integration.
 
@@ -39,8 +39,8 @@ export interface ChatSessionMetadata {
   messageCount: number;
 }
 
-const STORAGE_KEY_PREFIX = 'darshan360_chat_sessions_v1';
-const ACTIVE_SESSION_KEY = 'darshan360_active_session_id';
+const STORAGE_KEY_PREFIX = 'ghumo_india_chat_sessions_v1';
+const ACTIVE_SESSION_KEY = 'ghumo_india_active_session_id';
 
 class LocalChatMemoryManager {
   private getStorageKey(sessionId: string): string {
@@ -165,7 +165,7 @@ export const chatMemory = new LocalChatMemoryManager();
 /**
  * FIREBASE / CLOUD REPOSITORY INTERFACE
  * When you are ready to integrate Firebase Firestore, implement this interface.
- * Your UI and Disha AI components will interact with this same signature!
+ * Your UI and Ghumo AI components will interact with this same signature!
  */
 export interface ChatMemoryRepository {
   getOrCreateSession(userId: string, sessionId?: string): Promise<ChatSession>;

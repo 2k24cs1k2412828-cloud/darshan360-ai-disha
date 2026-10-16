@@ -1,4 +1,4 @@
-// Speech Service for Darshan 360 (Uttar Pradesh AI Travel Companion)
+// Speech Service for Ghumo India (AI Tourism & Heritage Travel Companion)
 // Handles Speech-to-Text (Voice Input) & Text-to-Speech (AI Voice Playback) in Hindi & English
 
 // Type definitions for Web Speech API

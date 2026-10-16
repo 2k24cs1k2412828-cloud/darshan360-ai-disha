@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.darshan360.app"
+    namespace = "org.srajan.ghumoindia"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.darshan360.app"
+        applicationId "org.srajan.ghumoindia"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

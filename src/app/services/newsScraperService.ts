@@ -47,9 +47,13 @@ export interface DistrictCrowdStatus {
   }>;
 }
 
-// 75 Districts and major tourist hubs across Uttar Pradesh
+// Districts and major tourist hubs across Madhya Pradesh & Uttar Pradesh
 export const ALL_UP_DISTRICTS = [
-  { id: 'all', name: 'All Districts (समस्त उत्तर प्रदेश)', hindi: 'समस्त जिले' },
+  { id: 'all', name: 'All Destinations & Corridors (समस्त परिपथ)', hindi: 'समस्त जिले व परिपथ' },
+  { id: 'morena', name: 'Morena (Bateshwar & Mitawali MP)', hindi: 'मुरैना (बटेश्वर व मितावली - म.प्र.)' },
+  { id: 'gwalior', name: 'Gwalior (Fort & Tomar Heritage MP)', hindi: 'ग्वालियर (किला व धरोहर - म.प्र.)' },
+  { id: 'orchha', name: 'Orchha (Bundela Palaces MP)', hindi: 'ओरछा (बुंदेला महल - म.प्र.)' },
+  { id: 'chanderi', name: 'Chanderi (Koshak Mahal MP)', hindi: 'चंदेरी (कोषक महल - म.प्र.)' },
   { id: 'mathura', name: 'Mathura & Vrindavan', hindi: 'मथुरा एवं वृन्दावन' },
   { id: 'ayodhya', name: 'Ayodhya', hindi: 'अयोध्या' },
   { id: 'varanasi', name: 'Varanasi (Kashi)', hindi: 'वाराणसी (काशी)' },
@@ -78,6 +82,120 @@ export const ALL_UP_DISTRICTS = [
 
 // District-wise Real-time Crowd Telemetry Registry
 export const DISTRICT_CROWD_REGISTRY: Record<string, DistrictCrowdStatus> = {
+  morena: {
+    district: 'Morena',
+    hindiDistrict: 'मुरैना (चंबल परिपथ)',
+    primaryHub: 'Bateshwar Temples, Mitawali & Padhavali',
+    crowdLevel: 'peaceful',
+    crowdLevelText: {
+      en: 'Serene & Peaceful (Zero Crowds)',
+      hi: 'शांत एवं सुगम (न्यूनतम भीड़)'
+    },
+    estimatedWaitMinutes: 0,
+    waitTimeFormatted: {
+      en: 'Zero wait time; immediate entry',
+      hi: 'शून्य प्रतीक्षा समय; तत्काल प्रवेश'
+    },
+    feasibilityVerdict: {
+      en: 'Outstanding Feasibility — Pristine archaeological complex. Best explored via private car from Gwalior (35 km) in a 4-hour morning circuit.',
+      hi: 'भ्रमण हेतु सर्वोत्तम — पुरातात्विक दृष्टि से अद्वितीय व शांत। ग्वालियर से 35 किमी निजी वाहन द्वारा 4 घंटे में चारों स्थल सुगमता से घूमें।'
+    },
+    peakHours: {
+      en: '10:00 AM – 2:00 PM',
+      hi: 'सुबह 10:00 से दोपहर 2:00'
+    },
+    bestSlot: {
+      en: 'Morning 7:30 AM – 11:30 AM (golden light for architecture & photography)',
+      hi: 'प्रातः 7:30 से 11:30 बजे (फोटोग्राफी व मौसम हेतु सर्वोत्तम)'
+    },
+    policeAdvisory: {
+      en: 'Roads connecting Morena, Mitawali, Padhavali, and Bateshwar are fully paved. Day trips recommended; return before dusk.',
+      hi: 'मितावली, पढ़ावली और बटेश्वर को जोड़ने वाली सड़कें पक्की हैं। दिन के समय भ्रमण करें और शाम ढलने से पूर्व लौटें।'
+    },
+    lastUpdated: 'Live Field Feasibility Verified',
+    keySpots: [
+      { name: 'Bateshwar Temples (200 Temples)', hindiName: 'बटेश्वर 200 शिव मंदिर', status: 'smooth', waitMinutes: 0 },
+      { name: 'Chausath Yogini (Mitawali)', hindiName: 'चौसठ योगिनी मितावली', status: 'smooth', waitMinutes: 0 },
+      { name: 'Garhi Padhavali', hindiName: 'गढ़ी पढ़ावली मुखमंडप', status: 'smooth', waitMinutes: 0 },
+      { name: 'Kakanmath Temple (Suhania)', hindiName: 'ककनमठ शिव मंदिर सुहानिया', status: 'smooth', waitMinutes: 0 }
+    ]
+  },
+  gwalior: {
+    district: 'Gwalior',
+    hindiDistrict: 'ग्वालियर',
+    primaryHub: 'Gwalior Fort & Man Singh Palace',
+    crowdLevel: 'moderate',
+    crowdLevelText: {
+      en: 'Moderate Sightseeing Flow',
+      hi: 'मध्यम पर्यटक प्रवाह'
+    },
+    estimatedWaitMinutes: 10,
+    waitTimeFormatted: {
+      en: '~5 to 15 Minutes at ticket counters',
+      hi: '~5 से 15 मिनट टिकट काउंटर'
+    },
+    feasibilityVerdict: {
+      en: 'Highly Recommended — Urvai Gate vehicle road clear; Sound & Light show active daily at 7:30 PM.',
+      hi: 'भ्रमण हेतु उत्तम — उरवाई गेट से वाहनों का सीधा मार्ग खुला; सांध्य लाइट एंड साउंड शो सक्रिय।'
+    },
+    peakHours: {
+      en: '11:00 AM – 3:30 PM & 7:00 PM (Sound & Light Show)',
+      hi: 'पूर्वाह्न 11:00 से 3:30 व सायं 7:00 बजे'
+    },
+    bestSlot: {
+      en: 'Morning 8:00 AM – 11:00 AM or 5:00 PM for Fort Sunset',
+      hi: 'प्रातः 8:00 से 11:00 अथवा सायं 5:00 बजे सूर्यास्त दर्शन'
+    },
+    policeAdvisory: {
+      en: 'Vehicles permitted inside fort ramparts via Urvai Gate. Authorized guides available at Man Mandir.',
+      hi: 'उरवाई गेट से किले के ऊपर तक वाहन जा सकते हैं।'
+    },
+    lastUpdated: 'Just now (Live Scraped)',
+    keySpots: [
+      { name: 'Man Singh Palace', hindiName: 'मानसिंह महल', status: 'smooth', waitMinutes: 10 },
+      { name: 'Sas Bahu Temples', hindiName: 'सास बहू मंदिर', status: 'smooth', waitMinutes: 5 },
+      { name: 'Teli Ka Mandir', hindiName: 'तेली का मंदिर', status: 'smooth', waitMinutes: 5 },
+      { name: 'Jai Vilas Palace Museum', hindiName: 'जय विलास पैलेस संग्रहालय', status: 'moderate', waitMinutes: 15 }
+    ]
+  },
+  orchha: {
+    district: 'Orchha',
+    hindiDistrict: 'ओरछा (निवाड़ी)',
+    primaryHub: 'Jahangir Mahal & Ram Raja Temple',
+    crowdLevel: 'moderate',
+    crowdLevelText: {
+      en: 'Pleasant Cultural Footfall',
+      hi: 'सुखद सांस्कृतिक पर्यटक प्रवाह'
+    },
+    estimatedWaitMinutes: 15,
+    waitTimeFormatted: {
+      en: '~10 to 20 Minutes evening Ram Raja Aarti queue',
+      hi: '~10 से 20 मिनट राम राजा सांध्य आरती कतार'
+    },
+    feasibilityVerdict: {
+      en: 'Highly Recommended — Peaceful Betwa riverbanks, palace complex open throughout the day.',
+      hi: 'भ्रमण के लिए अत्यंत अनुशंसित — बेतवा नदी की शांति और दिव्य राम राजा आरती।'
+    },
+    peakHours: {
+      en: '10:00 AM – 1:00 PM & 7:30 PM (Evening Sandhya Aarti)',
+      hi: 'सुबह 10:00 से 1:00 व सायं 7:30 बजे'
+    },
+    bestSlot: {
+      en: 'Morning 8:30 AM for Palaces & 7:30 PM for Ram Raja Temple Guard of Honor',
+      hi: 'प्रातः 8:30 बजे महलों के लिए व सायं 7:30 बजे राम राजा आरती'
+    },
+    policeAdvisory: {
+      en: 'Ample parking near Betwa river bridge. River rafting subject to water discharge levels.',
+      hi: 'बेतवा पुल के पास पार्किंग सुविधा उपलब्ध।'
+    },
+    lastUpdated: 'Just now (Live Scraped)',
+    keySpots: [
+      { name: 'Jahangir Mahal & Raja Mahal', hindiName: 'जहाँगीर महल व राजा महल', status: 'smooth', waitMinutes: 10 },
+      { name: 'Ram Raja Temple', hindiName: 'श्री राम राजा मंदिर', status: 'moderate', waitMinutes: 20 },
+      { name: 'Chaturbhuj Temple', hindiName: 'चतुर्भुज मंदिर', status: 'smooth', waitMinutes: 5 },
+      { name: 'Betwa Royal Chhatris', hindiName: 'बेतवा शाही छतरियां', status: 'smooth', waitMinutes: 0 }
+    ]
+  },
   mathura: {
     district: 'Mathura',
     hindiDistrict: 'मथुरा एवं वृन्दावन',
@@ -418,8 +536,93 @@ export const DISTRICT_CROWD_REGISTRY: Record<string, DistrictCrowdStatus> = {
   }
 };
 
-// Comprehensive Scraped News Database across UP Districts
+// Comprehensive Scraped News Database across MP & UP Districts
 export const SCRAPED_NEWS_DATABASE: ScrapedNewsItem[] = [
+  {
+    id: 'scraped-morena-1',
+    title: {
+      en: 'Morena Heritage Corridor: ASI Completes Solar Illumination & New Multilingual Signboards at Bateshwar & Mitawali',
+      hi: 'मुरैना हेरिटेज परिपथ: ASI ने बटेश्वर व मितावली में सौर प्रकाश व्यवस्था और नए बहुभाषी सूचना पट्ट स्थापित किए'
+    },
+    summary: {
+      en: 'Archaeological Survey of India (ASI Bhopal Circle) has installed new descriptive orientation signboards detailing the 8th-century Gurjara-Pratihara history and astronomical design at Chausath Yogini.',
+      hi: 'पुरातत्व विभाग (ASI) ने बटेश्वर के 200 मंदिरों और मितावली चौसठ योगिनी पर विस्तृत इतिहास व खगोलीय महत्व दर्शाने वाले नए सूचना बोर्ड लगाए।'
+    },
+    details: {
+      en: 'New solar-powered walkway markers, clear directional road signage from Gwalior-Rithora highway, and fresh water stations have been operationalized for independent cultural travellers. Local transport feasibility remains smooth with private taxis from Gwalior.',
+      hi: 'ग्वालियर-रिठौरा मार्ग से सुगम दिशा संकेतक व पेयजल सुविधा प्रारंभ। स्वतंत्र पर्यटकों के लिए ग्वालियर से टैक्सी द्वारा 4 घंटे का भ्रमण अत्यंत सुगम।'
+    },
+    district: 'Morena',
+    hindiDistrict: 'मुरैना (चंबल परिपथ)',
+    placeName: 'Bateshwar & Mitawali Heritage Complex',
+    category: 'infrastructure',
+    categoryLabel: { en: 'Heritage Infrastructure', hi: 'धरोहर अवसंरचना' },
+    source: 'ASI Bhopal Circle & MP Tourism News',
+    sourceUrl: 'https://asibhopal.nic.in/',
+    publishedAt: '10 mins ago',
+    isBreaking: true,
+    crowdLevel: 'peaceful',
+    estimatedWaitMinutes: 0,
+    queueStatus: { en: 'No Lines (Direct Entry)', hi: 'कतार-मुक्त (सीधा प्रवेश)' },
+    feasibilityBadge: { en: 'Best Time to Visit (Peak Feasibility)', hi: 'भ्रमण हेतु सर्वोत्तम समय' },
+    imageUrl: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800&q=80'
+  },
+  {
+    id: 'scraped-gwalior-1',
+    title: {
+      en: 'Gwalior Fort: Upgraded 4K Laser Sound & Light Show Begins at Man Mandir; Online Booking Enabled',
+      hi: 'ग्वालियर किला: मान मंदिर पर 4K लेजर लाइट एंड साउंड शो प्रारंभ; ऑनलाइन बुकिंग चालू'
+    },
+    summary: {
+      en: 'Madhya Pradesh Tourism has launched state-of-the-art 4K laser projection mapping at Man Singh Palace narrating the legends of Raja Man Singh, Mrignayani, and Rani Lakshmibai.',
+      hi: 'मध्य प्रदेश पर्यटन द्वारा मानसिंह महल पर 4K लेजर प्रोजेक्शन मैपिंग शुरू, राजा मानसिंह व रानी लक्ष्मीबाई की गाथा का सजीव प्रदर्शन।'
+    },
+    details: {
+      en: 'Hindi show at 7:30 PM and English show at 8:30 PM daily. Vehicles allowed via Urvai Gate with designated parking near Teli Ka Mandir.',
+      hi: 'प्रतिदिन सायं 7:30 बजे हिन्दी व 8:30 बजे अंग्रेज़ी शो। उरवाई गेट से वाहनों का प्रवेश सुगम।'
+    },
+    district: 'Gwalior',
+    hindiDistrict: 'ग्वालियर',
+    placeName: 'Gwalior Fort Man Mandir',
+    category: 'festival_mela',
+    categoryLabel: { en: 'Cultural Events', hi: 'सांस्कृतिक कार्यक्रम' },
+    source: 'MP Tourism Board',
+    sourceUrl: 'https://www.mptourism.com/',
+    publishedAt: '40 mins ago',
+    crowdLevel: 'moderate',
+    estimatedWaitMinutes: 10,
+    queueStatus: { en: 'Moderate Queue (10 mins)', hi: 'मध्यम कतार (10 मिनट)' },
+    feasibilityBadge: { en: 'Highly Recommended Evening Slot', hi: 'सांध्य भ्रमण हेतु अनुशंसित' },
+    imageUrl: 'https://images.unsplash.com/photo-1545231027-637d2f6210f8?w=800&q=80'
+  },
+  {
+    id: 'scraped-orchha-1',
+    title: {
+      en: 'Orchha: Royal Betwa Riverfront Kayaking & Evening Ram Raja Darshan Guidelines Announced',
+      hi: 'ओरछा: बेतवा रिवरफ्रंट कयाकिंग व सांध्य राम राजा दर्शन दिशा-निर्देश जारी'
+    },
+    summary: {
+      en: 'Niwari administration has enhanced boat safety protocols across Betwa royal chhatris while Ram Raja temple trust reports smooth darshan under 20 minutes.',
+      hi: 'बेतवा शाही छतरियों के समीप नौकायन व कयाकिंग के लिए सुरक्षा उपकरण अनिवार्य; राम राजा मंदिर में 20 मिनट में दर्शन।'
+    },
+    details: {
+      en: 'Evening Sandhya Aarti at 7:30 PM accompanied by traditional police Guard of Honour for Lord Rama. Tourist police assistance desks deployed at palace entrance.',
+      hi: 'सायं 7:30 बजे राम राजा मंदिर में गार्ड ऑफ ऑनर के साथ भव्य आरती। महल प्रवेश द्वार पर पर्यटक सहायता केंद्र सक्रिय।'
+    },
+    district: 'Orchha',
+    hindiDistrict: 'ओरछा (निवाड़ी)',
+    placeName: 'Ram Raja Temple & Jahangir Mahal',
+    category: 'crowd_darshan',
+    categoryLabel: { en: 'Temple Darshan & Heritage', hi: 'दर्शन व धरोहर' },
+    source: 'Orchha Development Authority',
+    sourceUrl: 'https://www.mptourism.com/destination-orchha.php',
+    publishedAt: '1 hour ago',
+    crowdLevel: 'moderate',
+    estimatedWaitMinutes: 15,
+    queueStatus: { en: 'Smooth Moving (15 mins)', hi: 'सुगम प्रवाह (15 मिनट)' },
+    feasibilityBadge: { en: 'Highly Recommended', hi: 'अत्यंत अनुशंसित' },
+    imageUrl: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800&q=80'
+  },
   {
     id: 'scraped-mathura-1',
     title: {

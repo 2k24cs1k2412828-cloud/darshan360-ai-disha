@@ -49,7 +49,11 @@ export const UP_CITY_COORDINATES: Record<string, { name: string; hindi: string; 
   farrukhabad: { name: 'Farrukhabad', hindi: 'फ़र्रुख़ाबाद', coords: [27.3826, 79.5843] },
   mainpuri: { name: 'Mainpuri', hindi: 'मैनपुरी', coords: [27.2300, 79.0300] },
   muzaffarnagar: { name: 'Muzaffarnagar', hindi: 'मुज़फ़्फ़रनगर', coords: [29.4727, 77.7085] },
-  bithoor: { name: 'Bithoor', hindi: 'बिठूर', coords: [26.6133, 80.2743] }
+  bithoor: { name: 'Bithoor', hindi: 'बिठूर', coords: [26.6133, 80.2743] },
+  morena: { name: 'Morena (MP)', hindi: 'मुरैना (मध्य प्रदेश)', coords: [26.4948, 77.9944] },
+  gwalior: { name: 'Gwalior (MP)', hindi: 'ग्वालियर (मध्य प्रदेश)', coords: [26.2183, 78.1828] },
+  orchha: { name: 'Orchha (MP)', hindi: 'ओरछा (मध्य प्रदेश)', coords: [25.3508, 78.6436] },
+  chanderi: { name: 'Chanderi (MP)', hindi: 'चंदेरी (मध्य प्रदेश)', coords: [24.7170, 78.1180] }
 };
 
 // Common landmarks registry for direct destination routing
@@ -68,7 +72,14 @@ export const UP_LANDMARK_COORDINATES: Record<string, { name: string; hindi: stri
   'gorakhnath': { name: 'Gorakhnath Math', hindi: 'गोरखनाथ पीठ', coords: [26.7760, 83.3550], city: 'Gorakhpur' },
   'vindhyavasini': { name: 'Maa Vindhyavasini Mandir', hindi: 'माँ विंध्यवासिनी मंदिर', coords: [25.1610, 82.5030], city: 'Mirzapur' },
   'chunar fort': { name: 'Chunar Fort', hindi: 'चुनार का किला', coords: [25.1270, 82.8830], city: 'Mirzapur' },
-  'jhansi fort': { name: 'Jhansi Fort', hindi: 'झांसी का किला', coords: [25.4578, 78.5775], city: 'Jhansi' }
+  'jhansi fort': { name: 'Jhansi Fort', hindi: 'झांसी का किला', coords: [25.4578, 78.5775], city: 'Jhansi' },
+  'bateshwar': { name: 'Bateshwar Temples (200 Temples)', hindi: 'बटेश्वर मंदिर समूह', coords: [26.4258, 78.2045], city: 'Morena' },
+  'mitawali': { name: 'Chausath Yogini Temple', hindi: 'चौसठ योगिनी मंदिर (मितावली)', coords: [26.4428, 78.2573], city: 'Morena' },
+  'padhavali': { name: 'Garhi Padhavali', hindi: 'गढ़ी पढ़ावली', coords: [26.4319, 78.2255], city: 'Morena' },
+  'kakanmath': { name: 'Kakanmath Shiva Temple', hindi: 'ककनमठ शिव मंदिर', coords: [26.5411, 78.2427], city: 'Morena' },
+  'gwalior fort': { name: 'Gwalior Fort', hindi: 'ग्वालियर किला', coords: [26.2295, 78.1691], city: 'Gwalior' },
+  'orchha': { name: 'Orchha Palace & Chaturbhuj', hindi: 'ओरछा राजमहल', coords: [25.3508, 78.6436], city: 'Orchha' },
+  'koshak mahal': { name: 'Koshak Mahal', hindi: 'कोषक महल', coords: [24.7170, 78.1180], city: 'Chanderi' }
 };
 
 // Procedural high-density UP places data generator

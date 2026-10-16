@@ -207,38 +207,40 @@ _Your Copilot Timeline Drawer and interactive map track have been updated automa
 
   // Dedicated identity & capabilities query detector (e.g. "who are you", "tum kaun ho", "what is disha")
   const isIdentityQuery = 
-    /\b(who are you|who r you|who are u|tum kaun ho|aap kaun ho|aap kaun hain|what are you|what can you do|who is disha|what is disha|about you|about yourself|introduce yourself|apna parichay|apne baare mein|who made you|what is darshan 360|who created you|kya kar sakti ho)\b/i.test(userMessage.trim());
+    /\b(who are you|who r you|who are u|tum kaun ho|aap kaun ho|aap kaun hain|what are you|what can you do|who is disha|what is disha|who is ghumo|what is ghumo|ghumo ai|ghumo india|about you|about yourself|introduce yourself|apna parichay|apne baare mein|who made you|what is darshan 360|who created you|kya kar sakti ho)\b/i.test(userMessage.trim());
 
   if (isIdentityQuery) {
     const identityText = activeLang === 'hi'
-      ? `### 🙏 नमस्ते! मैं दिशा AI (Disha AI) हूँ
+      ? `### 🙏 नमस्ते! मैं घूमो AI (Ghumo AI) हूँ
 
-मैं **उत्तर प्रदेश पर्यटन (Darshan 360°)** की आपकी आधिकारिक **एआई यात्रा साथी एवं डिजिटल मार्गदर्शक** हूँ।
+मैं **घूमो इंडिया (Ghumo India)** की आपकी आधिकारिक **एआई यात्रा साथी एवं डिजिटल मार्गदर्शक** हूँ — **टीम सृजन (Team Srajan)** द्वारा **AI Synergy Hackathon Problem 4 (Tourism Track - Beyond the Fort)** के लिए विकसित।
 
-मैं आपकी उत्तर प्रदेश यात्रा, तीर्थाटन एवं सांस्कृतिक दर्शन को सुगम व अविस्मरणीय बनाने के लिए निम्नलिखित सेवाएं प्रदान करती हूँ:
+मैं आपकी मध्य प्रदेश व भारतीय धरोहर यात्रा, तीर्थाटन एवं सांस्कृतिक दर्शन को सुगम व ज्ञानवर्धक बनाने के लिए निम्नलिखित सेवाएं प्रदान करती हूँ:
 
-• **🧭 स्मार्ट यात्रा कोपायलट (Trip Copilot):** आप मुझे अपना उपलब्ध समय बताएं (उदा. *"मेरे पास वाराणसी में 3 घंटे हैं, स्टेशन वापसी करनी है"*), और मैं सुरक्षा बफर समय व मानचित्र रूट सहित संपूर्ण समयबद्ध टाइमलाइन तैयार कर दूँगी।
-• **📊 लाइव भीड़ टेलीमेट्री एवं दर्शन परामर्श:** मथुरा, वृंदावन, अयोध्या, काशी, या प्रयागराज में कतार प्रतीक्षा समय, आरती पास नियम और *"क्या अभी जाने लायक है या नहीं"* का सटीक विश्लेषण।
-• **🚗 हाईवे व एक्सप्रेसवे मार्ग:** किन्हीं भी दो शहरों (उदा. *"कानपुर से प्रयागराज"* अथवा *"लखनऊ से अयोध्या"*) के बीच सटीक ड्राइविंग दूरी, एक्सप्रेसवे और रास्ते के स्टॉप्स।
-• **🛕 धामों का आध्यात्मिक उद्देश्य (Travel Cause):** केवल स्थल ही नहीं, बल्कि उस पावन तीर्थ के दर्शन का धार्मिक, ऐतिहासिक व सांस्कृतिक कारण।
-• **🛡️ यात्री सुरक्षा व सतर्कता:** आधिकारिक नौका किराया, फर्जी वीआईपी पास से बचाव और 24x7 हेल्पलाइन (**1800-180-5145**)।
+• **🏛️ बियॉन्ड द फोर्ट (Beyond the Fort):** मध्य प्रदेश के अनदेखे पुरातात्विक रत्नों (बटेश्वर 200 मंदिर परिसर, मितावली चौसठ योगिनी, गढ़ी पढ़ावली, ककनमठ सुहानिया, कोषकमहल चंदेरी) की प्रामाणिक ऐतिहासिक व पुरातात्विक जानकारी (ASI स्रोतों से पुष्ट)।
+• **🧭 स्मार्ट यात्रा कोपायलट (Trip Copilot):** आप मुझे अपना उपलब्ध समय बताएं (उदा. *"ग्वालियर से 4 घंटे का बटेश्वर-मितावली हेरिटेज रूट"*), और मैं सुरक्षा बफर समय व मानचित्र रूट सहित संपूर्ण समयबद्ध टाइमलाइन तैयार कर दूँगी।
+• **📊 लाइव भीड़ टेलीमेट्री एवं दर्शन परामर्श:** प्रमुख धामों व पर्यटन केंद्रों में कतार प्रतीक्षा समय, दर्शन नियम और *"क्या अभी जाने लायक है या नहीं"* का सटीक विश्लेषण।
+• **🚗 हाईवे, सड़क व हेरिटेज कॉरिडोर मार्ग:** मुरैना-चंबल कॉरिडोर, ग्वालियर-ओरछा, बुंदेलखंड व राष्ट्रीय राजमार्गों के बीच सटीक ड्राइविंग दूरी व रास्ते के स्टॉप्स।
+• **🛕 धरोहर व तीर्थों का ऐतिहासिक व आध्यात्मिक उद्देश्य (Travel Cause):** केवल स्थल ही नहीं, बल्कि उस पावन तीर्थ अथवा ऐतिहासिक स्मारक के निर्माण, स्थापत्य व संस्कृति का गहरा अध्ययन।
+• **🛡️ यात्री सुरक्षा व सतर्कता:** जमीनी कनेक्टिविटी, परिवहन साधन, आधिकारिक किराया और आपातकालीन परामर्श।
 • **🎙️ बोलकर पूछें एवं सुनें:** आप मुझसे हिन्दी अथवा अंग्रेज़ी में बोलकर संवाद कर सकते हैं।
 
-_आप उत्तर प्रदेश के किस धाम, ऐतिहासिक धरोहर अथवा यात्रा मार्ग की जानकारी चाहते हैं?_`
-      : `### 🙏 Namaste! I am Disha AI (दिशा AI)
+_आप मध्य प्रदेश अथवा देश के किस धरोहर स्थल या यात्रा मार्ग की जानकारी चाहते हैं?_`
+      : `### 🙏 Namaste! I am Ghumo AI (घूमो AI)
 
-I am your official **AI Travel Companion & Pilgrimage Concierge** for **Uttar Pradesh Tourism (Darshan 360°)**.
+I am your official **AI Travel Companion & Heritage Concierge** for **Ghumo India**, created by **Team Srajan** for **AI Synergy Hackathon Problem 4 Track Tourism (Beyond the Fort)**.
 
-Here is how I can assist your travel and pilgrimage across Uttar Pradesh:
+Here is how I assist your exploration of Madhya Pradesh and India's heritage wonders:
 
-• **🧭 Smart Time-Aware Trip Copilot**: Tell me how many hours you have (e.g., *"I have 3 hours in Varanasi near Cantt station, need to return in 3 hours"*), and I will generate an interactive time-based itinerary with safety deadline buffers and sequential route markers.
-• **📊 Live Crowd Telemetry & Feasibility**: Ask me *"Kitni bheed hai?"* or *"Is it worth visiting now?"* for Mathura, Vrindavan, Ayodhya, Kashi, or Prayagraj to get exact queue wait times, darshan pass rules, and best visiting slots.
-• **🚗 Road & Highway Directions**: Ask for any route (e.g., *"Kanpur to Prayagraj"* or *"Lucknow to Ayodhya"*) to get verified expressway corridors, driving distances, and recommended stops.
-• **🛕 Spiritual Travel Causes**: Discover why sacred pilgrimages are performed, deep Vedic and historical backgrounds, and photography tips.
-• **🛡️ Pilgrim Safety & Scam Advisory**: Fair boat fares, authorized priests, and our 24x7 toll-free helpline (**1800-180-5145**).
-• **🎙️ Bilingual Voice Interaction**: Type or speak in Hindi or English, and listen to responses using the voice player.
+• **🏛️ Beyond the Fort Discovery**: Grounded, source-backed intelligence on Madhya Pradesh's lesser-known archaeological wonders—such as the 200 restored Gurjara-Pratihara temples of **Bateshwar**, the circular **Chausath Yogini Temple at Mitawali**, the intricate friezes of **Garhi Padhavali**, the mortarless **Kakanmath Shiva Temple**, and **Koshak Mahal Chanderi**.
+• **🧭 Smart Time-Aware Trip Copilot**: Tell me your available duration (e.g., *"4-hour heritage circuit from Gwalior station to Bateshwar & Mitawali"*), and I will generate an interactive time-based itinerary with safety return deadlines and sequential route markers.
+• **📊 Live Crowd Telemetry & Travel Feasibility**: Real-time road status, queue wait times, darshan pass rules, and feasibility guidance.
+• **🚗 Heritage Corridors & Highways**: Verified road routes across the Chambal Heritage Corridor, Gwalior Fort circuits, Bundelkhand royal circuits, and inter-state highways.
+• **🛕 Architectural & Cultural Significance (Travel Cause)**: Authentic Vedic, Rajput, Kachchhapaghata, and ASI-documented histories, photography guidance, and accessibility ratings.
+• **🛡️ Safe Travel Advisory**: Transparent local transportation advice, fair taxi rates, and traveler assistance.
+• **🎙️ Bilingual Voice Interaction**: Type or speak in Hindi or English, and listen to responses with voice synthesis.
 
-_How may I help you plan your journey across Uttar Pradesh today?_`;
+_How may I help you discover India's magnificent heritage today?_`;
 
     const res: GeminiResponse = {
       text: identityText,
@@ -272,9 +274,9 @@ _How may I help you plan your journey across Uttar Pradesh today?_`;
 • **🛡️ सुरक्षा व धोखाधड़ी से बचाव:** आधिकारिक बोट किराया, दर्शन पास की सत्यता और 24x7 हेल्पलाइन (**1800-180-5145**)।
 
 आप उत्तर प्रदेश के किस पावन धाम, घाट या ऐतिहासिक धरोहर की यात्रा की योजना बना रहे हैं?`
-      : `### 🙏 Namaste! Welcome to Darshan 360°
+      : `### 🙏 Namaste! Welcome to Ghumo India
 
-I am **Disha AI** — your official spiritual, cultural, and heritage companion for Uttar Pradesh Tourism.
+I am **Ghumo AI** — your official spiritual, cultural, and heritage companion for tourism and heritage exploration.
 
 Here is how I can assist your travels and pilgrimage:
 
@@ -569,7 +571,7 @@ Key Temple Queue Breakdown: ${districtCrowd.keySpots.map(s => `${s.name} (${s.wa
 Provide this EXACT numerical queue time and advice clearly to the user!
 ` : '';
 
-  const systemPrompt = `You are Disha AI (दिशा एआई), the official, intelligent and highly informed travel companion for Uttar Pradesh Tourism (Darshan 360).
+  const systemPrompt = `You are Ghumo AI (घूमो एआई), the official, intelligent and highly informed travel companion for Ghumo India (Team Srajan).
 Your knowledge covers all 75 districts of Uttar Pradesh including Jhansi, Kanpur, Ayodhya, Varanasi, Mathura, Vrindavan, Prayagraj, Agra, Lucknow, Chitrakoot, Gorakhpur, Mirzapur, etc.
 
 Language Guidelines:
@@ -961,12 +963,12 @@ ${p.deepHistory.en}
 
   // Default rich overview
   const generalText = lang === 'hi'
-    ? `### 🙏 नमस्ते! मैं उत्तर प्रदेश पर्यटन (Darshan 360) का एआई साथी हूँ।
+    ? `### 🙏 नमस्ते! मैं घूमो इंडिया (Ghumo India — Team Srajan) की एआई साथी घूमो AI (Ghumo AI) हूँ।
 
-मैं उत्तर प्रदेश के सभी 75 जिलों (झांसी, कानपुर, अयोध्या, काशी, मथुरा, प्रयागराज, आगरा, लखनऊ, चित्रकूट आदि) की संपूर्ण यात्रा योजना, रूट, फोटो और ताज़ा अपडेट्स प्रदान कर सकता हूँ!`
-    : `### 🙏 Namaste! I am your Uttar Pradesh Tourism AI Companion (Darshan 360).
+मैं मध्य प्रदेश के अनदेखे ऐतिहासिक स्थलों (बटेश्वर, मितावली, गढ़ी पढ़ावली, ककनमठ, ग्वालियर किला, ओरछा, चंदेरी) तथा देश के सभी प्रमुख पर्यटन सर्किट की संपूर्ण यात्रा योजना, रूट, फोटो और प्रमाणिक जानकारी प्रदान कर सकती हूँ!`
+    : `### 🙏 Namaste! I am Ghumo AI, your travel and heritage companion for Ghumo India (Team Srajan — AI Synergy Hackathon Problem 4 Track Tourism).
 
-I can provide comprehensive travel causes, live crowd status, routes (e.g. Kanpur to Prayagraj, Jhansi Fort), and photos for all 75 districts of Uttar Pradesh!`;
+I provide verified itineraries, route maps, historical context, and photos for Madhya Pradesh's hidden heritage (Bateshwar, Mitawali, Padhavali, Kakanmath, Gwalior Fort, Orchha) and premier travel destinations across India!`;
 
   return {
     text: generalText,

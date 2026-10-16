@@ -30,15 +30,14 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  UP_PLACES, 
-  UP_TRAVEL_ROUTES, 
-  getAllUPGhats, 
-  type UPPlace, 
-  type UPRoute,
-  calculateDynamicUPRoute,
-  UP_CITY_COORDINATES
-} from '../services/uttarPradeshService';
-import { UP_LANDMARK_COORDINATES } from '../../data/up-comprehensive-database';
+  MP_PLACES as UP_PLACES, 
+  MP_TRAVEL_ROUTES as UP_TRAVEL_ROUTES, 
+  type MPPlace as UPPlace, 
+  type MPRoute as UPRoute,
+  calculateDynamicMPRoute as calculateDynamicUPRoute,
+  MP_CITY_COORDINATES as UP_CITY_COORDINATES,
+  MP_LANDMARK_COORDINATES as UP_LANDMARK_COORDINATES
+} from '../../data/mp-comprehensive-database';
 import type { TripItinerary } from '../services/copilotService';
 import { getAuthenticTourismImage } from '../services/tourismImageService';
 
@@ -251,8 +250,8 @@ export function MapPanel({
 
   // Directions & Navigation Drawer State
   const [isDirectionsOpen, setIsDirectionsOpen] = useState<boolean>(false);
-  const [directionsFrom, setDirectionsFrom] = useState<string>('Lucknow');
-  const [directionsTo, setDirectionsTo] = useState<string>('Ayodhya');
+  const [directionsFrom, setDirectionsFrom] = useState<string>('Gwalior');
+  const [directionsTo, setDirectionsTo] = useState<string>('Orchha');
   const [isFromDropdownOpen, setIsFromDropdownOpen] = useState<boolean>(false);
   const [isToDropdownOpen, setIsToDropdownOpen] = useState<boolean>(false);
   const [calculatedRoute, setCalculatedRoute] = useState<ReturnType<typeof calculateDynamicUPRoute>>(null);
@@ -285,7 +284,7 @@ export function MapPanel({
     }
   }, [selectedCoordinates]);
 
-  // List of all popular UP cities and landmarks for route autocomplete
+  // List of all popular MP cities and landmarks for route autocomplete
   const routeLocationOptions = useMemo(() => {
     const list: Array<{ id: string; name: string; hindi: string; type: 'city' | 'landmark' }> = [];
     
@@ -318,18 +317,15 @@ export function MapPanel({
     }).slice(0, 6);
   }, [searchQuery]);
 
-  // Filter Categories with updated counts including Nature and Food
+  // Filter Categories for Madhya Pradesh Tourism
   const filterCategories = [
-    { id: 'all', label: { en: 'All Destinations', hi: 'सभी स्थल' }, icon: Layers, count: UP_PLACES.length },
-    { id: 'temple', label: { en: 'Temples & Mandirs', hi: 'पवित्र मंदिर' }, icon: Sparkles, count: UP_PLACES.filter(p => p.category === 'temple').length },
-    { id: 'ghat', label: { en: 'All Holy Ghats', hi: 'सभी पावन घाट' }, icon: Waves, count: getAllUPGhats().length },
-    { id: 'heritage', label: { en: 'Heritage & Forts', hi: 'विरासत एवं दुर्ग' }, icon: Compass, count: UP_PLACES.filter(p => p.category === 'heritage').length },
-    { id: 'buddhist', label: { en: 'Buddhist Circuit', hi: 'बौद्ध परिपथ' }, icon: Footprints, count: UP_PLACES.filter(p => p.category === 'buddhist').length },
-    { id: 'monument', label: { en: 'Monuments', hi: 'ऐतिहासिक स्मारक' }, icon: MapPin, count: UP_PLACES.filter(p => p.category === 'monument').length },
-    { id: 'nature', label: { en: 'Nature & Wildlife', hi: 'प्रकृति व वन्यजीव' }, icon: Trees, count: UP_PLACES.filter(p => p.category === 'nature').length },
-    { id: 'waterfall', label: { en: 'Waterfalls & Canyons', hi: 'जलप्रपात व घाटियां' }, icon: Droplets, count: UP_PLACES.filter(p => p.category === 'waterfall').length },
-    { id: 'craft', label: { en: 'Craft & Culture', hi: 'शिल्प एवं संस्कृति' }, icon: Palette, count: UP_PLACES.filter(p => p.category === 'craft').length },
-    { id: 'food', label: { en: 'Food & Bazaars', hi: 'खानपान व बाज़ार' }, icon: UtensilsCrossed, count: UP_PLACES.filter(p => p.category === 'food').length },
+    { id: 'all', label: { en: 'All MP Sites', hi: 'सभी म.प्र. स्थल' }, icon: Layers, count: UP_PLACES.length },
+    { id: 'heritage', label: { en: 'Forts & Palaces', hi: 'किले व राजमहल' }, icon: Compass, count: UP_PLACES.filter(p => p.category === 'heritage').length },
+    { id: 'temple', label: { en: 'Ancient Temples', hi: 'प्राचीन मंदिर' }, icon: Sparkles, count: UP_PLACES.filter(p => p.category === 'temple').length },
+    { id: 'monument', label: { en: 'Memorials & Museums', hi: 'स्मारक व संग्रहालय' }, icon: MapPin, count: UP_PLACES.filter(p => p.category === 'monument').length },
+    { id: 'buddhist', label: { en: 'Buddhist Stupas', hi: 'बौद्ध महातीर्थ' }, icon: Footprints, count: UP_PLACES.filter(p => p.category === 'buddhist').length },
+    { id: 'waterfall', label: { en: 'Waterfalls & Rivers', hi: 'जलप्रपात व नदियां' }, icon: Droplets, count: UP_PLACES.filter(p => p.category === 'waterfall').length },
+    { id: 'craft', label: { en: 'Chanderi Craft', hi: 'चंदेरी शिल्प' }, icon: Palette, count: UP_PLACES.filter(p => p.category === 'craft').length },
   ];
 
   // Filtered places: only display markers when user explicitly selects a category filter, searches, or focuses a place
@@ -479,7 +475,7 @@ export function MapPanel({
     setActiveRouteId(null);
     setCalculatedRoute(null);
     if (onClearActiveRoute) onClearActiveRoute();
-    setFocusCenter([26.7956, 82.1943]); // Center back to UP
+    setFocusCenter([26.0, 78.3]); // Center back to MP Heritage Corridor
   };
 
   return (
@@ -500,7 +496,7 @@ export function MapPanel({
                   setIsSearchFocused(true);
                   setFocusCenter(null);
                 }}
-                placeholder={language === 'hi' ? 'उत्तर प्रदेश के घाट, मंदिर, शहर खोजें...' : 'Search UP places, ghats, cities...'}
+                placeholder={language === 'hi' ? 'मध्य प्रदेश के किले, मंदिर, शहर खोजें (ग्वालियर, ओरछा, बटेश्वर)...' : 'Search MP places, forts, temples (Gwalior, Orchha, Bateshwar)...'}
                 className="bg-transparent text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] outline-none w-full font-medium"
               />
               {searchQuery && (
@@ -577,7 +573,7 @@ export function MapPanel({
                   ? 'bg-[var(--accent-primary)] text-white'
                   : 'glass text-[var(--text-primary)] hover:scale-105'
               }`}
-              title={language === 'hi' ? 'हाईवे मार्ग व दिशाएं' : 'UP Highway Directions'}
+              title={language === 'hi' ? 'मध्य प्रदेश हाईवे मार्ग व दिशाएं' : 'MP Highway Directions'}
             >
               <Route className="w-4 h-4" />
               <span className="hidden sm:inline">
@@ -673,7 +669,7 @@ export function MapPanel({
             <button
               onClick={handleResetMap}
               className="glass p-2.5 rounded-full shadow-lg hover:scale-105 transition-all text-xs font-medium text-[var(--text-primary)] border border-[var(--glass-border)]"
-              title={language === 'hi' ? 'मानचित्र रीसेट करें' : 'Reset View to All UP'}
+              title={language === 'hi' ? 'मानचित्र रीसेट करें' : 'Reset View to MP Heritage'}
             >
               <Compass className="w-4 h-4 text-[var(--accent-primary)]" />
             </button>
@@ -764,7 +760,7 @@ export function MapPanel({
             <div className="flex items-center justify-between border-b border-[var(--glass-border)] pb-2">
               <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
                 <Navigation className="w-4 h-4 text-[var(--accent-primary)]" />
-                <span>{language === 'hi' ? 'उत्तर प्रदेश यात्रा मार्ग कैलकुलेटर' : 'UP Route & Highway Navigator'}</span>
+                <span>{language === 'hi' ? 'मध्य प्रदेश यात्रा मार्ग व दूरी कैलकुलेटर' : 'MP Route & Highway Navigator'}</span>
               </div>
               <button
                 onClick={() => setIsDirectionsOpen(false)}
@@ -921,7 +917,7 @@ export function MapPanel({
                       className="flex-1 py-1 px-2 rounded-lg text-[10px] font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center justify-center gap-1 transition-all"
                     >
                       <Sparkles className="w-3 h-3" />
-                      <span>{language === 'hi' ? 'AI परामर्श' : 'Ask Disha AI'}</span>
+                      <span>{language === 'hi' ? 'घूमो AI परामर्श' : 'Ask Ghumo AI'}</span>
                     </button>
                   )}
                 </div>
@@ -934,8 +930,8 @@ export function MapPanel({
       {/* Main Leaflet Map */}
       <div className="w-full h-full">
         <MapContainer
-          center={[26.7956, 82.1943]}
-          zoom={7}
+          center={[26.0, 78.3]}
+          zoom={8}
           scrollWheelZoom={true}
           className="w-full h-full"
           zoomControl={false}
@@ -1083,7 +1079,7 @@ export function MapPanel({
                         className="w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white shadow-sm hover:opacity-95 flex items-center justify-center gap-1.5 transition-all mt-1 cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>{language === 'hi' ? 'दिशा AI से इस स्थल की जानकारी लें' : 'Ask Disha AI about this place'}</span>
+                        <span>{language === 'hi' ? 'घूमो AI से इस स्थल की जानकारी लें' : 'Ask Ghumo AI about this place'}</span>
                       </button>
                     )}
                   </div>
@@ -1135,7 +1131,7 @@ export function MapPanel({
                       className="w-full py-1.5 px-2 rounded-lg text-xs font-bold bg-[var(--accent-primary)] text-white hover:opacity-90 flex items-center justify-center gap-1 transition-all mt-1 cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>{language === 'hi' ? 'दिशा AI से इस पड़ाव की सलाह लें' : 'Consult Disha AI about this stop'}</span>
+                      <span>{language === 'hi' ? 'घूमो AI से इस पड़ाव की सलाह लें' : 'Consult Ghumo AI about this stop'}</span>
                     </button>
                   )}
                 </div>

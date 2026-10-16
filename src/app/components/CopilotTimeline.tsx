@@ -496,7 +496,7 @@ export function CopilotTimeline({
               </div>
               <div className="min-w-0">
                 <h4 className="text-[11px] font-bold text-[var(--text-primary)]">
-                  {language === 'hi' ? '2. दिशा AI से बोलकर बनवाएं' : '2. Tell Disha AI in Natural Chat'}
+                  {language === 'hi' ? '2. घूमो AI से बोलकर बनवाएं' : '2. Tell Ghumo AI in Natural Chat'}
                 </h4>
                 <p className="text-[10px] text-[var(--text-secondary)] leading-tight mt-0.5">
                   {language === 'hi'

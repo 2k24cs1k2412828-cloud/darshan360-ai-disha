@@ -15,7 +15,7 @@ export function HelpGuide() {
     {
       icon: MessageCircle,
       title: 'AI Assistant',
-      description: 'Ask Darshan 360 anything about sacred heritage sites. Use quick action buttons for common queries.',
+      description: 'Ask Ghumo India anything about sacred heritage sites and lesser-known destinations. Use quick action buttons for common queries.',
     },
     {
       icon: Ship,

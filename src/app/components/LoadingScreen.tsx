@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Sparkles } from 'lucide-react';
-import darshanLogo from '../../images/WhatsApp_Image_2025-11-27_at_2.16.38_PM-removebg-preview.png';
+import ghumoIndiaLogo from '../../images/ghumo-india-logo.png';
 
 export function LoadingScreen() {
   return (
@@ -24,8 +24,8 @@ export function LoadingScreen() {
           className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6 rounded-2xl bg-white/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden"
         >
           <img
-            src={darshanLogo}
-            alt="Darshan 360 logo"
+            src={ghumoIndiaLogo}
+            alt="Ghumo India logo"
             className="w-full h-full object-contain"
           />
         </motion.div>
@@ -36,7 +36,7 @@ export function LoadingScreen() {
           transition={{ delay: 0.2 }}
           className="text-3xl font-bold text-[#2C1810] mb-2"
         >
-          Darshan 360
+          Ghumo India
         </motion.h1>
 
         <motion.p
@@ -46,7 +46,7 @@ export function LoadingScreen() {
           className="text-sm text-[#5A4A3A] mb-6 flex items-center justify-center gap-2"
         >
           <Sparkles className="w-4 h-4 text-[#FF9933]" />
-          India&apos;s first AI travel companion
+          Beyond the Fort • MP Heritage & Tourism Portal
         </motion.p>
 
         <motion.div

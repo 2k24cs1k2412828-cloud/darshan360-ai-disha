@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Camera, Compass, MapPin, ShieldCheck, Sparkles, X, ArrowRight, Route, CircleAlert } from 'lucide-react';
 
-interface Darshan360InsightsProps {
+interface GhumoIndiaInsightsProps {
   isOpen: boolean;
   onClose: () => void;
   theme: 'morning' | 'evening';
@@ -138,7 +138,7 @@ const itineraryIdeas = [
   },
 ];
 
-export function Darshan360Insights({ isOpen, onClose, theme }: Darshan360InsightsProps) {
+export function GhumoIndiaInsights({ isOpen, onClose, theme }: GhumoIndiaInsightsProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -161,10 +161,10 @@ export function Darshan360Insights({ isOpen, onClose, theme }: Darshan360Insight
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
                 <p className="mb-1 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-primary)]">
-                  Darshan 360 Ecosystem
+                  Ghumo India Ecosystem
                 </p>
                 <h2 className="text-xl font-semibold text-[var(--text-primary)]">
-                  From Destination to Experience
+                  Beyond the Fort — AI Heritage Discovery
                 </h2>
               </div>
               <button
@@ -178,13 +178,13 @@ export function Darshan360Insights({ isOpen, onClose, theme }: Darshan360Insight
             <div className="space-y-4">
               <section className="rounded-2xl border border-[var(--glass-border)] bg-[var(--bg-secondary)] p-4">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-primary)]">
-                  Built by Edufutura Technologies Pvt. Ltd.
+                  Team Srajan • AI Synergy Hackathon 2026 (Problem 4 - Tourism Track)
                 </p>
                 <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                  An AI-powered heritage, spiritual and cultural tourism ecosystem.
+                  Ghumo India — AI-Assisted Discovery of Lesser-Known Heritage Across Madhya Pradesh
                 </h3>
                 <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                  Darshan 360 combines cultural storytelling, personalized planning, hidden heritage discovery, and community-led experiences in one intelligent travel experience.
+                  Ghumo India bridges the discovery, reliability, and travel feasibility gaps for overlooked heritage clusters (Bateshwar 200 Temples, Mitawali Chausath Yogini, Garhi Padhavali, Kakanmath) through source-grounded AI intelligence and smart time-aware trip planning.
                 </p>
               </section>
 

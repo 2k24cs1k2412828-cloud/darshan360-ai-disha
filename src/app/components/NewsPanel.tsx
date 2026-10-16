@@ -108,7 +108,7 @@ export function NewsPanel({ theme, language, onAskAI }: NewsPanelProps) {
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--accent-primary)] flex items-center gap-1.5">
               <Compass className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
-              {language === 'hi' ? 'उत्तर प्रदेश पर्यटन ग्राउंड इंटेलिजेंस' : 'Uttar Pradesh Tourism Ground Intelligence'}
+              {language === 'hi' ? 'मध्य प्रदेश पर्यटन ग्राउंड इंटेलिजेंस' : 'Madhya Pradesh Tourism Ground Intelligence'}
             </span>
             <span className="text-[11px] text-[var(--text-secondary)]">
               • {language === 'hi' ? 'अपडेट:' : 'Updated:'} {lastUpdatedTime}
@@ -123,8 +123,8 @@ export function NewsPanel({ theme, language, onAskAI }: NewsPanelProps) {
 
           <p className="text-xs md:text-sm text-[var(--text-secondary)] mt-1.5 max-w-3xl leading-relaxed">
             {language === 'hi'
-              ? '75 जिलों के प्रमुख तीर्थों की प्रामाणिक कतार स्थिति, दर्शन परामर्श, मेला प्रबंधन और आधिकारिक यातायात सूचनाएं।'
-              : 'Verified ground telemetry, temple wait times, pilgrimage advisories, and transit bulletins curated across 75 districts of Uttar Pradesh.'}
+              ? 'मुरैना, ग्वालियर, ओरछा, चंदेरी व प्रमुख म.प्र. पर्यटन केंद्रों की प्रामाणिक कतार स्थिति, दर्शन परामर्श, और आधिकारिक यात्रा सूचनाएं।'
+              : 'Verified ground telemetry, monument hours, heritage advisories, and transit bulletins curated across key tourist corridors of Madhya Pradesh.'}
           </p>
         </div>
 
@@ -702,8 +702,8 @@ export function NewsPanel({ theme, language, onAskAI }: NewsPanelProps) {
             </span>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
               {language === 'hi'
-                ? 'यह बुलेटिन उत्तर प्रदेश पर्यटन, जिला प्रशासन, पुलिस नियंत्रण कक्ष एवं संबंधित मंदिर ट्रस्टों द्वारा सत्यापित डेटा पर आधारित है। सप्ताहांत व त्योहारों पर कतार समय में परिवर्तन संभव है।'
-                : 'All telemetry is aggregated from Uttar Pradesh Tourism, District Control Rooms, and Shrine Administration Boards. Devotees are advised to check peak time forecasts before departure.'}
+                ? 'यह बुलेटिन मध्य प्रदेश पर्यटन (MP Tourism), भारतीय पुरातत्व सर्वेक्षण (ASI) एवं जिला प्रशासन द्वारा सत्यापित डेटा पर आधारित है। सप्ताहांत व त्योहारों पर समय सारणी में परिवर्तन संभव है।'
+                : 'All telemetry is aggregated from Madhya Pradesh Tourism, ASI, District Administration, and Shrine Boards. Travelers are advised to check peak time forecasts before departure.'}
             </p>
           </div>
         </div>

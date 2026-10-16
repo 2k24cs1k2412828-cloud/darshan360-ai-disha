@@ -1,4 +1,4 @@
-package com.darshan360.app;
+package org.srajan.ghumoindia;
 
 import com.getcapacitor.BridgeActivity;
 

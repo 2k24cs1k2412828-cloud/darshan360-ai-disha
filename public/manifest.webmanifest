@@ -1,7 +1,7 @@
 {
-  "name": "DARSHAN 360° — Uttar Pradesh Tourism & Pilgrimage Portal",
-  "short_name": "Darshan 360°",
-  "description": "Official AI Heritage & Pilgrimage Concierge with Interactive 3D Maps, Real-Time Crowd Telemetry, and Dynamic Trip Copilot for Uttar Pradesh Tourism.",
+  "name": "Ghumo India — Team Srajan, AI Synergy Hackathon Problem 4 Track Tourism",
+  "short_name": "Ghumo India",
+  "description": "Ghumo India team srajan and ai synergy hackkthon probelm 4 track tourism - AI Heritage & Tourism Portal",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -38,9 +38,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Disha AI Concierge",
-      "short_name": "Disha AI",
-      "description": "Ask Disha AI for pilgrimage advice and real-time guidance",
+      "name": "Ghumo AI Concierge",
+      "short_name": "Ghumo AI",
+      "description": "Ask Ghumo AI for heritage advice and real-time guidance",
       "url": "/?tab=chat",
       "icons": [
         {

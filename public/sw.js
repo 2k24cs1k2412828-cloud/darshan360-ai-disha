@@ -1,5 +1,5 @@
-// Darshan 360° — Progressive Web App Service Worker
-const CACHE_NAME = 'darshan360-pwa-v1';
+// Ghumo India — Progressive Web App Service Worker
+const CACHE_NAME = 'ghumoindia-pwa-v1';
 
 // Static core assets for fast offline shell loading
 const CORE_ASSETS = [

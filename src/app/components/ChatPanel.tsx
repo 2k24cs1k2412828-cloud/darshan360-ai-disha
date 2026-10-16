@@ -144,20 +144,20 @@ export function ChatPanel({
       messageIdCounter.current = maxId + 1;
     } else {
       const greeting = language === 'hi'
-        ? `🙏 **जय श्री राम! हर हर महादेव!**
+        ? `🙏 **नमस्ते! घूमो इंडिया (Ghumo India) में आपका स्वागत है!**
 
-मैं **दिशा एआई (Disha AI)** हूँ, उत्तर प्रदेश पर्यटन का आधिकारिक एआई साथी।
+मैं **घूमो AI (Ghumo AI)** हूँ, आपकी बुद्धिमान यात्रा और धरोहर साथी — **टीम सृजन (Team Srajan)** द्वारा **AI Synergy Hackathon Problem 4 (Tourism Track)** के लिए विकसित।
 
-मैं आपको उत्तर प्रदेश के सभी प्रमुख तीर्थों (अयोध्या, काशी, मथुरा-वृंदावन, प्रयागराज, चित्रकूट, सारनाथ), ऐतिहासिक धरोहरों (ताजमहल, बड़ा इमामबाड़ा), यात्रा के आध्यात्मिक कारणों, ताज़ा समाचारों, दर्शन नियमों एवं यात्रा मार्गों की संपूर्ण जानकारी दे सकता हूँ।
+मैं आपको मध्य प्रदेश के अनदेखे पुरातात्विक चमत्कारों (बटेश्वर 200 मंदिर, मितावली चौसठ योगिनी, गढ़ी पढ़ावली, ककनमठ सुहानिया), ऐतिहासिक किलों (ग्वालियर किला, ओरछा पैलेस) एवं देश के प्रमुख तीर्थों व धरोहरों के प्रमाणित स्रोत, समयबद्ध यात्रा योजना, फोटोग्राफी और सड़क मार्ग की पूरी जानकारी प्रदान करती हूँ।
 
-_आप मुझसे किसी भी स्थान का मार्ग, फोटो, समय अथवा ताज़ा अपडेट्स पूछ सकते हैं या बोलकर सवाल कर सकते हैं!_`
-        : `🙏 **Namaste & Welcome to Uttar Pradesh Tourism!**
+_आप मुझसे किसी भी धरोहर का इतिहास, रूट मैप, टाइमलाइन अथवा यात्रा सलाह पूछ सकते हैं या बोलकर संवाद कर सकते हैं!_`
+        : `🙏 **Namaste & Welcome to Ghumo India!**
 
-I am **Disha AI**, your intelligent travel companion powered by Darshan 360 & UP Tourism research.
+I am **Ghumo AI**, your intelligent travel & heritage companion built by **Team Srajan** for **AI Synergy Hackathon Problem 4 Track Tourism (Beyond the Fort)**.
 
-I can guide you through spiritual travel causes, multi-day itineraries, live news updates, darshan booking rules (Ram Mandir, Kashi Vishwanath), interactive routes, and high-definition photography across Uttar Pradesh.
+I guide you through Madhya Pradesh's hidden archaeological wonders (Bateshwar 200 Temples, Mitawali Chausath Yogini, Garhi Padhavali, Kakanmath), royal corridors (Gwalior Fort, Orchha, Chanderi), and India's heritage circuits with grounded sources, time-aware itineraries, and verified travel feasibility.
 
-_Ask me anything in English or Hindi, request routes & photos, or use the microphone to speak!_`;
+_Ask me anything in English or Hindi, request routes & heritage photos, or use the microphone to speak!_`;
 
       const initialMsg: Message = {
         id: 1,
@@ -179,20 +179,20 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
   useEffect(() => {
     if (messages.length === 1 && messages[0].type === 'ai') {
       const greeting = language === 'hi'
-        ? `🙏 **जय श्री राम! हर हर महादेव!**
+        ? `🙏 **नमस्ते! घूमो इंडिया (Ghumo India) में आपका स्वागत है!**
 
-मैं **दिशा एआई (Disha AI)** हूँ, उत्तर प्रदेश पर्यटन का आधिकारिक एआई साथी।
+मैं **घूमो AI (Ghumo AI)** हूँ, आपकी बुद्धिमान यात्रा और धरोहर साथी — **टीम सृजन (Team Srajan)** द्वारा **AI Synergy Hackathon Problem 4 (Tourism Track)** के लिए विकसित।
 
-मैं आपको उत्तर प्रदेश के सभी प्रमुख तीर्थों (अयोध्या, काशी, मथुरा-वृंदावन, प्रयागराज, चित्रकूट, सारनाथ), ऐतिहासिक धरोहरों (ताजमहल, बड़ा इमामबाड़ा), यात्रा के आध्यात्मिक कारणों, ताज़ा समाचारों, दर्शन नियमों एवं यात्रा मार्गों की संपूर्ण जानकारी दे सकता हूँ।
+मैं आपको मध्य प्रदेश के अनदेखे पुरातात्विक चमत्कारों (बटेश्वर 200 मंदिर, मितावली चौसठ योगिनी, गढ़ी पढ़ावली, ककनमठ सुहानिया), ऐतिहासिक किलों (ग्वालियर किला, ओरछा पैलेस) एवं देश के प्रमुख तीर्थों व धरोहरों के प्रमाणित स्रोत, समयबद्ध यात्रा योजना, फोटोग्राफी और सड़क मार्ग की पूरी जानकारी प्रदान करती हूँ।
 
-_आप मुझसे किसी भी स्थान का मार्ग, फोटो, समय अथवा ताज़ा अपडेट्स पूछ सकते हैं या बोलकर सवाल कर सकते हैं!_`
-        : `🙏 **Namaste & Welcome to Uttar Pradesh Tourism!**
+_आप मुझसे किसी भी धरोहर का इतिहास, रूट मैप, टाइमलाइन अथवा यात्रा सलाह पूछ सकते हैं या बोलकर संवाद कर सकते हैं!_`
+        : `🙏 **Namaste & Welcome to Ghumo India!**
 
-I am **Disha AI**, your intelligent travel companion powered by Darshan 360 & UP Tourism research.
+I am **Ghumo AI**, your intelligent travel & heritage companion built by **Team Srajan** for **AI Synergy Hackathon Problem 4 Track Tourism (Beyond the Fort)**.
 
-I can guide you through spiritual travel causes, multi-day itineraries, live news updates, darshan booking rules (Ram Mandir, Kashi Vishwanath), interactive routes, and high-definition photography across Uttar Pradesh.
+I guide you through Madhya Pradesh's hidden archaeological wonders (Bateshwar 200 Temples, Mitawali Chausath Yogini, Garhi Padhavali, Kakanmath), royal corridors (Gwalior Fort, Orchha, Chanderi), and India's heritage circuits with grounded sources, time-aware itineraries, and verified travel feasibility.
 
-_Ask me anything in English or Hindi, request routes & photos, or use the microphone to speak!_`;
+_Ask me anything in English or Hindi, request routes & heritage photos, or use the microphone to speak!_`;
 
       const initialMsg: Message = {
         id: 1,
@@ -444,7 +444,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 min-w-0">
               <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] font-editorial truncate">
-                {language === 'hi' ? 'दिशा AI' : 'Disha AI'}
+                {language === 'hi' ? 'घूमो AI' : 'Ghumo AI'}
               </h2>
               <span className="flex-shrink-0 inline-flex items-center gap-1 text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -452,7 +452,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
               </span>
             </div>
             <p className="text-[10px] sm:text-[11px] text-[var(--text-secondary)] truncate">
-              {language === 'hi' ? 'उत्तर प्रदेश पर्यटन एआई सलाहकार' : 'UP Tourism Travel Concierge'}
+              {language === 'hi' ? 'पर्यटन एवं धरोहर एआई मार्गदर्शक' : 'AI Travel & Heritage Concierge'}
             </p>
           </div>
         </div>
@@ -629,7 +629,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
                         <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center shadow-xs">
                           <Sparkles className="w-3 h-3" />
                         </div>
-                        <span className="font-editorial text-sm">{language === 'hi' ? 'दिशा AI' : 'Disha AI'}</span>
+                        <span className="font-editorial text-sm">{language === 'hi' ? 'घूमो AI' : 'Ghumo AI'}</span>
                         <span className="hidden sm:inline-block text-[10px] font-normal px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                           {language === 'hi' ? 'पर्यटन एआई परामर्श' : 'Official Intelligence'}
                         </span>
@@ -962,7 +962,7 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
             className="flex items-center gap-2 text-xs text-[var(--text-secondary)] glass rounded-full px-4 py-2 w-max shadow-sm"
           >
             <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-primary)]" />
-            <span>{language === 'hi' ? 'दिशा AI जानकारी जुटा रही है...' : 'Disha AI is exploring UP tourism knowledge...'}</span>
+            <span>{language === 'hi' ? 'घूमो AI जानकारी जुटा रही है...' : 'Ghumo AI is exploring heritage knowledge...'}</span>
           </motion.div>
         )}
 
@@ -1059,10 +1059,10 @@ _Ask me anything in English or Hindi, request routes & photos, or use the microp
             <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)] mt-2 px-3">
               <span className="flex items-center gap-1.5 font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                {language === 'hi' ? 'उत्तर प्रदेश पर्यटन आधिकारिक एआई सेवा • दिशा 360' : 'Official UP Tourism AI • Darshan 360 Engine'}
+                {language === 'hi' ? 'घूमो इंडिया • टीम सृजन (प्रॉब्लम 4 - पर्यटन)' : 'Ghumo India • Team Srajan (Problem 4 - Tourism Track)'}
               </span>
               <span className="hidden sm:inline opacity-80">
-                {language === 'hi' ? 'लाइव भीड़ स्थिति, दर्शन नियम एवं 500+ स्थल' : 'Live crowd feeds, darshan rules & 500+ verified destinations'}
+                {language === 'hi' ? 'बियॉन्ड द फोर्ट • मध्य प्रदेश अनदेखी धरोहर एवं पर्यटन पोर्टल' : 'Beyond The Fort • MP Lesser-Known Heritage Discovery'}
               </span>
             </div>
           )}

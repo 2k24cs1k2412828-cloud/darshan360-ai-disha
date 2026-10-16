@@ -359,16 +359,16 @@ export function ServiceBookingModal({ isOpen, onClose }: ServiceBookingModalProp
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[1200px] max-h-[90vh] overflow-y-auto p-0 bg-[var(--bg-secondary)] border-[var(--glass-border)]">
-        <DialogTitle className="sr-only">Book Services with Darshan 360</DialogTitle>
+        <DialogTitle className="sr-only">Book Services with Ghumo India</DialogTitle>
         <DialogDescription className="sr-only">
-          Browse and book all available services with Darshan 360 including heritage tours, dining, accommodation, and guided tours for your spiritual journey.
+          Browse and book all available services with Ghumo India including heritage tours, dining, accommodation, and guided tours for your journey.
         </DialogDescription>
 
         <div className="sticky top-0 z-10 glass p-6 flex items-center justify-between border-b border-[var(--glass-border)]">
           <div>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Book Services with Darshan 360</h2>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Book Services with Ghumo India</h2>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              Explore and book curated experiences - heritage tours, dining, accommodation & guides for your spiritual journey
+              Explore and book curated experiences - heritage tours, dining, accommodation & guides for your journey
             </p>
           </div>
           <Button

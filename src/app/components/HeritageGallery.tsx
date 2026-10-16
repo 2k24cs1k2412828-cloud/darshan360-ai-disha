@@ -85,7 +85,7 @@ export function HeritageGallery({ theme }: HeritageGalleryProps) {
           </h3>
         </div>
         <p className="text-sm text-[var(--text-secondary)] mt-1">
-          Explore Darshan 360's heritage journey through stunning visuals
+          Explore Ghumo India's heritage journey through stunning visuals
         </p>
       </div>
 

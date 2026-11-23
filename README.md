@@ -1,274 +1,270 @@
-# 🕌 Darshan 360 — Uttar Pradesh AI Travel Companion
+# 🕌 Darshan 360 (D360) — Architectural Blueprint, Features & UI Status Report
 
-<div align="center">
-
-![Darshan 360 Banner](https://img.shields.io/badge/Darshan%20360-AI%20Travel%20Companion-orange?style=for-the-badge&logo=react)
-![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss)
-![Gemini AI](https://img.shields.io/badge/Google%20Gemini-AI-4285F4?style=for-the-badge&logo=google)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-
-**An AI-powered spiritual, cultural & heritage tourism platform for Uttar Pradesh**
-
-[✨ Features](#-features) · [🚀 Getting Started](#-getting-started) · [🏗️ Architecture](#️-architecture) · [🗺️ Covered Destinations](#️-covered-destinations) · [🛡️ .env Setup](#️-environment-variables) · [📦 Tech Stack](#-tech-stack)
-
-</div>
+> **Platform**: Darshan 360 AI Operating System  
+> **Parent Entity**: EduFutura Technologies Pvt. Ltd.  
+> **Target Region**: Uttar Pradesh Sacred Pilgrimage, Multimodal Transit & Cultural Heritage Circuits  
+> **Tech Stack**: React 18, TypeScript, Vite 6, Tailwind CSS v4, Motion (Framer Motion), Leaflet, Firebase Auth, Google Gemini AI, Capacitor  
 
 ---
 
-## 📖 Overview
-
-**Darshan 360** is a bilingual, AI-powered travel companion designed specifically for pilgrims and tourists exploring the rich spiritual and cultural heritage of **Uttar Pradesh, India**. Built for the **GWL Hackathon**, it combines real-time AI guidance, interactive maps, voice interaction, and curated local knowledge to create an unparalleled travel experience.
-
-Whether you're planning a visit to the ghats of **Varanasi**, seeking darshan at **Ram Mandir, Ayodhya**, or exploring the **Taj Mahal in Agra** — Disha AI has you covered, in Hindi or English.
-
----
-
-## ✨ Features
-
-### 🤖 Disha AI — Bilingual Travel Assistant
-- **Bilingual Support**: Seamlessly switch between **Hindi (हिन्दी)** and **English**
-- **Voice Input (STT)**: Speech-to-Text with live recording wave animation using the Web Speech API
-- **Voice Output (TTS)**: Natural voice synthesis with play/stop controls
-- **Smart Responses**: Covers travel causes, spiritual significance, history, temple timings, budget breakdowns, and darshan rules
-- **Live UP Tourism News**: Real-time updates on Maha Kumbh / Magh Mela, Ram Mandir online Aarti passes, Kashi Vishwanath corridor rules, Varanasi ropeway, and Braj Holi
-- **In-Chat Interactive Maps**: Route previews with one-click full-screen map navigation
-- **In-Chat Image Galleries**: High-definition photo showcases with lightbox zoom
-- **Safety & Scam Advisory**: Tips to avoid boat overcharging, fake VIP passes, plus emergency numbers
-- **Itinerary Generator**: AI-curated day-wise travel itineraries
-- **Service Booking Modal**: Boat booking, guided tours, and more
-
-### 🗺️ Interactive UP Tourism Map
-- Covers **11+ major destinations** across Uttar Pradesh
-- **Category Filters**: Temples & Pilgrimages, Ghats & Rivers, Heritage Forts, Buddhist Circuit, Historical Monuments
-- **Pre-configured Circuit Routes**:
-  - 🏹 Ramayana Circuit
-  - 🕌 Braj-Mughal Triangle
-  - ☸️ Awadh-Buddhist Route
-- **Click-to-Chat popup cards** — trigger instant AI inquiries directly from the map
-- **Layout Modes**: Split View, Full Chat, Full Map
-
-### 🎨 UI/UX Highlights
-- Day / Night theme toggle
-- Glassmorphism design with smooth animations
-- Responsive layout with resizable panels
-- Darshan 360 Insights dashboard
-- Heritage Gallery with masonry layout
+## 📑 Table of Contents
+1. [Executive Summary & Purpose](#1-executive-summary--purpose)
+2. [Complete Features Inventory](#2-complete-features-inventory)
+   - [2.1 Interactive 360° Sacred Heritage & Ghat Map](#21-interactive-360-sacred-heritage--ghat-map)
+   - [2.2 Disha AI — Bilingual Spiritual Travel Copilot](#22-disha-ai--bilingual-spiritual-travel-copilot)
+   - [2.3 Multimodal Travel Price Comparison & Aggregation Engine](#23-multimodal-travel-price-comparison--aggregation-engine)
+   - [2.4 Mission Shakti 1090 Women Safety & Voice SOS System](#24-mission-shakti-1090-women-safety--voice-sos-system)
+   - [2.5 Live Cultural Bulletins, Aarti Telemetry & News](#25-live-cultural-bulletins-aarti-telemetry--news)
+   - [2.6 Firebase Authentication & User Session Manager](#26-firebase-authentication--user-session-manager)
+   - [2.7 Mobile PWA & Capacitor Android Native Shell](#27-mobile-pwa--capacitor-android-native-shell)
+3. [Current Status of the UI (In-Depth Analysis)](#3-current-status-of-the-ui-in-depth-analysis)
+   - [3.1 Visual Contrast: Landing Page vs. Core App Explorer](#31-visual-contrast-landing-page-vs-core-app-explorer)
+   - [3.2 Design System & Token Comparison](#32-design-system--token-comparison)
+   - [3.3 Responsive Breakpoints & Viewport States](#33-responsive-breakpoints--viewport-states)
+4. [UI Harmonization Blueprint (Unifying Landing Page & App UI)](#4-ui-harmonization-blueprint)
+5. [Project Architecture & Component Sitemap](#5-project-architecture--component-sitemap)
+6. [Environment Variables & Setup Guide](#6-environment-variables--setup-guide)
 
 ---
 
-## 🗺️ Covered Destinations
+## 1. Executive Summary & Purpose
 
-| City | Highlights |
-|------|------------|
-| **Ayodhya** | Ram Mandir, Hanuman Garhi, Saryu Ghat |
-| **Varanasi / Kashi** | Kashi Vishwanath, Dashashwamedh Ghat, Ganga Aarti |
-| **Mathura** | Krishna Janmabhoomi, Dwarkadhish Temple |
-| **Vrindavan** | Banke Bihari Temple, ISKCON, Prem Mandir |
-| **Agra** | Taj Mahal, Agra Fort, Fatehpur Sikri |
-| **Prayagraj** | Triveni Sangam, Anand Bhavan, Kumbh Mela grounds |
-| **Lucknow** | Bara Imambara, Rumi Darwaza, Chota Imambara |
-| **Sarnath** | Dhamek Stupa, Deer Park, Sarnath Museum |
-| **Kushinagar** | Mahaparinirvana Temple, Ramabhar Stupa |
-| **Chitrakoot** | Kamadgiri, Hanuman Dhara, Gupt Godavari |
-| **Jhansi** | Jhansi Fort, Rani Mahal |
+**Darshan 360 (D360)** is an AI-powered travel operating system designed specifically for pilgrims, cultural tourists, solo female travelers, and families visiting Uttar Pradesh.
+
+The system addresses three critical pain points in spiritual and cultural tourism:
+1. **Navigation & Timing Uncertainty**: Temple darshan queues, aarti schedules, and station-return deadlines (e.g., catching a train in 3 hours).
+2. **Fragmented Travel Costs**: Need to manually switch between UPSRTC buses, Indian Railways trains, private cabs (Uber/Ola/MakeMyTrip), and hotel booking apps.
+3. **Safety for Female & Solo Travelers**: Hands-free voice emergency detection connected to UP Police 1090 and trusted guardians.
 
 ---
 
-## 🚀 Getting Started
+## 2. Complete Features Inventory
 
-### Prerequisites
+### 2.1 Interactive 360° Sacred Heritage & Ghat Map
+- **File**: `src/app/components/MapPanel.tsx`
+- **Capabilities**:
+  - Covers **75+ districts** and major sacred circuits (Varanasi/Kashi, Ayodhya, Mathura-Vrindavan, Prayagraj, Agra, Sarnath, Chitrakoot, Kushinagar, Jhansi).
+  - High-resolution map tiles with custom divine marker pins, category filters (*Temples*, *Ghats*, *Monuments*, *Buddhist Circuit*).
+  - **Click-to-Chat & Add-to-Trip**: Direct popup interactions allowing users to ask Disha AI about a place or append it to their Copilot itinerary.
+  - **Circuit Waypoints**: Ramayana Circuit, Braj-Mughal Triangle, Awadh-Buddhist Route.
+  - **Live Crowd Density & Aarti Indicators**: Shows estimated queue times and evening aarti countdowns.
 
-Make sure you have the following installed:
-- **Node.js** `>= 18.x`
-- **npm** or **pnpm** (pnpm recommended)
-- A **Google Gemini API Key** — [Get one here](https://aistudio.google.com/app/apikey)
+### 2.2 Disha AI — Bilingual Spiritual Travel Copilot
+- **Files**: `src/app/components/ChatPanel.tsx`, `src/app/components/CopilotTimeline.tsx`, `src/app/services/geminiService.ts`, `src/app/services/copilotService.ts`
+- **Capabilities**:
+  - Powered by **Google Gemini AI** with bilingual prompt engineering (English & हिन्दी).
+  - **Voice Input (STT)** with animated wave frequency indicator.
+  - **Voice Output (TTS)** with natural audio playback and stop controls.
+  - **Station-Return Time Guard**: Enforces strict return deadlines (e.g., *"I have 3 hours from Cantt Railway Station"*).
+  - **Dynamic Re-planner**: 1-click *"Running 20m Late"* button dynamically adjusts all remaining stops.
+  - **In-Chat Interactive Action Cards**: Renders embedded navigation buttons, image lightboxes, and quick preset queries.
 
-### 1. Clone the Repository
+### 2.3 Multimodal Travel Price Comparison & Aggregation Engine
+- **Files**: `src/app/components/TravelComparisonPanel.tsx`, `src/app/engine/types/travel.types.ts`, `src/app/engine/adapters/*`
+- **Capabilities**:
+  - Provider-agnostic metasearch engine architecture.
+  - Compares across **5 transport & hospitality categories**:
+    - 🚌 **Buses**: UPSRTC Janrath, Shatabdi AC, Volvo, Ordinary Express, private sleeper coaches.
+    - 🚆 **Trains**: Vande Bharat Express, Shatabdi, Superfast Express, Intercity SF.
+    - 🚕 **Cabs / Taxis**: Sedan, SUV, Prime, Outstation cabs with fuel and toll breakdown.
+    - ✈️ **Flights**: Direct flights between Lucknow (LKO), Varanasi (VNS), Ayodhya (AYJ), and Gorakhpur.
+    - 🏨 **Hotels / Stays**: Verified pilgrim dharamshalas, UPSTDC tourist bungalows, and premium boutique hotels.
+  - **Interactive Controls**: Sort by *Cheapest (सस्ता)*, *Fastest (तेज़)*, or *Highest Rated (रेटिंग)*.
+  - **Fare Breakdown Drawer**: Base fare, GST, passenger service fees, luggage policy, cancellation policy, and verified provider booking redirect.
 
-```bash
-git clone https://github.com/YOUR_USERNAME/darshan-360.git
-cd darshan-360
+### 2.4 Mission Shakti 1090 Women Safety & Voice SOS System
+- **Files**: `src/app/components/WomenSafetyPanel.tsx`, `src/app/services/voiceSosService.ts`, `src/app/services/safetyService.ts`
+- **Capabilities**:
+  - **Real-Time Voice Keyword Detection**: Continuously monitors audio in background for distress keywords (*"I am in danger"*, *"बचाओ"*, *"help me"*, *"आपातकाल"*).
+  - **Auto-Trigger Emergency Siren**: High-decibel audio oscillator beacon designed to disorient attackers and attract nearby help.
+  - **5-Digit Encrypted Live Sharing Code**: Generates a fast, memorable session code (e.g. `77645`) for guardians to track real-time coordinates.
+  - **1-Click Multi-Channel Dispatch**:
+    - Instant Gmail pre-filled draft to `edufutura01.mayank@gmail.com` and custom guardian emails.
+    - WhatsApp emergency message with Google Maps GPS link.
+    - Direct phone dialer links to **1090 (Women Power Line)** and **112 (Police Emergency)**.
+  - **Global Alert Banner**: High-priority red modal overlay appears across the entire website if distress is triggered in any panel.
+
+### 2.5 Live Cultural Bulletins, Aarti Telemetry & News
+- **Files**: `src/app/components/NewsPanel.tsx`, `src/app/services/newsScraperService.ts`
+- **Capabilities**:
+  - Curated and live-scraped bulletins on temple opening timings, Aarti pass procedures, Maha Kumbh / Magh Mela guidelines, and ropeway schedules.
+  - Filterable by tags: *Aarti*, *Festivals*, *Advisory*, *Transit*.
+
+### 2.6 Firebase Authentication & User Session Manager
+- **Files**: `src/app/config/firebase.ts`, `src/app/services/firebaseAuthService.ts`, `src/app/components/AuthModal.tsx`
+- **Capabilities**:
+  - Official **Firebase Auth SDK (v12.19.0)** initialization with local persistence.
+  - **Email & Password Authentication**: Sign-in, registration with name and phone number.
+  - **Google OAuth 1-Tap**: Popup authentication with avatar synchronization.
+  - **Password Recovery**: Automated reset email dispatch.
+  - **1-Click Guest Yatri Pass**: Immediate exploration with an anonymous guest session without mandatory login friction.
+  - Seamless state synchronization across header, drawer, and modals.
+
+### 2.7 Mobile PWA & Capacitor Android Native Shell
+- **Files**: `src/app/components/android/AndroidAppShell.tsx`, `public/manifest.webmanifest`, `public/sw.js`
+- **Capabilities**:
+  - Automatically activates native Android shell when running inside Capacitor (`@capacitor/android`).
+  - Standalone PWA installability on iOS Safari and Android Chrome with offline service worker caching.
+  - Fixed mobile bottom navigation with 48px+ touch targets and safe-area inset support.
+
+---
+
+## 3. Current Status of the UI (In-Depth Analysis)
+
+### 3.1 Visual Contrast: Landing Page vs. Core App Explorer
+
+The user observed that **"the landing page and the ui of app is too different"**. Here is the technical breakdown of why this visual difference exists:
+
+| UI Attribute | Core App UI (`App.tsx`, `MapPanel`, `ChatPanel`) | Landing Page (`LandingPage.tsx`) | Impact of Difference |
+| :--- | :--- | :--- | :--- |
+| **Aesthetic Paradigm** | **Saffron-Gold Sacred Neumorphism & Glass** | **Modern Tailwind SaaS Marketing Style** | App feels like a spiritual dashboard; Landing Page feels like a modern SaaS landing page. |
+| **Background Treatment** | CSS variables: `var(--bg-primary)`, `var(--glass-surface)`, subtle parchment/stone gradients. | Tailwind `bg-white dark:bg-stone-950` with amber blurred radial glow spheres. | Background luminosity and texture do not match smoothly across transitions. |
+| **Typography Hierarchy** | Serif and classical titles (`Cinzel`, `Playfair Display`), paired with `Plus Jakarta Sans`. | Tailwind default sans font stack with standard weights (`font-black`, `font-bold`). | Header and title fonts change when switching from landing to app. |
+| **Navigation Elements** | Segmented pill container (`glass rounded-full p-1`) with animated active indicators. | Standard horizontal text links with standard hover states. | Top bar layout changes structure and height between the two pages. |
+| **Border & Radius Style** | Rounded-2xl to rounded-full pills with subtle amber/gold glass borders (`var(--glass-border)`). | Rounded-3xl cards with 1px border (`border-amber-500/20`). | Card corners and shadows have differing radius geometry. |
+| **Atmospheric Themes** | Explicitly styled **Morning Sun (गोल्डन प्रभात)** vs. **Evening Aarti (दिव्य संध्या)** themes. | Standard Dark/Light mode toggle that approximates the colors but uses generic Tailwind classes. | Night/evening mode on landing page is deep stone gray, while the app is deep midnight indigo-amber. |
+
+---
+
+### 3.2 Design System & Token Comparison
+
+#### Core App Tokens (`src/styles/index.css`)
+```css
+:root[data-theme='morning'] {
+  --bg-primary: #fdfbf7;
+  --bg-secondary: #f4ede4;
+  --accent-primary: #d97706; /* Saffron Amber */
+  --accent-secondary: #ea580c; /* Deep Orange */
+  --text-primary: #1c1917;
+  --glass-border: rgba(217, 119, 6, 0.18);
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+:root[data-theme='evening'] {
+  --bg-primary: #0c0a09;
+  --bg-secondary: #1c1917;
+  --accent-primary: #f59e0b; /* Golden Glow */
+  --accent-secondary: #f97316;
+  --text-primary: #f5f5f4;
+  --glass-border: rgba(245, 158, 11, 0.22);
+}
 ```
 
-### 2. Set Up Environment Variables
+#### Landing Page Token Usage
+- The Landing Page previously used raw Tailwind classes like `bg-stone-50 dark:bg-stone-900`, `border-stone-200`, `text-stone-900`.
+- **Resulting Gap**: It bypassed the `--bg-primary`, `--accent-primary`, and `--font-display` variables declared in `index.css`.
 
-> ⚠️ **IMPORTANT**: Never commit your `.env` file to GitHub. It is already added to `.gitignore`.
+---
 
+### 3.3 Responsive Breakpoints & Viewport States
+
+1. **Desktop Viewport (`>= 1024px`)**:
+   - **App**: Dual Split-Screen view with interactive Leaflet map on right, AI chat / copilot on left, top segmented navigation bar.
+   - **Landing Page**: 4-column destination grids, centered hero, sticky top navigation.
+2. **Tablet Viewport (`768px – 1023px`)**:
+   - **App**: Collapsible sidebars, drawer-based Copilot timeline.
+   - **Landing Page**: 2-column feature card grids, wrapping CTA buttons.
+3. **Mobile Viewport (`< 768px`)**:
+   - **App**: Fixed bottom tab bar (`chat`, `map`, `copilot`, `news`, `safety`, `compare`), full-screen single panel, safe-area-inset padding.
+   - **Landing Page**: Stacked cards, pull-down bottom sheet for Auth, full-width touch buttons.
+
+---
+
+## 4. UI Harmonization Blueprint
+
+To make the Landing Page and the App UI feel 100% unified, cohesive, and premium, the following design harmonization principles are applied:
+
+1. **Adopt Identical Typography**:
+   - Replace standard sans headings in `LandingPage.tsx` with `font-display` (`Cinzel` / `Playfair Display`) to match `DARSHAN 360°` in `App.tsx`.
+2. **Apply Theme CSS Variables to Landing Page**:
+   - Change background container from `bg-white dark:bg-stone-950` to `bg-[var(--bg-primary)] text-[var(--text-primary)]`.
+   - Change card backgrounds to `glass` and borders to `border-[var(--glass-border)]`.
+3. **Harmonize Header Navigation Bar**:
+   - Use the same pill navigation design (`glass rounded-full p-1 border border-[var(--glass-border)]`) on the Landing Page as used in the App header.
+4. **Synchronize Atmosphere Switching**:
+   - The toggle on the Landing Page should directly set `data-theme="morning"` or `data-theme="evening"`, applying the exact same warm temple glow palette across both views.
+5. **Shared Auth Modal Architecture**:
+   - `AuthModal.tsx` already uses `bg-[var(--bg-primary)]` and glassmorphic elevations, acting as the visual bridge between the landing page and the app.
+
+---
+
+## 5. Project Architecture & Component Sitemap
+
+```
+src/
+├── main.tsx                           # App entry point & root DOM render
+├── styles/
+│   └── index.css                      # Master Design System (Morning/Evening tokens, fonts, glass classes)
+├── data/
+│   └── up-comprehensive-database.ts    # 75+ UP Destinations, coordinates, aarti timings & history
+├── app/
+│   ├── App.tsx                        # Master Orchestrator, layout switcher & global alerts
+│   ├── config/
+│   │   └── firebase.ts                # Firebase Auth Singleton configuration
+│   ├── engine/                        # Multimodal Travel Price Engine
+│   │   ├── types/travel.types.ts      # Provider, Route & Price schemas
+│   │   ├── adapters/                  # UPSRTC, IRCTC, Ola/Uber, MMT adapters
+│   │   └── TravelComparisonEngine.ts  # Metasearch aggregator
+│   ├── services/
+│   │   ├── firebaseAuthService.ts     # Firebase Auth service (Google, Email, Guest)
+│   │   ├── voiceSosService.ts         # Hands-free speech recognition SOS listener
+│   │   ├── safetyService.ts           # Emergency audio oscillator siren generator
+│   │   ├── geminiService.ts           # Gemini AI spiritual assistant client
+│   │   ├── copilotService.ts          # Itinerary generator & 20m late replanner
+│   │   └── newsScraperService.ts      # Live UP Tourism bulletin aggregator
+│   └── components/
+│       ├── LandingPage.tsx            # Unified Homepage & Platform Showcase
+│       ├── AuthModal.tsx              # Mobile-First Bottom Sheet / Desktop Glass Auth Modal
+│       ├── MapPanel.tsx               # 360° Heritage Map & River Ghats (Leaflet)
+│       ├── ChatPanel.tsx              # Disha AI Bilingual Voice Concierge
+│       ├── TravelComparisonPanel.tsx  # Multimodal Travel Fare Comparison Engine
+│       ├── WomenSafetyPanel.tsx       # Mission Shakti 1090 Live GPS & SOS Console
+│       ├── NewsPanel.tsx              # Aarti Timings, Bulletins & Crowd Telemetry
+│       ├── CopilotTimeline.tsx        # Interactive Route Schedule Drawer
+│       ├── LoadingScreen.tsx          # Sacred Splash Loader
+│       └── android/
+│           └── AndroidAppShell.tsx    # Native Android Capacitor Experience
+```
+
+---
+
+## 6. Environment Variables & Setup Guide
+
+### Required `.env` Configuration
 Create a `.env` file in the root directory:
 
-```bash
-cp .env.example .env
-```
-
-Then open `.env` and add your key:
-
-```env
-VITE_GEMINI_API_KEY=your_google_gemini_api_key_here
-```
-
-### 3. Install Dependencies
-
-```bash
-npm install
-# or
-pnpm install
-```
-
-### 4. Run the Development Server
-
-```bash
-npm run dev
-# or
-pnpm dev
-```
-
-The app will be available at **`http://localhost:5173`**
-
-### 5. Build for Production
-
-```bash
-npm run build
-# or
-pnpm build
-```
-
-The output will be in the `dist/` folder.
-
----
-
-## 🛡️ Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_GEMINI_API_KEY` | ✅ Yes | Google Gemini API key for the Disha AI assistant |
-
-> 💡 **Offline Fallback**: If no API key is provided or the API call fails, the app falls back to curated local responses from `uttarPradeshService.ts`.
-
----
-
-## 🏗️ Architecture
-
-```
-darshan-360/
-├── src/
-│   ├── main.tsx                        # App entry point
-│   ├── app/
-│   │   ├── App.tsx                     # Root layout: themes, mode switches, language toggle
-│   │   ├── components/
-│   │   │   ├── ChatPanel.tsx           # Disha AI chat: voice I/O, map cards, photo galleries
-│   │   │   ├── MapPanel.tsx            # Leaflet interactive UP map: filters, routes, pins
-│   │   │   ├── Darshan360Insights.tsx  # Tourism insights dashboard
-│   │   │   ├── HeritageGallery.tsx     # Masonry photo gallery
-│   │   │   ├── ServiceBookingModal.tsx # Booking interface (boats, guides, etc.)
-│   │   │   ├── BoatBookingModal.tsx    # Ganga boat booking flow
-│   │   │   ├── HelpGuide.tsx          # Onboarding help guide
-│   │   │   ├── LoadingScreen.tsx       # Splash loading screen
-│   │   │   └── MapMarkerPopup.tsx      # Map click-to-chat popup cards
-│   │   └── services/
-│   │       ├── geminiService.ts        # Gemini AI integration with intent parsing & fallback
-│   │       ├── uttarPradeshService.ts  # Curated UP database (87KB of structured data)
-│   │       ├── speechService.ts        # Web Speech API wrapper (Hindi + English STT/TTS)
-│   │       ├── itineraryService.ts     # AI itinerary generation service
-│   │       ├── scamDetectionService.ts # Scam & safety advisory engine
-│   │       └── madhyaPradeshService.ts # Extended MP destination data
-│   ├── data/                           # Static datasets
-│   ├── images/                         # Local image assets
-│   └── styles/                         # Global CSS styles
-├── index.html
-├── vite.config.ts
-├── postcss.config.mjs
-├── package.json
-├── .env.example                        # Template for environment setup
-└── .gitignore
-```
-
----
-
-## 📦 Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| **Framework** | React 18 + TypeScript |
-| **Build Tool** | Vite 6 |
-| **Styling** | Tailwind CSS v4 + Emotion |
-| **UI Components** | Radix UI + MUI + shadcn/ui |
-| **Maps** | Leaflet + React-Leaflet |
-| **AI** | Google Gemini API (`@google/generative-ai`) |
-| **Voice** | Web Speech API (STT + TTS) |
-| **Animations** | Motion (Framer Motion) |
-| **Icons** | Lucide React + MUI Icons |
-| **Routing** | React Router v7 |
-| **Charts** | Recharts |
-| **Markdown** | react-markdown + markdown-it |
-
----
-
-## 🗒️ `.env.example`
-
-Create this file and commit it (without real keys) so other contributors know what variables to set:
-
-```bash
-# .env.example
+```ini
+# Google Gemini AI Key (for Disha AI Copilot)
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
+
+# Firebase Authentication (Optional: app falls back to local guest sessions if unconfigured)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
 ```
 
----
+### Running Locally
+```bash
+# 1. Install dependencies
+npm install
 
-## 🙈 `.gitignore` Checklist
+# 2. Run local dev server (default port: 5173)
+npm run dev
 
-Make sure your `.gitignore` includes:
-
-```gitignore
-# Environment variables — NEVER commit these
-.env
-.env.local
-.env.*.local
-
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-dist.zip
-
-# Editor / OS files
-.DS_Store
-*.log
+# 3. Build production bundle
+npm run build
 ```
 
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. **Fork** the repository
-2. **Create** your feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'Add some amazing feature'`
-4. **Push** to the branch: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
+### Direct Navigation URLs
+- **Landing Page**: `http://localhost:5173/?landing=true`
+- **Main Interactive App**: `http://localhost:5173/` or `http://localhost:5173/?landing=false`
+- **Travel Price Compare Directly**: `http://localhost:5173/?mode=compare`
+- **Women Safety 1090 Console Directly**: `http://localhost:5173/?mode=safety&safety_code=77645`
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🏆 Built For
-
-> **GWL Hackathon** — AI-powered solutions for spiritual & cultural tourism in Uttar Pradesh, India.
-
----
-
-<div align="center">
-
-Made with ❤️ for the pilgrims and travellers of Uttar Pradesh
-
-**Jai Shri Ram 🙏 | Har Har Mahadev 🕉️ | Jai Mata Di 🪔**
-
-</div>
+*Report prepared for EduFutura Technologies Pvt. Ltd. • Darshan 360 Architecture Team*

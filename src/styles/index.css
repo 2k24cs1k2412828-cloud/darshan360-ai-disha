@@ -8,36 +8,93 @@
   --theme-transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Morning / Day Theme - Warm Alabaster, Saffron Terracotta & Sacred Ochre */
+/* Morning / Day Theme - Warm Ivory, Soft Sandstone, Saffron Terracotta & Sacred Ochre */
 [data-theme="morning"] {
-  --bg-primary: #FAF8F5;
-  --bg-secondary: #F3EFE9;
-  --accent-primary: #C2410C;
-  --accent-secondary: #0D9488;
-  --accent-gold: #D97706;
+  --bg-primary: #FAF7F2;
+  --bg-secondary: #F3ECE1;
+  --surface-base: #FAF7F2;
+  --surface-card: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --surface-overlay: rgba(28, 25, 23, 0.45);
+  
+  --accent-primary: #C2410C;     /* Saffron Terracotta */
+  --accent-secondary: #0D9488;   /* Ganga Teal */
+  --accent-gold: #D97706;        /* Brass Gold */
+  --accent-soft: rgba(194, 65, 12, 0.08);
+
+  --color-brand: #C2410C;
+  --color-brand-soft: rgba(194, 65, 12, 0.1);
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #2563EB;
+
   --text-primary: #1C1917;
   --text-secondary: #57534E;
-  --glass-bg: #FFFFFF;
-  --glass-border: #E7DFD5;
-  --shadow-color: rgba(28, 25, 23, 0.05);
+  --text-muted: #857F77;
+
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(217, 119, 6, 0.16);
+  --border-subtle: #E8E0D5;
+  --shadow-color: rgba(44, 30, 18, 0.07);
   --card-bg: #FFFFFF;
-  --card-border: #E7DFD5;
+  --card-border: #E8E0D5;
 }
 
-/* Evening / Aarti Theme - Deep Midnight Ghats & Warm Aarti Amber */
+/* Evening / Aarti Theme - Deep Charcoal, Warm Ghats Black, Midnight Indigo & Sacred Amber */
 [data-theme="evening"] {
-  --bg-primary: #0A0F1D;
-  --bg-secondary: #111A2E;
-  --accent-primary: #F59E0B;
-  --accent-secondary: #38BDF8;
-  --accent-gold: #FBBF24;
+  --bg-primary: #0A0D14;
+  --bg-secondary: #101522;
+  --surface-base: #0A0D14;
+  --surface-card: #121827;
+  --surface-elevated: #182033;
+  --surface-glass: rgba(18, 24, 39, 0.88);
+  --surface-overlay: rgba(0, 0, 0, 0.7);
+
+  --accent-primary: #F59E0B;     /* Temple Lamp Amber */
+  --accent-secondary: #38BDF8;   /* Twilight Sky Blue */
+  --accent-gold: #FBBF24;        /* Golden Gopuram */
+  --accent-soft: rgba(245, 158, 11, 0.12);
+
+  --color-brand: #F59E0B;
+  --color-brand-soft: rgba(245, 158, 11, 0.14);
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-info: #38BDF8;
+
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
-  --glass-bg: #111A2E;
-  --glass-border: #1E293B;
-  --shadow-color: rgba(0, 0, 0, 0.35);
-  --card-bg: #111928;
+  --text-muted: #64748B;
+
+  --glass-bg: rgba(18, 24, 39, 0.9);
+  --glass-border: rgba(245, 158, 11, 0.18);
+  --border-subtle: #1E293B;
+  --shadow-color: rgba(0, 0, 0, 0.45);
+  --card-bg: #121827;
   --card-border: #1E293B;
+}
+
+/* Standard Radius Tokens */
+:root {
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+  --min-touch-target: 48px;
+}
+
+/* Minimum Touch Target Helper for Mobile Ergonomics */
+.touch-target {
+  min-height: var(--min-touch-target);
+  min-width: var(--min-touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Polished Editorial & Glassmorphic Surfaces */
@@ -108,6 +165,27 @@
 
 .leaflet-container {
   font-family: inherit;
+}
+
+/* Stacking context isolation for embedded Leaflet maps */
+.safety-radar-map-wrapper {
+  isolation: isolate;
+  contain: paint;
+  position: relative;
+  z-index: 1;
+}
+
+.safety-radar-map-wrapper .leaflet-pane {
+  z-index: 2 !important;
+}
+
+.safety-radar-map-wrapper .leaflet-top,
+.safety-radar-map-wrapper .leaflet-bottom {
+  z-index: 3 !important;
+}
+
+.safety-radar-map-wrapper .leaflet-control {
+  z-index: 4 !important;
 }
 
 /* Hide scrollbar */

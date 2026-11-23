@@ -20,7 +20,19 @@ import {
   Maximize2,
   Minimize2,
   Fullscreen,
-  Shrink
+  Shrink,
+  ShieldAlert,
+  AlertTriangle,
+  Mic,
+  MicOff,
+  Mail,
+  MessageCircle,
+  Volume2,
+  VolumeX,
+  Scale,
+  Home,
+  User as UserIcon,
+  LogIn
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import darshanLogo from '../images/WhatsApp_Image_2025-11-27_at_2.16.38_PM-removebg-preview.png';
@@ -33,12 +45,61 @@ import {
 import { type UttarPradeshDestination } from '../data/up-comprehensive-database';
 import { Capacitor } from '@capacitor/core';
 import { AndroidAppShell } from './components/android/AndroidAppShell';
+import { WomenSafetyPanel } from './components/WomenSafetyPanel';
+import { TravelComparisonPanel } from './components/TravelComparisonPanel';
+import { LandingPage } from './components/LandingPage';
+import { AppHomeFeed } from './components/AppHomeFeed';
+import { AuthModal } from './components/AuthModal';
+import { firebaseAuthService, type UserProfile } from './services/firebaseAuthService';
+import { 
+  getSavedGuardianSettings, 
+  startVoiceSosListening, 
+  stopVoiceSosListening, 
+  isVoiceSosListening, 
+  subscribeSosAlert, 
+  subscribeListeningState,
+  openEmailSos,
+  openGmailSos,
+  openWhatsAppSos,
+  DEFAULT_GUARDIAN_EMAIL,
+  type SosAlertPayload 
+} from './services/voiceSosService';
+import {
+  playEmergencySiren,
+  stopEmergencySiren,
+  subscribeEmergencySiren,
+  isEmergencySirenPlaying
+} from './services/safetyService';
 
 export default function App() {
   const [theme, setTheme] = useState<'morning' | 'evening'>('morning');
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
-  const [layoutMode, setLayoutMode] = useState<'split' | 'fullchat' | 'fullmap' | 'news'>('split');
+  const [layoutMode, setLayoutMode] = useState<'home' | 'split' | 'fullchat' | 'fullmap' | 'news' | 'safety' | 'compare'>('home');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Landing Page & Firebase Auth State
+  const [showLandingPage, setShowLandingPage] = useState<boolean>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('landing') === 'true') return true;
+      if (params.get('landing') === 'false' || params.get('app') === 'true' || params.get('mode') || params.get('safety_code')) {
+        return false;
+      }
+      return false; // Show app directly with instant toggle to Landing Page, or default to false so app loads smoothly
+    } catch {
+      return false;
+    }
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => firebaseAuthService.getCurrentUser());
+
+  useEffect(() => {
+    const unsub = firebaseAuthService.subscribe((user) => {
+      setCurrentUser(user);
+    });
+    return unsub;
+  }, []);
 
   // Synchronized state between Map, Chat & Copilot
   const [selectedMapCoordinates, setSelectedMapCoordinates] = useState<[number, number] | null>(null);
@@ -46,9 +107,64 @@ export default function App() {
   const [externalChatPrompt, setExternalChatPrompt] = useState<string | null>(null);
   const [activeItinerary, setActiveItinerary] = useState<TripItinerary | null>(null);
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'chat' | 'map' | 'copilot' | 'news'>('chat');
+  const [mobileTab, setMobileTab] = useState<'chat' | 'map' | 'copilot' | 'news' | 'safety'>('chat');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isWindowFullScreen, setIsWindowFullScreen] = useState(false);
+
+  // Women Safety Page Code State
+  const [safetyInitialCode, setSafetyInitialCode] = useState('');
+  const [safetyInitialTab, setSafetyInitialTab] = useState<'share' | 'access'>('share');
+
+  // Voice SOS Alert State
+  const [isVoiceSosActive, setIsVoiceSosActive] = useState<boolean>(false);
+  const [isSirenActive, setIsSirenActive] = useState<boolean>(false);
+  const [globalSosAlert, setGlobalSosAlert] = useState<SosAlertPayload | null>(null);
+
+  // Global Voice SOS Subscription
+  useEffect(() => {
+    const settings = getSavedGuardianSettings();
+    if (settings.isVoiceSosActive) {
+      startVoiceSosListening();
+    }
+    const unsubState = subscribeListeningState((active) => {
+      setIsVoiceSosActive(active);
+    });
+    const unsubSiren = subscribeEmergencySiren((active) => {
+      setIsSirenActive(active);
+    });
+    const unsubAlert = subscribeSosAlert((payload) => {
+      setGlobalSosAlert(payload);
+      toast.error(
+        language === 'hi'
+          ? `🚨 आपातकालीन संकट कीवर्ड "${payload.keywordTriggered}" ट्रिगर हुआ!`
+          : `🚨 Emergency Voice Distress Keyword "${payload.keywordTriggered}" Triggered!`,
+        { duration: 10000 }
+      );
+    });
+    return () => {
+      unsubState();
+      unsubSiren();
+      unsubAlert();
+    };
+  }, [language]);
+
+  // Deep-link query param listener: e.g. ?safety_code=77645 or ?sos=77645
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('safety_code') || params.get('sos') || params.get('code');
+      if (code) {
+        setSafetyInitialCode(code);
+        setSafetyInitialTab('access');
+        setLayoutMode('safety');
+        setMobileTab('safety');
+      }
+      const mode = params.get('mode') || params.get('tab');
+      if (mode === 'compare' || mode === 'fares' || mode === 'travel' || mode === 'price') {
+        setLayoutMode('compare');
+      }
+    } catch {}
+  }, []);
 
   // Synchronize browser native full-screen state and Escape key handling
   useEffect(() => {
@@ -246,6 +362,48 @@ export default function App() {
     { id: 7, icon: '🏰', label: '3-Hour Jhansi Fort & Rani Mahal', query: 'Plan a 3-hour curated heritage and temple trip in Jhansi covering Jhansi Fort and Rani Mahal.' }
   ];
 
+  // Full Landing Page Experience (can be opened anytime via Home button or ?landing=true)
+  if (showLandingPage) {
+    return (
+      <>
+        <Toaster position="top-right" richColors />
+        <LandingPage
+          onLaunchApp={(initialMode = 'split', prompt) => {
+            setShowLandingPage(false);
+            if (initialMode) {
+              setLayoutMode(initialMode);
+              if (initialMode === 'fullmap') setMobileTab('map');
+              if (initialMode === 'fullchat') setMobileTab('chat');
+              if (initialMode === 'news') setMobileTab('news');
+              if (initialMode === 'safety') setMobileTab('safety');
+            }
+            if (prompt) {
+              setExternalChatPrompt(prompt);
+            }
+          }}
+          onOpenAuth={(mode = 'signin') => {
+            setAuthModalMode(mode);
+            setIsAuthModalOpen(true);
+          }}
+          currentUser={currentUser}
+          language={language}
+          setLanguage={setLanguage}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          language={language}
+          initialMode={authModalMode}
+          onAuthSuccess={(user) => {
+            setCurrentUser(user);
+          }}
+        />
+      </>
+    );
+  }
+
   // Dedicated Native Android Experience Detection
   const isNativeAndroid = Capacitor.getPlatform() === 'android';
 
@@ -279,18 +437,98 @@ export default function App() {
     } font-sans`}>
       <Toaster position="top-right" richColors />
 
+      {/* Global Voice SOS Alert Modal Overlay */}
+      {globalSosAlert && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[9999] w-[95%] max-w-lg p-4 rounded-2xl bg-red-600 text-white shadow-2xl border-2 border-white/40 animate-in slide-in-from-top-4 space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5 font-bold text-sm">
+              <AlertTriangle className="w-6 h-6 text-amber-300 animate-bounce flex-shrink-0" />
+              <div>
+                <div className="text-base tracking-wide font-black">🚨 EMERGENCY SOS ACTIVATED</div>
+                <div className="text-xs text-red-100 font-normal">
+                  Distress voice keyword detected: <strong>"{globalSosAlert.keywordTriggered}"</strong>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setGlobalSosAlert(null);
+                stopEmergencySiren();
+              }}
+              className="px-2.5 py-1 rounded-lg bg-black/25 hover:bg-black/40 text-xs font-semibold cursor-pointer"
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          <div className="text-xs bg-black/20 p-2.5 rounded-xl space-y-1 font-mono">
+            <div>📍 {globalSosAlert.address}</div>
+            <div className="text-amber-200 truncate">Maps: {globalSosAlert.googleMapsUrl}</div>
+            <div className="text-white/90">Guardian: {globalSosAlert.guardianEmail || DEFAULT_GUARDIAN_EMAIL}</div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => openGmailSos(globalSosAlert, true)}
+              className="px-4 py-2 rounded-xl bg-white text-red-600 hover:bg-stone-100 text-xs font-black shadow-md cursor-pointer flex items-center gap-1.5 animate-pulse"
+            >
+              <Mail className="w-4 h-4 text-red-600" />
+              <span>Open Gmail ({globalSosAlert.guardianEmail || DEFAULT_GUARDIAN_EMAIL})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (isSirenActive) {
+                  stopEmergencySiren();
+                } else {
+                  playEmergencySiren();
+                }
+              }}
+              className={`px-3.5 py-2 rounded-xl text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5 ${
+                isSirenActive ? 'bg-amber-600 hover:bg-amber-500' : 'bg-red-800 hover:bg-red-700'
+              }`}
+            >
+              {isSirenActive ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+              <span>{isSirenActive ? 'Stop Siren' : 'Sound Siren'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => openWhatsAppSos(globalSosAlert)}
+              className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold shadow-sm cursor-pointer flex items-center gap-1.5"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>WhatsApp Alert</span>
+            </button>
+            <a
+              href="tel:112"
+              className="px-3.5 py-2 rounded-xl bg-black/40 hover:bg-black/60 text-white text-xs font-bold shadow-sm cursor-pointer flex items-center gap-1.5"
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span>Call 112</span>
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Top Main Navigation Bar - Visible on all pages EXCEPT desktop fullchat */}
       <motion.header
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={`w-full z-50 glass border-b border-[var(--glass-border)] backdrop-blur-md flex-shrink-0 ${
+        className={`w-full z-[100] glass border-b border-[var(--glass-border)] backdrop-blur-md flex-shrink-0 ${
           layoutMode === 'fullchat' ? 'lg:hidden' : ''
         }`}
       >
         <div className="w-full px-3 py-2.5 flex items-center justify-between gap-3 md:px-7">
-          {/* Brand Identity */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-sm flex-shrink-0 overflow-hidden border border-[var(--glass-border)]">
+          {/* Brand Identity - Tapping returns to App Home */}
+          <div 
+            onClick={() => setLayoutMode('home')}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-sm flex-shrink-0 overflow-hidden border border-[var(--glass-border)] group-hover:scale-105 transition-transform">
               <img src={darshanLogo} alt="Darshan 360 logo" className="w-full h-full object-contain" />
             </div>
             <div>
@@ -310,6 +548,18 @@ export default function App() {
 
           {/* Center Mode Switcher - Modern Segmented Travel Navigation (Desktop Only) */}
           <div className="hidden lg:flex glass rounded-full p-1 items-center gap-1 shadow-sm border border-[var(--glass-border)]">
+            <button
+              onClick={() => setLayoutMode('home')}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                layoutMode === 'home'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              title={language === 'hi' ? 'मुख्य पृष्ठ' : 'Home Feed'}
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span>{language === 'hi' ? 'होम' : 'Home'}</span>
+            </button>
             <button
               onClick={() => setLayoutMode('news')}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer relative ${
@@ -363,6 +613,49 @@ export default function App() {
               <span className="hidden md:inline">{language === 'hi' ? 'मार्गदर्शक' : 'Concierge'}</span>
             </button>
 
+            {/* Women Safety Page Navigation Button */}
+            <button
+              onClick={() => setLayoutMode('safety')}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer relative ${
+                layoutMode === 'safety'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              title={language === 'hi' ? 'महिला सुरक्षा एवं 1090 आपातकालीन लोकेशन शेयरिंग पोर्टल' : 'Women Safety & Emergency 1090 Portal'}
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>{language === 'hi' ? 'महिला सुरक्षा' : 'Safety 1090'}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            </button>
+
+            {/* Travel Price Comparison Navigation Button */}
+            <button
+              onClick={() => setLayoutMode('compare')}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer relative ${
+                layoutMode === 'compare'
+                  ? 'bg-orange-600 text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              title={language === 'hi' ? 'यात्रा किराया तुलना एवं बुकिंग पोर्टल' : 'D360 Travel Price Comparison & Booking'}
+            >
+              <Scale className="w-3.5 h-3.5 text-orange-400" />
+              <span>{language === 'hi' ? 'किराया तुलना' : 'Price Compare'}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </button>
+
+            {/* Global Voice SOS Active Indicator */}
+            {isVoiceSosActive && (
+              <button
+                type="button"
+                onClick={() => setLayoutMode('safety')}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 animate-pulse cursor-pointer shadow-2xs"
+                title="Voice SOS Active: Listening for 'I am in danger'"
+              >
+                <Mic className="w-3 h-3 text-red-500 animate-bounce" />
+                <span>Voice SOS</span>
+              </button>
+            )}
+
             {/* AI Travel Copilot Timeline Drawer Toggle */}
             <button
               onClick={() => {
@@ -383,8 +676,50 @@ export default function App() {
             </button>
           </div>
 
-          {/* Right Controls: Helpline, Language & Theme */}
+          {/* Right Controls: Helpline, Language & Theme (Clean Original Layout) */}
           <div className="flex items-center gap-2 md:gap-3">
+            {/* Landing Page Home Button */}
+            <button
+              onClick={() => setShowLandingPage(true)}
+              className="glass p-2 rounded-full shadow-sm hover:scale-105 transition-all text-xs border border-[var(--glass-border)] cursor-pointer text-[var(--accent-primary)] hover:border-[var(--accent-primary)]"
+              title={language === 'hi' ? 'मुख्य लैंडिंग पृष्ठ' : 'Go to Landing Page'}
+            >
+              <Home className="w-4 h-4" />
+            </button>
+
+            {/* User Profile / Firebase Auth Button */}
+            {currentUser ? (
+              <button
+                onClick={() => {
+                  setAuthModalMode('signin');
+                  setIsAuthModalOpen(true);
+                }}
+                className="glass px-2.5 py-1 rounded-full shadow-sm hover:scale-105 transition-all text-xs border border-[var(--glass-border)] hover:border-amber-500 cursor-pointer flex items-center gap-1.5"
+                title={currentUser.displayName || 'User Profile'}
+              >
+                <img
+                  src={currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentUser.displayName || 'User')}`}
+                  alt={currentUser.displayName || 'User'}
+                  className="w-5 h-5 rounded-full border border-amber-500 object-cover"
+                />
+                <span className="hidden md:inline font-bold text-xs text-[var(--text-primary)] max-w-[80px] truncate">
+                  {currentUser.displayName?.split(' ')[0] || 'Yatri'}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setAuthModalMode('signin');
+                  setIsAuthModalOpen(true);
+                }}
+                className="glass px-2.5 py-1 rounded-full shadow-sm hover:scale-105 transition-all text-xs border border-amber-500/40 hover:border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold cursor-pointer flex items-center gap-1.5"
+                title={language === 'hi' ? 'साइन इन या पंजीकरण करें' : 'Sign In or Register'}
+              >
+                <LogIn className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="hidden md:inline">{language === 'hi' ? 'लॉग इन' : 'Sign In'}</span>
+              </button>
+            )}
+
             {/* Mobile Phone Helpline Button */}
             <a
               href="tel:18001805145"
@@ -545,6 +880,15 @@ export default function App() {
                 <Newspaper className="w-3.5 h-3.5 text-amber-500" />
                 {!isSidebarCollapsed && <span>{language === 'hi' ? 'समाचार' : 'News'}</span>}
               </button>
+
+              <button
+                onClick={() => setLayoutMode('compare')}
+                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[11px] font-semibold glass hover:bg-orange-500/15 hover:border-orange-500/40 text-[var(--text-primary)] border border-[var(--glass-border)] transition-all cursor-pointer"
+                title={language === 'hi' ? 'किराया तुलना' : 'Price Compare'}
+              >
+                <Scale className="w-3.5 h-3.5 text-orange-500" />
+                {!isSidebarCollapsed && <span>{language === 'hi' ? 'किराया तुलना' : 'Price Compare'}</span>}
+              </button>
             </div>
 
             {/* Quick Action Prompt Trails from user screenshot */}
@@ -674,6 +1018,55 @@ export default function App() {
 
       {/* Main Dual-Pillar Content Layout */}
       <main className="flex-1 w-full min-h-0 relative overflow-hidden">
+        {layoutMode === 'home' && (
+          <div className="w-full h-full overflow-y-auto min-h-0 flex flex-col pb-24 lg:pb-8">
+            <AppHomeFeed
+              onNavigateTab={(tab, prompt) => {
+                if (tab === 'home') {
+                  if (prompt === 'news') {
+                    setLayoutMode('news');
+                  } else {
+                    setLayoutMode('home');
+                  }
+                } else if (tab === 'map') {
+                  setLayoutMode('fullmap');
+                  setMobileTab('map');
+                } else if (tab === 'compare') {
+                  setLayoutMode('compare');
+                } else if (tab === 'chat') {
+                  if (prompt) setExternalChatPrompt(prompt);
+                  setLayoutMode('fullchat');
+                  setMobileTab('chat');
+                } else if (tab === 'safety') {
+                  setLayoutMode('safety');
+                  setMobileTab('safety');
+                } else if (tab === 'copilot') {
+                  setIsCopilotOpen(true);
+                }
+              }}
+              onOpenAuth={(mode) => {
+                setAuthModalMode(mode || 'signin');
+                setIsAuthModalOpen(true);
+              }}
+              currentUser={currentUser}
+              language={language}
+              setLanguage={setLanguage}
+              theme={theme}
+              toggleTheme={toggleTheme}
+              onSelectPlaceForChat={(prompt) => {
+                setExternalChatPrompt(prompt);
+                setLayoutMode('fullchat');
+                setMobileTab('chat');
+              }}
+              onFocusMapLocation={(coords) => {
+                handleFocusMapLocation(coords);
+                setLayoutMode('fullmap');
+                setMobileTab('map');
+              }}
+            />
+          </div>
+        )}
+
         {layoutMode === 'split' && (
           <div className="w-full h-full lg:grid lg:grid-cols-12 min-h-0 relative flex flex-col">
             {/* Left Pillar: Interactive Uttar Pradesh Map */}
@@ -782,6 +1175,37 @@ export default function App() {
           </div>
         )}
 
+        {layoutMode === 'safety' && (
+          <div className="w-full h-full max-w-7xl mx-auto min-h-0 flex flex-col pb-16 lg:pb-0">
+            <WomenSafetyPanel
+              theme={theme}
+              language={language}
+              onAskAI={(prompt) => {
+                setExternalChatPrompt(prompt);
+                setMobileTab('chat');
+                setLayoutMode('split');
+              }}
+              initialCode={safetyInitialCode}
+              initialTab={safetyInitialTab}
+              onOpenMap={() => setLayoutMode('map')}
+            />
+          </div>
+        )}
+
+        {layoutMode === 'compare' && (
+          <div className="w-full h-full max-w-7xl mx-auto min-h-0 flex flex-col pb-16 lg:pb-0">
+            <TravelComparisonPanel
+              theme={theme}
+              language={language}
+              onAskAI={(prompt) => {
+                setExternalChatPrompt(prompt);
+                setMobileTab('chat');
+                setLayoutMode('split');
+              }}
+            />
+          </div>
+        )}
+
         {/* Interactive AI Travel Copilot Timeline Drawer */}
         <CopilotTimeline
           itinerary={activeItinerary}
@@ -807,86 +1231,143 @@ export default function App() {
         />
       </main>
 
-      {/* Mobile Bottom Navigation Bar (Hidden on Desktop >= 1024px) */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass glass-dimmed border-t border-[var(--glass-border)] backdrop-blur-xl px-2 py-1.5 flex items-center justify-around shadow-2xl bg-white/95 dark:bg-neutral-900/95 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
-        {/* 1. Disha AI Chat */}
+      {/* Floating Disha AI Concierge Action (Mobile Only, Bottom-Right) */}
+      <div className="lg:hidden fixed bottom-20 right-4 z-[95]">
         <button
           onClick={() => {
+            setLayoutMode('fullchat');
             setMobileTab('chat');
-            if (layoutMode === 'news') setLayoutMode('split');
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'chat' && layoutMode !== 'news'
+          className="touch-target px-4 py-2.5 rounded-full bg-[var(--accent-primary)] hover:opacity-95 text-white shadow-xl shadow-amber-600/30 flex items-center gap-2 border border-white/20 active:scale-95 transition-all cursor-pointer"
+          title={language === 'hi' ? 'दिशा AI से बात करें' : 'Talk to Disha AI'}
+        >
+          <div className="relative">
+            <MessageSquare className="w-4 h-4 text-white" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 animate-pulse" />
+          </div>
+          <span className="text-xs font-bold font-sans tracking-wide">
+            {language === 'hi' ? 'दिशा AI' : 'Disha AI'}
+          </span>
+        </button>
+      </div>
+
+      {/* Mobile Bottom Navigation Bar (Fixed, Safe-Area Aware, 48px+ Targets) */}
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-[90] glass border-t border-[var(--glass-border)] backdrop-blur-xl px-2 py-1 flex items-center justify-around shadow-2xl pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        
+        {/* 1. Home Feed */}
+        <button
+          onClick={() => setLayoutMode('home')}
+          className={`touch-target flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-all cursor-pointer ${
+            layoutMode === 'home'
               ? 'text-[var(--accent-primary)] font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
           }`}
+          title="Home"
         >
-          <MessageSquare className="w-4 h-4" />
-          <span className="text-[10px] font-medium">{language === 'hi' ? 'दिशा AI' : 'Disha AI'}</span>
-          {mobileTab === 'chat' && layoutMode !== 'news' && (
+          <Home className="w-4 h-4" />
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'होम' : 'Home'}</span>
+          {layoutMode === 'home' && (
             <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
           )}
         </button>
 
-        {/* 2. Interactive Map */}
+        {/* 2. Explore / Map */}
         <button
           onClick={() => {
+            setLayoutMode('fullmap');
             setMobileTab('map');
-            if (layoutMode === 'news') setLayoutMode('split');
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            mobileTab === 'map' && layoutMode !== 'news'
+          className={`touch-target flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-all cursor-pointer ${
+            layoutMode === 'fullmap' || (layoutMode === 'split' && mobileTab === 'map')
               ? 'text-[var(--accent-primary)] font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
           }`}
+          title="Explore Map"
         >
           <MapIcon className="w-4 h-4" />
-          <span className="text-[10px] font-medium">{language === 'hi' ? 'मानचित्र' : 'Map'}</span>
-          {mobileTab === 'map' && layoutMode !== 'news' && (
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'मानचित्र' : 'Explore'}</span>
+          {(layoutMode === 'fullmap' || (layoutMode === 'split' && mobileTab === 'map')) && (
             <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
           )}
         </button>
 
-        {/* 3. AI Copilot Timeline */}
+        {/* 3. Compare Metasearch */}
+        <button
+          onClick={() => {
+            setLayoutMode('compare');
+          }}
+          className={`touch-target flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-all cursor-pointer ${
+            layoutMode === 'compare'
+              ? 'text-orange-600 font-bold'
+              : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
+          }`}
+          title="Compare Fares"
+        >
+          <Scale className="w-4 h-4 text-orange-500" />
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'किराया' : 'Compare'}</span>
+          {layoutMode === 'compare' && (
+            <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-orange-600" />
+          )}
+        </button>
+
+        {/* 4. Safety 1090 SOS */}
+        <button
+          onClick={() => {
+            setLayoutMode('safety');
+            setMobileTab('safety');
+          }}
+          className={`touch-target flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-all cursor-pointer ${
+            layoutMode === 'safety'
+              ? 'text-red-600 font-bold'
+              : 'text-[var(--text-secondary)] font-medium hover:text-red-500'
+          }`}
+          title="Women Safety 1090"
+        >
+          <div className="relative">
+            <ShieldAlert className="w-4 h-4 text-red-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse absolute -top-0.5 -right-0.5" />
+          </div>
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'सुरक्षा' : 'Safety'}</span>
+          {layoutMode === 'safety' && (
+            <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-red-600" />
+          )}
+        </button>
+
+        {/* 5. Trip Copilot / Plan */}
         <button
           onClick={() => {
             setIsCopilotOpen(prev => !prev);
           }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer relative ${
+          className={`touch-target flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-all cursor-pointer relative ${
             isCopilotOpen
-              ? 'text-orange-600 font-bold'
-              : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
-          }`}
-        >
-          <Route className="w-4 h-4 text-orange-500" />
-          <span className="text-[10px] font-medium">{language === 'hi' ? 'कोपायलट' : 'Copilot'}</span>
-          {activeItinerary && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400 absolute top-1 right-2.5 animate-pulse" />
-          )}
-        </button>
-
-        {/* 4. Travel Bulletins / News */}
-        <button
-          onClick={() => {
-            setLayoutMode('news');
-            setMobileTab('news');
-          }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-all cursor-pointer ${
-            layoutMode === 'news'
               ? 'text-[var(--accent-primary)] font-bold'
               : 'text-[var(--text-secondary)] font-medium hover:text-[var(--text-primary)]'
           }`}
+          title="Trip Copilot"
         >
           <div className="relative">
-            <Newspaper className="w-4 h-4" />
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse absolute -top-0.5 -right-0.5" />
+            <Route className="w-4 h-4 text-[var(--accent-primary)]" />
+            {activeItinerary && (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 animate-pulse" />
+            )}
           </div>
-          <span className="text-[10px] font-medium">{language === 'hi' ? 'बुलेटिन' : 'News'}</span>
-          {layoutMode === 'news' && (
+          <span className="text-[10px] font-medium">{language === 'hi' ? 'प्लान' : 'Plan'}</span>
+          {isCopilotOpen && (
             <motion.div layoutId="activeMobileIndicator" className="w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
           )}
         </button>
       </nav>
+
+      {/* Firebase Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        language={language}
+        initialMode={authModalMode}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+        }}
+      />
 
     </div>
   );

@@ -10,6 +10,7 @@ import {
   Sunrise, 
   Moon, 
   ShieldCheck,
+  ShieldAlert,
   Sparkles,
   Info
 } from 'lucide-react';
@@ -19,6 +20,7 @@ import { MapPanel } from '../MapPanel';
 import { ChatPanel } from '../ChatPanel';
 import { NewsPanel } from '../NewsPanel';
 import { CopilotTimeline } from '../CopilotTimeline';
+import { WomenSafetyPanel } from '../WomenSafetyPanel';
 import type { TripItinerary } from '../../services/copilotService';
 import type { UttarPradeshDestination } from '../../../data/up-comprehensive-database';
 
@@ -55,7 +57,7 @@ export function AndroidAppShell({
   onSelectPlaceForChat,
   onAddPlaceToItinerary
 }: AndroidAppShellProps) {
-  const [activeTab, setActiveTab] = useState<'map' | 'chat' | 'copilot' | 'news'>('map');
+  const [activeTab, setActiveTab] = useState<'map' | 'chat' | 'copilot' | 'news' | 'safety'>('map');
   const [isCopilotDrawerOpen, setIsCopilotDrawerOpen] = useState(false);
   const lastBackPressRef = useRef<number>(0);
 
@@ -123,6 +125,13 @@ export function AndroidAppShell({
       labelHi: 'बुलेटिन',
       icon: Newspaper,
       badge: 'Live'
+    },
+    {
+      id: 'safety' as const,
+      labelEn: 'Safety',
+      labelHi: 'सुरक्षा',
+      icon: ShieldAlert,
+      badge: '1090'
     }
   ];
 
@@ -188,6 +197,16 @@ export function AndroidAppShell({
               ) : (
                 <Moon className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
               )}
+            </button>
+
+            {/* Women Safety 1090 SOS Button */}
+            <button
+              onClick={() => setActiveTab('safety')}
+              className="p-1.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-500 shadow-xs flex items-center justify-center active:scale-95 transition-transform cursor-pointer relative"
+              title={language === 'hi' ? 'महिला सुरक्षा पोर्टल' : 'Women Safety Portal'}
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 absolute -top-0.5 -right-0.5 animate-ping" />
             </button>
           </div>
         </div>
@@ -312,11 +331,19 @@ export function AndroidAppShell({
             }}
           />
         </div>
+
+        {/* Tab 5: Women Safety 1090 & Location Access */}
+        <div className={`w-full h-full absolute inset-0 overflow-hidden ${activeTab === 'safety' ? 'block' : 'hidden'} pb-20`}>
+          <WomenSafetyPanel
+            theme={theme}
+            language={language}
+          />
+        </div>
       </main>
 
       {/* Material 3 Native Android Bottom Navigation Bar */}
       <nav className="w-full flex-shrink-0 z-50 bg-[var(--bg-secondary)]/95 backdrop-blur-xl border-t border-[var(--glass-border)] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg">
-        <div className="grid grid-cols-4 items-center justify-around gap-1 max-w-md mx-auto">
+        <div className="grid grid-cols-5 items-center justify-around gap-1 max-w-md mx-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -340,7 +367,7 @@ export function AndroidAppShell({
                 >
                   <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 stroke-[2.2]' : 'scale-100'}`} />
                   {tab.badge && (
-                    <span className="absolute -top-1 -right-1 px-1 py-0.2 min-w-[14px] text-[8px] font-extrabold rounded-full bg-orange-600 text-white flex items-center justify-center shadow-xs leading-none">
+                    <span className="absolute -top-1 -right-1 px-1 py-0.2 min-w-[14px] text-[8px] font-extrabold rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs leading-none">
                       {tab.badge}
                     </span>
                   )}

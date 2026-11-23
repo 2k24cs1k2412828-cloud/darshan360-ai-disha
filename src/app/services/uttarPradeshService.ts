@@ -757,6 +757,267 @@ const BASE_UP_PLACES: UPPlace[] = [
       { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Mahaparinirvana Temple Kushinagar', hi: 'महापरिनिर्वाण मंदिर' } }
     ],
     tags: ['kushinagar', 'buddhist', 'buddha', 'parinirvana']
+  },
+
+  // =================== MADHYA PRADESH HERITAGE (BEYOND THE FORT) ===================
+  {
+    id: 'bateshwar_morena_mp',
+    name: 'Bateshwar Hindu Temples Complex',
+    hindiName: 'बटेश्वर हिंदू मंदिर परिसर (मुरैना)',
+    city: 'Morena',
+    hindiCity: 'मुरैना',
+    category: 'heritage',
+    categoryLabel: { en: 'ASI Heritage Complex', hi: 'एएसआई संरक्षित धरोहर' },
+    coordinates: [26.4258, 78.2045],
+    description: {
+      en: 'A spellbinding cluster of nearly 200 sandstone Hindu temples dedicated to Shiva and Vishnu built between the 8th and 10th centuries, painstakingly restored from earthquake ruins under ASI supervision.',
+      hi: '8वीं से 10वीं शताब्दी में निर्मित लगभग 200 बलुआ पत्थर के हिंदू मंदिरों का अद्भुत समूह, जिसे पुरातत्व विभाग (ASI) ने मलबे से पुनर्जीवित किया।'
+    },
+    travelCause: {
+      en: 'Experiencing one of India\'s greatest archaeological restoration wonders, peaceful secluded valley surrounded by ravines, and profound Pratihara temple art.',
+      hi: 'भारत के सबसे बड़े पुरातात्विक पुनरुद्धार के साक्षात दर्शन, चंबल घाटी की नीरवता और अद्भुत प्रतिहार कला।'
+    },
+    deepHistory: {
+      en: 'Built by Gurjara-Pratihara rulers between 750 and 1000 CE; devastated by a powerful 13th-century earthquake; restored between 2005-2012 by ASI team led by KK Muhammed.',
+      hi: 'गुर्जर-प्रतिहार राजाओं द्वारा निर्मित; 13वीं सदी के भूकंप में ध्वस्त हुआ, जिसे 2005-2012 में ASI द्वारा पुनर्निर्मित किया गया।'
+    },
+    architecture: {
+      en: 'Pratihara Nagara style with curvilinear shikhara, carved doorways showing river goddesses Ganga and Yamuna, and exquisite Nataraja reliefs.',
+      hi: 'प्रतिहार नागर शैली, वक्राकार शिखर तथा गंगा-यमुना की नक्काशीदार द्वारशाखाएं।'
+    },
+    bestTime: { en: 'October to March; morning 7:00 AM to 11:00 AM', hi: 'अक्टूबर से मार्च; प्रातः 7:00 से 11:00 बजे' },
+    timings: { en: '6:00 AM - 6:00 PM', hi: 'प्रातः 6:00 से सायं 6:00 बजे' },
+    entryFee: { en: '₹25 for Indians, ₹300 for foreigners (ASI ticket)', hi: 'भारतीय: ₹25, विदेशी: ₹300' },
+    accessibilityRating: 7,
+    accessibilityNotes: { en: 'Paved road directly reaches site gate from Gwalior (35 km); walking among ruins is on gravel pathways.', hi: 'ग्वालियर से 35 किमी पक्की सड़क, परिसर में कंक्रीट व मिट्टी के मार्ग।' },
+    photographyTips: { en: 'Breathtaking low-angle morning golden hour shots across clusters of miniature and large shikhara spires.', hi: 'प्रातःकाल की सुनहरी धूप में सैकड़ों शिखरों का विहंगम दृश्य।' },
+    safetyTips: { en: 'Carry drinking water and sun protection; return to main highway before sunset as public transport is sparse.', hi: 'पीने का पानी साथ रखें; शाम होने से पूर्व मुख्य मार्ग पर लौटें।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Bateshwar Temples Morena MP', hi: 'बटेश्वर मंदिर समूह मुरैना' } }
+    ],
+    tags: ['morena', 'bateshwar', 'mp', 'madhya pradesh', 'heritage', 'pratihara', 'asi', 'shiva', 'temple', 'beyond the fort']
+  },
+  {
+    id: 'mitawali_chausath_yogini',
+    name: 'Chausath Yogini Temple (Mitawali)',
+    hindiName: 'चौसठ योगिनी मंदिर (मितावली)',
+    city: 'Morena',
+    hindiCity: 'मुरैना',
+    category: 'heritage',
+    categoryLabel: { en: 'Circular Hypaethral Temple', hi: 'गोलाकार योगिनी पीठ' },
+    coordinates: [26.4428, 78.2573],
+    description: {
+      en: 'Circular 14th-century open-to-sky temple situated atop a 100-foot hill comprising 64 peripheral pillared chambers dedicated to Yoginis with a central Shiva shrine. Widely regarded as the design inspiration for the old Indian Parliament House.',
+      hi: '100 फीट ऊंची पहाड़ी पर स्थित 14वीं सदी का गोलाकार खुला मंदिर, जिसमें 64 योगिनी कक्ष और केंद्रीय शिव मंदिर है। यह भारतीय संसद भवन के वास्तु की प्रेरणा माना जाता है।'
+    },
+    travelCause: {
+      en: 'Astonishing geometric and astronomical genius, spiritual mystery of Yogini shrines, and 360-degree panoramic views over mustard and wheat fields.',
+      hi: 'अद्वितीय ज्यामितीय व खगोलीय वास्तुकला, योगिनी पीठ का रहस्य और पहाड़ी से चारों ओर का विहंगम दृश्य।'
+    },
+    deepHistory: {
+      en: 'Commissioned by Kachchhapaghata king Devapala in 1323 CE (Vikram Samvat 1383) as a tantric and astronomical school under astrological celestial alignment.',
+      hi: 'कच्छपघात राजा देवपाल द्वारा 1323 ई. में तंत्र और ज्योतिष विद्या के प्रमुख केंद्र के रूप में निर्मित।'
+    },
+    architecture: {
+      en: 'Circular hypaethral plan, 170 ft diameter with 65 pillared circular cells enclosing an expansive central open mandapa.',
+      hi: '170 फीट व्यास का गोलाकार खुला परिसर, 64 खंभों वाले कक्ष और केंद्रीय मंडप।'
+    },
+    bestTime: { en: 'Sunrise (6:30 AM) or Golden Sunset (5:00 PM)', hi: 'सूर्योदय अथवा सूर्यास्त' },
+    timings: { en: '6:00 AM - 6:00 PM', hi: 'सुबह 6:00 से शाम 6:00 बजे' },
+    entryFee: { en: 'Free entry (ASI protected monument)', hi: 'निःशुल्क प्रवेश (ASI संरक्षित)' },
+    accessibilityRating: 5,
+    accessibilityNotes: { en: 'Requires climbing ~100 stone steps with handrail up the hillock.', hi: 'पहाड़ी पर लगभग 100 पक्की सीढ़ियां चढ़नी होती हैं।' },
+    photographyTips: { en: 'Wide-angle lens from inside courtyard looking through symmetric radial stone pillars towards central sanctum.', hi: 'केंद्रीय मंडप से खंभों की कतारों का 360 डिग्री वाइड एंगल शॉट।' },
+    safetyTips: { en: 'Wear comfortable walking shoes with grip. Best combined with Padhavali and Bateshwar.', hi: 'आरामदायक जूते पहनें। पढ़ावली और बटेश्वर के साथ भ्रमण करें।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1545231027-637d2f6210f8?w=800', title: { en: 'Mitawali Chausath Yogini Circular Temple', hi: 'मितावली चौसठ योगिनी गोलाकार मंदिर' } }
+    ],
+    tags: ['morena', 'mitawali', 'chausath yogini', 'parliament', 'mp', 'madhya pradesh', 'heritage', 'tantric', 'beyond the fort']
+  },
+  {
+    id: 'garhi_padhavali',
+    name: 'Garhi Padhavali Fortress & Temple',
+    hindiName: 'गढ़ी पढ़ावली दुर्ग एवं मंदिर',
+    city: 'Morena',
+    hindiCity: 'मुरैना',
+    category: 'heritage',
+    categoryLabel: { en: 'Carved Mukhamandapa Fort', hi: 'उत्कीर्ण मुखमंडप गढ़ी' },
+    coordinates: [26.4319, 78.2255],
+    description: {
+      en: 'A 10th-century temple-fortress famously celebrated as the "Mini Khajuraho of Chambal" due to the mind-boggling density and finesse of its surviving stone friezes depicting Hindu epics and deities.',
+      hi: '10वीं सदी का मंदिर-किला जिसे "चंबल का मिनी खजुराहो" कहा जाता है, जहां रामायण, महाभारत और कृष्णलीला की अद्वितीय पत्थर की नक्काशी सुरक्षित है।'
+    },
+    travelCause: {
+      en: 'World-class sculptural mastery, medieval fortification synthesis, and discovering high-art heritage tucked away in rural MP.',
+      hi: 'विश्वस्तरीय मूर्तिकला, प्राचीन किलेबंदी और मध्य प्रदेश की अप्रतिम पाषाण धरोहर का अनुभव।'
+    },
+    deepHistory: {
+      en: 'Built in the 10th century by Kachchhapaghata rulers; later transformed into an armed defensive stronghold (garhi) by the Jat Rulers of Gohad in the late 18th century.',
+      hi: '10वीं सदी में कच्छपघात शासकों द्वारा निर्मित; 18वीं सदी में गोहद के जाट शासकों द्वारा गढ़ी (दुर्ग) में रूपांतरित।'
+    },
+    architecture: {
+      en: 'Ornate open pillared mukhamandapa standing on high platform with carved brackets featuring flying gandharvas, surasundaris, and scenes of Vishnu avatars.',
+      hi: 'ऊंचे चबूतरे पर स्थित भव्य मुखमंडप, सुरसुंदरी व दशावतार की मनमोहक नक्काशी।'
+    },
+    bestTime: { en: 'October to March; 8:00 AM to 4:00 PM', hi: 'अक्टूबर से मार्च; प्रातः 8:00 से 4:00 बजे' },
+    timings: { en: '6:00 AM - 6:00 PM', hi: 'सुबह 6:00 से शाम 6:00 बजे' },
+    entryFee: { en: 'Free (ASI protected)', hi: 'निःशुल्क (ASI संरक्षित)' },
+    accessibilityRating: 7,
+    accessibilityNotes: { en: 'Easy vehicle access up to entry gate, gently sloped ramp.', hi: 'मुख्य द्वार तक वाहन पहुंच, सुगम चढ़ाई।' },
+    photographyTips: { en: 'Detail zoom shots of ceiling rosettes, bracket figures, and carved lion gate guardians.', hi: 'छत के कमल पुष्पों और स्तंभों की बारीक नक्काशी की क्लोज-अप फोटोग्राफी।' },
+    safetyTips: { en: 'Located midway between Mitawali and Bateshwar; easily planned as a single circuit.', hi: 'मितावली और बटेश्वर के ठीक बीच स्थित।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Garhi Padhavali Carved Mukhamandapa', hi: 'गढ़ी पढ़ावली मुखमंडप' } }
+    ],
+    tags: ['morena', 'padhavali', 'garhi', 'mini khajuraho', 'mp', 'madhya pradesh', 'sculpture', 'beyond the fort']
+  },
+  {
+    id: 'kakanmath_suhania',
+    name: 'Kakanmath Shiva Temple (Suhania)',
+    hindiName: 'ककनमठ शिव मंदिर (सुहानिया)',
+    city: 'Morena',
+    hindiCity: 'मुरैना',
+    category: 'temple',
+    categoryLabel: { en: 'Mortarless Stone Wonder', hi: 'बिना गारे का अद्भुत शिवालय' } ,
+    coordinates: [26.5411, 78.2427],
+    description: {
+      en: 'A soaring 115-foot 11th-century Shiva temple standing solitary in rustic farmland, remarkably built without any mortar or cement using dry masonry gravity-locked stones.',
+      hi: 'खेतों के बीच गर्व से खड़ा 115 फीट ऊंचा 11वीं सदी का भव्य शिव मंदिर, जिसे बिना चूने या गारे के केवल पत्थरों के संतुलन पर बनाया गया है।'
+    },
+    travelCause: {
+      en: 'Gravity-defying ancient engineering marvel, awe-inspiring monumental ruin, and timeless spiritual serenity.',
+      hi: 'प्राचीन भारतीय इंजीनियरिंग का अजूबा, गगनचुंबी शिखर और शांत ग्रामीण परिवेश।'
+    },
+    deepHistory: {
+      en: 'Constructed by King Kirttiraja around 1015-1035 CE at the behest of his queen Kakanvati; survived massive sieges and earthquakes with only sanctum spire standing.',
+      hi: 'कच्छपघात नरेश कीर्तिराज द्वारा रानी ककनावती के लिए 1015-1035 ई. में निर्मित।'
+    },
+    architecture: {
+      en: 'Monumental Nagara spire rising atop high platform; interlocking sandstone blocks balanced purely by precision physics and stone joints.',
+      hi: 'ऊंचे अधिष्ठान पर नागर शिखर; सटीक खांचों में फंसे बलुआ पत्थर के विशाल शिलाखंड।'
+    },
+    bestTime: { en: 'October to February; early morning or late afternoon', hi: 'अक्टूबर से फरवरी; सुबह या शाम' },
+    timings: { en: '6:00 AM - 6:00 PM', hi: 'सुबह 6:00 से शाम 6:00 बजे' },
+    entryFee: { en: 'Free entry', hi: 'निःशुल्क' },
+    accessibilityRating: 6,
+    accessibilityNotes: { en: 'Rural road from Morena/Gwalior; walking on lawn paths around temple base.', hi: 'मुरैना से ग्रामीण पक्की सड़क, मंदिर के चारों ओर घास का मैदान।' },
+    photographyTips: { en: 'Shoot from surrounding mustard fields during winter for an ethereal frame of the towering ruin against blue skies.', hi: 'सर्दियों में सरसों के पीले खेतों के बीच से आकाश छूते मंदिर का विहंगम दृश्य।' },
+    safetyTips: { en: 'Do not attempt to climb crumbling outer stone ledges; stay on designated visitor ground paths.', hi: 'बाहरी पत्थरों पर चढ़ने का प्रयास न करें।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1545231027-637d2f6210f8?w=800', title: { en: 'Kakanmath Temple Spire Morena', hi: 'ककनमठ मंदिर शिखर मुरैना' } }
+    ],
+    tags: ['morena', 'kakanmath', 'suhania', 'shiva', 'temple', 'mp', 'dry masonry', 'kachchhapaghata', 'beyond the fort']
+  },
+  {
+    id: 'gwalior_fort_mp',
+    name: 'Gwalior Fort (Gibraltar of India)',
+    hindiName: 'ग्वालियर किला',
+    city: 'Gwalior',
+    hindiCity: 'ग्वालियर',
+    category: 'fort',
+    categoryLabel: { en: 'Hilltop Medieval Citadel', hi: 'ऐतिहासिक पहाड़ी दुर्ग' },
+    coordinates: [26.2295, 78.1691],
+    description: {
+      en: 'Described by Babur as the "pearl of Indian fortresses", this monumental 3-km hill fort boasts the azure-tiled Man Singh Palace, historic Sas Bahu Temple, Teli Ka Mandir, and giant rock-cut Jain colossi.',
+      hi: 'बाबर द्वारा "भारत के किलों का मोती" कहा गया यह विशाल दुर्ग मानसिंह महल, सास-बहू मंदिर, तेली का मंदिर और विशाल जैन तीर्थंकर मूर्तियों से सुशोभित है।'
+    },
+    travelCause: {
+      en: 'Strategic gateway to northern MP heritage, awe-inspiring Tomar Rajput architecture, and commanding sunset views over Gwalior city.',
+      hi: 'मध्य प्रदेश की ऐतिहासिक शान, तोमर राजपूत स्थापत्य और शहर का विहंगम सूर्यास्त दृश्य।'
+    },
+    deepHistory: {
+      en: 'Foundations laid in 6th century by Suraj Sen; enhanced by Raja Man Singh Tomar (1486-1516); site of historic battles involving Rani Lakshmibai and Tatya Tope.',
+      hi: '6वीं सदी में राजा सूरज सेन द्वारा नींव; राजा मानसिंह तोमर द्वारा भव्य महलों का निर्माण।'
+    },
+    architecture: {
+      en: 'Steep sandstone cliff fortifications with turquoise and yellow ceramic mosaic tilework on Man Mandir facade.',
+      hi: 'बलुआ पत्थर की ऊंची प्राचीरें तथा नीली-पीली चमकीली टाइलों से सुसज्जित मान मंदिर।'
+    },
+    bestTime: { en: 'October to March; morning 8:00 AM or evening Light & Sound Show', hi: 'अक्टूबर से मार्च; प्रातः 8:00 या सांध्य लाइट एंड साउंड शो' },
+    timings: { en: '6:00 AM - 6:30 PM', hi: 'सुबह 6:00 से शाम 6:30 बजे' },
+    entryFee: { en: '₹75 Indians, ₹300 Foreigners. Sound & Light show: ₹100', hi: 'भारतीय: ₹75, विदेशी: ₹300' },
+    accessibilityRating: 7,
+    accessibilityNotes: { en: 'Vehicles can drive directly up to Urvai Gate or Eastern gate parking.', hi: 'उरवाई गेट से गाड़ियां सीधे ऊपर तक जा सकती हैं।' },
+    photographyTips: { en: 'The famous blue duck-and-elephant tilework friezes on the outer palace ramparts.', hi: 'मान मंदिर की नीली टाइलों और हाथियों की नक्काशी का फोटो।' },
+    safetyTips: { en: 'Hire authorized MP Tourism guides at entrance to truly appreciate the hidden palaces and acoustic chambers.', hi: 'अधिकृत गाइड की सहायता लें।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Gwalior Fort Man Singh Palace', hi: 'ग्वालियर किला मानसिंह महल' } }
+    ],
+    tags: ['gwalior', 'fort', 'man singh', 'mp', 'madhya pradesh', 'heritage', 'beyond the fort']
+  },
+  {
+    id: 'orchha_palace_complex',
+    name: 'Orchha Palace & Chaturbhuj Temple',
+    hindiName: 'ओरछा राजमहल एवं चतुर्भुज मंदिर',
+    city: 'Orchha',
+    hindiCity: 'ओरछा',
+    category: 'heritage',
+    categoryLabel: { en: 'Bundelkhand Royal Complex', hi: 'बुंदेलखंड राजप्रासाद' },
+    coordinates: [25.3508, 78.6436],
+    description: {
+      en: 'A poetic 16th-century fortress city islanded by the Betwa River, famous for Jahangir Mahal, vibrant Bundela court murals in Raja Mahal, and the royal chhatris cenotaphs.',
+      hi: 'बेतवा नदी के द्वीप पर बसा 16वीं सदी का मनोहारी नगर, जो जहाँगीर महल, राजा महल के भित्तिचित्रों और भव्य शाही छतरियों के लिए प्रसिद्ध है।'
+    },
+    travelCause: {
+      en: 'Immersing in royal Bundelkhand heritage, tranquil Betwa river kayaking, and darshan at Ram Raja Temple where Lord Rama reigns as an official King.',
+      hi: 'बुंदेली संस्कृति, बेतवा नदी की शांति और राम राजा मंदिर दर्शन जहां प्रभु राम को राजा के रूप में गार्ड ऑफ ऑनर दिया जाता है।'
+    },
+    deepHistory: {
+      en: 'Founded in 1501 by Bundela chieftain Rudra Pratap Singh; Jahangir Mahal constructed by Bir Singh Deo to welcome Mughal Emperor Jahangir for a single night.',
+      hi: '1501 में रुद्र प्रताप सिंह द्वारा स्थापित; बीर सिंह देव द्वारा जहाँगीर महल का निर्माण।'
+    },
+    architecture: {
+      en: 'Harmonious fusion of Bundela Rajput and Mughal architecture with delicate stone latticework (jaalis) and grand courtyards.',
+      hi: 'राजपूत और मुगल वास्तुकला का अनुपम संगम, झरोखे और विशाल प्रांगण।'
+    },
+    bestTime: { en: 'October to March; morning 9:00 AM to evening aarti', hi: 'अक्टूबर से मार्च' },
+    timings: { en: '9:00 AM - 5:00 PM (Palaces); Ram Raja Temple opens till 10:00 PM', hi: 'सुबह 9:00 से शाम 5:00 बजे' },
+    entryFee: { en: '₹100 Indians, ₹400 Foreigners (Combined entry for all palaces & chhatris)', hi: 'भारतीय: ₹100, विदेशी: ₹400 (संयुक्त टिकट)' },
+    accessibilityRating: 7,
+    accessibilityNotes: { en: 'Paved pathways throughout island complex, golf cart facility available.', hi: 'समतल रास्ते, परिसर में गोल्फ कार्ट उपलब्ध।' },
+    photographyTips: { en: 'Capture the 14 royal chhatris mirrored across the flowing Betwa river at sunset.', hi: 'बेतवा नदी के पानी में शाही छतरियों का सूर्यास्त प्रतिबिंब।' },
+    safetyTips: { en: 'Only 20 minutes drive from Jhansi railway station.', hi: 'झांसी स्टेशन से मात्र 20 मिनट की दूरी पर।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1545231027-637d2f6210f8?w=800', title: { en: 'Orchha Jahangir Mahal Palace', hi: 'ओरछा जहाँगीर महल' } }
+    ],
+    tags: ['orchha', 'palace', 'jahangir mahal', 'betwa', 'mp', 'heritage', 'beyond the fort']
+  },
+  {
+    id: 'koshak_mahal_chanderi',
+    name: 'Koshak Mahal (Chanderi)',
+    hindiName: 'कोषक महल (चंदेरी)',
+    city: 'Chanderi',
+    hindiCity: 'चंदेरी',
+    category: 'heritage',
+    categoryLabel: { en: 'Malwa Sultanate Palace', hi: 'मालवा सल्तनत स्थापत्य' },
+    coordinates: [24.7170, 78.1180],
+    description: {
+      en: 'A 15th-century square palace commissioned by Mahmud Khilji of Malwa, featuring arched galleries, balconies, and four interconnected quadrantal stone towers.',
+      hi: 'मालवा के सुल्तान महमूद खिलजी द्वारा 15वीं सदी में निर्मित चौकोर महल, जिसमें सुंदर मेहराबें, बालकनियां और चार परस्पर जुड़े पाषाण खंड हैं।'
+    },
+    travelCause: {
+      en: 'Exploring the rich textile and medieval fortification heritage of Chanderi away from congested tourist centers.',
+      hi: 'चंदेरी की ऐतिहासिक स्थापत्य कला और हैंडलूम वस्त्र संस्कृति का शांत अनुभव।'
+    },
+    deepHistory: {
+      en: 'Commissioned in 1445 CE to commemorate a military victory; designed as a seven-storey pleasure palace of which three grand storeys endure.',
+      hi: '1445 ई. में विजय स्मारक के रूप में सात मंजिला महल की योजना, जिसके तीन भव्य तल आज भी सुरक्षित हैं।'
+    },
+    architecture: {
+      en: 'Constructed using local white sandstone with intricate arched corridors and pierced screen windows.',
+      hi: 'सफेद बलुआ पत्थर और खूबसूरत मेहराबदार गलियारे।'
+    },
+    bestTime: { en: 'November to February', hi: 'नवंबर से फरवरी' },
+    timings: { en: '6:00 AM - 6:00 PM', hi: 'सुबह 6:00 से शाम 6:00 बजे' },
+    entryFee: { en: '₹25 for Indians (ASI protected)', hi: 'भारतीय: ₹25' },
+    accessibilityRating: 7,
+    accessibilityNotes: { en: 'Situated 4 km from main Chanderi town on Fatehpur road.', hi: 'चंदेरी से 4 किमी दूर फतेहपुर मार्ग पर स्थित।' },
+    photographyTips: { en: 'Geometric symmetrical perspective shots through the interconnected arched corridors.', hi: 'मेहराबदार गलियारों से गुजरती रोशनी और छाया की ज्यामितीय फोटोग्राफी।' },
+    safetyTips: { en: 'Combine with Chanderi Fort and weaver colony visits.', hi: 'चंदेरी किला और बुनकर बस्तियों के साथ भ्रमण करें।' },
+    images: [
+      { url: 'https://images.unsplash.com/photo-1590077428593-a55bb07c4665?w=800', title: { en: 'Koshak Mahal Chanderi MP', hi: 'कोषक महल चंदेरी' } }
+    ],
+    tags: ['chanderi', 'koshak mahal', 'ashoknagar', 'mp', 'heritage', 'beyond the fort']
   }
 ];
 
@@ -1075,13 +1336,35 @@ export const UP_TRAVEL_ROUTES: UPRoute[] = [
     ],
     distanceKm: 480,
     recommendedDays: 4
+  },
+  {
+    id: 'chambal_heritage_corridor',
+    name: { en: 'Beyond the Fort: Chambal Heritage Corridor (Gwalior - Mitawali - Padhavali - Bateshwar - Kakanmath)', hi: 'बियॉन्ड द फोर्ट: चंबल हेरिटेज कॉरिडोर (ग्वालियर - मितावली - पढ़ावली - बटेश्वर - ककनमठ)' },
+    description: {
+      en: 'The signature Team Srajan heritage discovery circuit connecting Gwalior Fort to the four world-class medieval monuments of Morena.',
+      hi: 'टीम सृजन का विशेष हेरिटेज परिपथ जो ग्वालियर दुर्ग को मुरैना की चार विश्वस्तरीय मध्यकालीन धरोहरों से जोड़ता है।'
+    },
+    cities: ['Gwalior', 'Morena'],
+    waypoints: [
+      [26.2295, 78.1691], // Gwalior Fort
+      [26.4428, 78.2573], // Chausath Yogini Mitawali
+      [26.4319, 78.2255], // Garhi Padhavali
+      [26.4258, 78.2045], // Bateshwar Hindu Temples
+      [26.5411, 78.2427]  // Kakanmath Shiva Temple
+    ],
+    distanceKm: 110,
+    recommendedDays: 1
   }
 ];
 
-// Combined full UP database automatically resolved with authentic Wikipedia / UP Tourism imagery
+import { MP_PLACES } from '../../data/mp-comprehensive-database';
+
+// Combined full database prioritizing authentic Madhya Pradesh Heritage Destinations
 export const UP_PLACES: UPPlace[] = [
+  ...MP_PLACES,
   ...BASE_UP_PLACES,
   ...COMPREHENSIVE_UP_PLACES.filter(cp => 
+    !MP_PLACES.some(mp => mp.id === cp.id || mp.name.toLowerCase().trim() === cp.name.toLowerCase().trim()) &&
     !BASE_UP_PLACES.some(bp => bp.id === cp.id || bp.name.toLowerCase().trim() === cp.name.toLowerCase().trim())
   )
 ].map(p => ({

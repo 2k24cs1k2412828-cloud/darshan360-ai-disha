@@ -8,20 +8,19 @@ export function LoadingScreen() {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#FAF8F5]"
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#FAF8F5] dark:bg-stone-950"
     >
       <div className="text-center">
         <motion.div
           animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360],
+            scale: [1, 1.08, 1],
           }}
           transition={{
             duration: 2,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6 rounded-2xl bg-white/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden"
+          className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6 rounded-2xl bg-white/90 p-2 shadow-2xl flex items-center justify-center overflow-hidden border border-amber-500/20"
         >
           <img
             src={darshanLogo}
@@ -34,7 +33,7 @@ export function LoadingScreen() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-3xl font-bold text-[#2C1810] mb-2"
+          className="text-3xl font-bold text-[#2C1810] dark:text-amber-100 mb-2 font-display tracking-tight"
         >
           Darshan 360
         </motion.h1>
@@ -43,10 +42,10 @@ export function LoadingScreen() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-sm text-[#5A4A3A] mb-6 flex items-center justify-center gap-2"
+          className="text-sm text-[#5A4A3A] dark:text-stone-400 mb-6 flex items-center justify-center gap-2"
         >
           <Sparkles className="w-4 h-4 text-[#FF9933]" />
-          India&apos;s first AI travel companion
+          Uttar Pradesh & Heritage Pilgrimage AI Portal
         </motion.p>
 
         <motion.div
@@ -76,9 +75,9 @@ export function LoadingScreen() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-xs text-[#5A4A3A] mt-6"
+          className="text-xs text-[#5A4A3A] dark:text-stone-400 mt-6"
         >
-          Preparing your journey...
+          Preparing your sacred journey...
         </motion.p>
       </div>
     </motion.div>

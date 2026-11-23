@@ -230,13 +230,13 @@ export function NewsPanel({ theme, language, onAskAI }: NewsPanelProps) {
           </div>
 
           <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-[var(--text-primary)] font-editorial flex items-center gap-3">
-            <span>{language === 'hi' ? 'उत्तर प्रदेश यात्रा बुलेटिन व लाइव टेलीमेट्री' : 'Uttar Pradesh Live Travel Dispatches'}</span>
+            <span>{language === 'hi' ? 'तीर्थ एवं हेरिटेज यात्रा बुलेटिन व लाइव टेलीमेट्री' : 'Sacred Heritage Live Travel Dispatches'}</span>
           </h2>
 
           <p className="text-xs md:text-sm text-[var(--text-secondary)] mt-1.5 max-w-3xl leading-relaxed">
             {language === 'hi'
-              ? '25 से अधिक जनपदों व तीर्थों की वास्तविक समय कतार स्थिति, दर्शन परामर्श, आरती समय और सत्यापित प्रशासनिक समाचार।'
-              : 'Real-time queue wait times, time-of-day devotee footfall, official advisories, and live transit reports across 25+ districts of Uttar Pradesh.'}
+              ? '25 से अधिक जनपदों व तीर्थों (उत्तर प्रदेश एवं मध्य प्रदेश परिपथ) की वास्तविक समय कतार स्थिति, दर्शन परामर्श, आरती समय और सत्यापित प्रशासनिक समाचार।'
+              : 'Real-time queue wait times, time-of-day devotee footfall, official advisories, and live transit reports across 25+ districts & heritage circuits.'}
           </p>
         </div>
 
@@ -844,8 +844,8 @@ export function NewsPanel({ theme, language, onAskAI }: NewsPanelProps) {
             </span>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
               {language === 'hi'
-                ? 'यह बुलेटिन उत्तर प्रदेश पर्यटन, जिला प्रशासन, पुलिस नियंत्रण कक्ष एवं संबंधित मंदिर ट्रस्टों द्वारा सत्यापित डेटा पर आधारित है। सप्ताहांत व त्योहारों पर कतार समय में परिवर्तन संभव है।'
-                : 'All telemetry is aggregated from Uttar Pradesh Tourism, District Control Rooms, and Shrine Administration Boards. Devotees are advised to check peak time forecasts before departure.'}
+                ? 'यह बुलेटिन मध्य प्रदेश पर्यटन (MP Tourism), भारतीय पुरातत्व सर्वेक्षण (ASI) एवं जिला प्रशासन द्वारा सत्यापित डेटा पर आधारित है। सप्ताहांत व त्योहारों पर समय सारणी में परिवर्तन संभव है।'
+                : 'All telemetry is aggregated from Madhya Pradesh Tourism, ASI, District Administration, and Shrine Boards. Travelers are advised to check peak time forecasts before departure.'}
             </p>
           </div>
         </div>

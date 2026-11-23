@@ -1,4 +1,4 @@
-// Darshan 360° — Progressive Web App Service Worker
+// Darshan 360 — Progressive Web App Service Worker
 const CACHE_NAME = 'darshan360-pwa-v1';
 
 // Static core assets for fast offline shell loading

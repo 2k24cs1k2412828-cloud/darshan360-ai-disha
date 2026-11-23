@@ -15,7 +15,7 @@ import {
   Info
 } from 'lucide-react';
 import { toast } from 'sonner';
-import darshanLogo from '../../../images/WhatsApp_Image_2025-11-27_at_2.16.38_PM-removebg-preview.png';
+import darshan360Logo from '../../../images/darshan-360-logo.png';
 import { MapPanel } from '../MapPanel';
 import { ChatPanel } from '../ChatPanel';
 import { NewsPanel } from '../NewsPanel';
@@ -140,10 +140,10 @@ export function AndroidAppShell({
       {/* Material 3 Android Status Bar & Top App Bar */}
       <header className="w-full flex-shrink-0 z-40 bg-[var(--bg-secondary)]/90 backdrop-blur-md border-b border-[var(--glass-border)] pt-[max(0.6rem,env(safe-area-inset-top))] px-3.5 pb-2.5 shadow-xs">
         <div className="flex items-center justify-between gap-2">
-          {/* Brand Identity & UP Tourism Crest */}
+          {/* Brand Identity & MP Tourism Crest */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-white p-0.5 shadow-xs flex-shrink-0 overflow-hidden border border-[var(--glass-border)] flex items-center justify-center">
-              <img src={darshanLogo} alt="Darshan 360 logo" className="w-full h-full object-contain" />
+              <img src={darshan360Logo} alt="Darshan 360 logo" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
@@ -151,13 +151,13 @@ export function AndroidAppShell({
                   DARSHAN 360°
                 </h1>
                 <span className="text-[9px] font-semibold tracking-wider px-1.5 py-0.2 rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20 uppercase">
-                  UP
+                  D360
                 </span>
               </div>
               <div className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                 <p className="text-[10px] font-medium text-[var(--text-secondary)] truncate">
-                  {language === 'hi' ? 'आधिकारिक यूपी तीर्थ पोर्टल' : 'Official UP Pilgrimage Portal'}
+                  {language === 'hi' ? 'दर्शन 360 • टीम सृजन (प्रॉब्लम 4)' : 'Darshan 360 • Team Srajan'}
                 </p>
               </div>
             </div>
@@ -298,16 +298,16 @@ export function AndroidAppShell({
                   </h3>
                   <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-xs mx-auto">
                     {language === 'hi'
-                      ? 'दिशा AI से कहें: "3 घंटे का काशी टूर प्लान करो" या मानचित्र से स्थान जोड़ें।'
-                      : 'Ask Disha AI: "Plan a 3-hour Kashi trip" or tap any place card to begin.'}
+                      ? 'दिशा AI से कहें: "4 घंटे का बटेश्वर-मितावली हेरिटेज रूट बनाओ" या मानचित्र से स्थान जोड़ें।'
+                      : 'Ask Disha AI: "Plan a 4-hour Bateshwar & Mitawali trip" or tap any place card to begin.'}
                   </p>
                 </div>
                 <button
                   onClick={() => {
                     onSelectPlaceForChat(
                       language === 'hi'
-                        ? 'कृपया मेरे लिए उत्तर प्रदेश का एक बेहतरीन 4 घंटे का यात्रा प्लान बनाएं।'
-                        : 'Please plan a curated 4-hour heritage and pilgrimage trip for me.'
+                        ? 'कृपया मेरे लिए मध्य प्रदेश का एक बेहतरीन 4 घंटे का यात्रा प्लान बनाएं।'
+                        : 'Please plan a curated 4-hour heritage trip for me.'
                     );
                     setActiveTab('chat');
                   }}
